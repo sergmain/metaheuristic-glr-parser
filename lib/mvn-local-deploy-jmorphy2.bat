@@ -1,0 +1,3 @@
+call mvn deploy:deploy-file -Durl=file:../repo/ -Dfile=dawg-0.2.0-SNAPSHOT.jar -DgroupId=com.htrucker -DartifactId=dawg -Dpackaging=jar -Dversion=0.2.0
+call mvn deploy:deploy-file -Durl=file:../repo/ -Dfile=jmorphy2-core-0.2.0-SNAPSHOT.jar -DgroupId=com.htrucker -DartifactId=jmorphy2-core -Dpackaging=jar -Dversion=0.2.0
+call mvn deploy:deploy-file -Durl=file:../repo/ -Dfile=jmorphy2-dicts-ru-0.2.0-SNAPSHOT.jar -DgroupId=com.htrucker -DartifactId=jmorphy2-dicts-ru -Dpackaging=jar -Dversion=0.2.0

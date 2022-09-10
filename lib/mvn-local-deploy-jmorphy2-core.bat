@@ -1,0 +1,1 @@
+mvn install:install-file -DgeneratePom=true -DcreateChecksum=true -Dfile=jmorphy2-core-0.2.0-SNAPSHOT.jar -DgroupId=com.htrucker -DartifactId=jmorphy2-core -Dpackaging=jar -Dversion=0.2.0-SNAPSHOT

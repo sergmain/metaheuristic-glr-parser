@@ -1,0 +1,1 @@
+mvn install:install-file -DgeneratePom=true -DcreateChecksum=true -Dfile=jmorphy2-dicts-ru-0.2.0-SNAPSHOT.jar -DgroupId=com.htrucker -DartifactId=jmorphy2-dicts-ru -Dpackaging=jar -Dversion=0.2.0-SNAPSHOT

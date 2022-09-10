@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ License: Apache 2.0
+  ~ Metaheuristic project - https://github.com/sergmain?tab=projects&type=classic
+  ~ Copyright (c) 2022. Sergio Lissner
+  ~
+  -->
+
+<metadata>
+  <groupId>com.htrucker</groupId>
+  <artifactId>jmorphy2-dicts-ru</artifactId>
+  <versioning>
+    <release>0.2.0</release>
+    <versions>
+      <version>0.2.0</version>
+    </versions>
+    <lastUpdated>20220815060822</lastUpdated>
+  </versioning>
+</metadata>
