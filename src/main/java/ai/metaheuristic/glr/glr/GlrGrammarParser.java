@@ -82,6 +82,6 @@ public class GlrGrammarParser {
             new Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
     );
 
-    parser = GlrParser(grammar)
+    public GlrParser parser = new GlrParser(grammar);
 
 }

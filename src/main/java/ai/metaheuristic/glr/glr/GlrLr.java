@@ -138,7 +138,13 @@ public class GlrLr {
             if (parent_state_index!=null) {
                 states.get(parent_state_index).follow_dict.get(parent_lookahead).add(state.index);
             }
+/*
+            for lookahead, itemset in follow(state.itemset, grammar):
+                    itemset = tuple(sorted(itemset))
+                    stack.append((state.index, lookahead, itemset))
+*/
         }
+        return states;
     }
 
 
@@ -226,4 +232,44 @@ public class GlrLr {
 
         return list;
     }
+
+    String py5 = """
+        def follow(itemset, grammar):
+            ""\"
+                All transitions from an item set in a dictionary [token]->item set
+            ""\"
+            result = OrderedDict()
+            for item, lookahead in iterate_lookaheads(itemset, grammar):
+                tmp = closure([Item(item.rule_index, item.dot_position + 1)], grammar)
+
+                if lookahead not in result:
+                    result[lookahead] = []
+                result[lookahead].extend(tmp)
+
+            for lookahead, itemset in result.items():
+                yield lookahead, unique(itemset)
+
+        """;
+    public record Follows(Item item, String lookahead) {}
+
+    public static List<Follows> follow(List<Item> itemset, GlrGrammar grammar) {
+        List<Follows> list = new ArrayList<>();
+        // All transitions from an item set in a dictionary [token]->item set
+        LinkedHashMap<String, List<Item>> result = new LinkedHashMap<>();
+        for (Lookaheads iterateLookahead : iterate_lookaheads(itemset, grammar)) {
+            Item item = iterateLookahead.item;
+            String lookahead = iterateLookahead.lookahead;
+            List<Item> tmp = closure(List.of(new Item(item.rule_index, item.dot_position + 1)), grammar);
+            if (!result.containsKey(lookahead)) {
+                result.put(lookahead, new ArrayList<>());
+            }
+            result.get(lookahead).addAll(tmp);
+        }
+        for (Map.Entry<String, List<Item>> entry : result.entrySet()) {
+            //list.add(new Follows(entry.getValue(), entry.getKey()));
+        }
+        return list;
+    }
+
+
 }
