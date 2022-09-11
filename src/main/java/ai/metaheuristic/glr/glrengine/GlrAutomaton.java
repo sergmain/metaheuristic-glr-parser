@@ -203,6 +203,7 @@ public class GlrAutomaton extends GlrParser.Parser {
                     StackItem node = ea.node();
                     StackItemData state = node.data;
 
+/*
                     // # raw-слова в кавычках
                     String raw_token = "'"+token.tokvalue+"'";
                     if (raw_token in self.ACTION[state]) {
@@ -244,6 +245,8 @@ public class GlrAutomaton extends GlrParser.Parser {
                             stack.reduce(node, rule);
                         }
                     }
+*/
+
                     debug("- STACK");
                     if (debug_mode) {
                         GlrStack.dump();

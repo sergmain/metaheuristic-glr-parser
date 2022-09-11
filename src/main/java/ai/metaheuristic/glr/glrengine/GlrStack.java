@@ -152,6 +152,7 @@ public class GlrStack {
         boolean commit = parsedRule.commit();
 
         List<StackItemNormalizedToken> pathes = rec_path(node, elems.size() * 2);
+/*
         for (StackItemNormalizedToken path : pathes) {
             tokens = tuple(e for el in path[1::2] for e in el)
             Boolean ok = null;
@@ -170,6 +171,7 @@ public class GlrStack {
                 shift(path[0], ok, shortToken[0][1])
             }
         }
+*/
     }
 
     public record StackItemNormalizedToken(StackItem stackItem, @Nullable GlrNormalizer.NormalizedToken token) {}
