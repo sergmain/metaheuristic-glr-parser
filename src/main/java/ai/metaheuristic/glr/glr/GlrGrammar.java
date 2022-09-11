@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr.glr;
 
+import org.springframework.lang.Nullable;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 public class GlrGrammar {
 
     public record Rule(int index, String left_symbol, List<String> right_symbols,
-                       boolean commit, List<String> params, int weight){}
+                       boolean commit, @Nullable List<String> params, double weight){}
 
     String py1 = """
     def __init__(self, rules):
@@ -39,27 +41,27 @@ public class GlrGrammar {
         self._terminals = self._symbols - self._nonterminals
     """;
 
-    public final List<Rule> _rules = new ArrayList<>();
-    public final LinkedHashMap<String, List<Integer>> _rules_for_symbol;
-    public final LinkedHashSet<String> _symbols;
-    public final LinkedHashSet<String> _nonterminals;
-    public final LinkedHashSet<String> _terminals;
+    public final List<Rule> rules = new ArrayList<>();
+    public final LinkedHashMap<String, List<Integer>> rules_for_symbol;
+    public final LinkedHashSet<String> symbols;
+    public final LinkedHashSet<String> nonterminals;
+    public final LinkedHashSet<String> terminals;
 
     public GlrGrammar(Rule ... rules) {
-        Collections.addAll(this._rules, rules);
-        this._rules_for_symbol = new LinkedHashMap<>();
-        for (Rule rule : _rules) {
-            _rules_for_symbol.computeIfAbsent(rule.left_symbol, o->new ArrayList<>()).add(_rules.indexOf(rule));
+        Collections.addAll(this.rules, rules);
+        this.rules_for_symbol = new LinkedHashMap<>();
+        for (Rule rule : this.rules) {
+            rules_for_symbol.computeIfAbsent(rule.left_symbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));
         }
-        this._symbols = all_symbols();
-        this._symbols.add("$");
-        this._nonterminals = _rules.stream().map(o->o.left_symbol).collect(Collectors.toCollection(LinkedHashSet::new));
-        this._terminals = _symbols.stream().filter(o->!_nonterminals.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.symbols = all_symbols();
+        this.symbols.add("$");
+        this.nonterminals = this.rules.stream().map(o->o.left_symbol).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.terminals = symbols.stream().filter(o->!nonterminals.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public LinkedHashSet<String> all_symbols() {
         LinkedHashSet<String> set = new LinkedHashSet<>();
-        for (Rule rule : _rules) {
+        for (Rule rule : rules) {
             set.add(rule.left_symbol);
             set.addAll(rule.right_symbols);
         }
