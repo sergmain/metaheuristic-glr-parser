@@ -49,6 +49,8 @@ public class GlrAutomation {
     """;
     public final GrlTokenizer.WordTokenizer tokenizer;
     public final GrlMorphologyLexer lexer;
+    public final GlrGrammarParser grammar_parser;
+    public final GlrParser parser;
 
     public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this(grammar_text, dictionaries, "S");
@@ -57,6 +59,12 @@ public class GlrAutomation {
     public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries, String start) {
         this.tokenizer = new GrlTokenizer.WordTokenizer();
         this.lexer = new GrlMorphologyLexer(tokenizer, dictionaries);
+        this.grammar_parser = new GlrGrammarParser();
+
+        this.grammar = grammar_parser.parse(grammar_text, start)
+        this.parser = Parser(self.grammar)
+
+        this.parser = new GlrParser()
 
     }
 }

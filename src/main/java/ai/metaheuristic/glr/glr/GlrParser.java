@@ -7,6 +7,9 @@
 
 package ai.metaheuristic.glr.glr;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
 /**
  * @author Sergio Lissner
  * Date: 9/10/2022
@@ -24,14 +27,15 @@ public class GlrParser {
 
     public final GlrGrammar grammar;
     private final int log_level;
+    public final List<LinkedHashMap<String, List<GlrLr.Action>>> action_goto_table;
 
     public GlrParser(GlrGrammar grammar) {
         this(grammar, 0);
     }
 
     public GlrParser(GlrGrammar grammar, int log_level) {
-
         this.grammar = grammar;
         this.log_level = log_level;
+        this.action_goto_table = GlrLr.generate_action_goto_table(grammar);
     }
 }

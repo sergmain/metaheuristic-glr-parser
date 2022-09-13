@@ -84,4 +84,18 @@ public class GlrGrammarParser {
 
     public GlrParser parser = new GlrParser(grammar);
 
+
+    String py3 = """
+    def parse(self, grammar, start='S'):
+        rules = [Rule(0, '@', (start,), False, ('',), 1.0)]
+        for left_symbol, weight, right_symbols in self._scan_rules(grammar):
+            if len(right_symbols) > 0:
+                rules.append(
+                    Rule(len(rules), left_symbol, tuple(s for s, l in right_symbols), False, tuple(l for s, l in right_symbols), weight))
+            else:
+                raise Exception('GLR parser does not support epsilon free rules')
+
+        return Grammar(rules)
+    """;
+
 }
