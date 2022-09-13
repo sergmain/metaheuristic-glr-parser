@@ -7,7 +7,6 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.glrengine.GlrScanner;
 import org.springframework.lang.Nullable;
 
 import java.util.LinkedHashMap;
@@ -34,21 +33,19 @@ public class GlrAutomation {
     public final GrlMorphologyLexer lexer;
     public final GlrGrammarParser grammar_parser;
     public final GlrParser parser;
+    public final GlrGrammar grammar;
 
     public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this(grammar_text, dictionaries, "S");
-
     }
+
     public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries, String start) {
         this.tokenizer = new GrlTokenizer.WordTokenizer();
         this.lexer = new GrlMorphologyLexer(tokenizer, dictionaries);
         this.grammar_parser = new GlrGrammarParser();
 
-        this.grammar = grammar_parser.parse(grammar_text, start)
-        this.parser = Parser(self.grammar)
-
-        this.parser = new GlrParser()
-
+        this.grammar = GlrGrammarParser.parse(grammar_text, start);
+        this.parser = new GlrParser(grammar);
     }
 
 

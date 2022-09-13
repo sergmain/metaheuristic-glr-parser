@@ -10,6 +10,7 @@ package ai.metaheuristic.glr.glr;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ai.metaheuristic.glr.glr.GlrGrammar.*;
 
@@ -99,13 +100,13 @@ public class GlrGrammarParser {
         return Grammar(rules)
     """;
 
-    public GlrGrammar parse(String grammar) {
+    public static GlrGrammar parse(String grammar) {
         return parse(grammar, "S");
     }
 
-    public GlrGrammar parse(String grammar, String start) {
+    public static GlrGrammar parse(String grammar, String start) {
         List<Rule> rules = new ArrayList<>();
-        rules.add(new Rule(0, "@", new ArrayList<>(List.of(start)), false, new ArrayList<>(List.of("")), 1.0));
+        rules.add(new Rule(0, "@", new ArrayList<>(List.of(start)), false, new ArrayList<>(List.of(Map.of("", List.of()))), 1.0));
 
     }
 
@@ -141,9 +142,10 @@ public class GlrGrammarParser {
 
     public List<ScanRule> _scan_rules(String grammar_str) {
         List<ScanRule> result = new ArrayList<>();
-        syntax_trees = parser.parse(self.lr_grammar_tokenizer.scan(grammar_str), full_math=True)
-        if len(syntax_trees) > 1:
-            raise Exception('Ambiguous grammar')
+        List<GlrStack.SyntaxTree> syntax_trees = parser.parse(lr_grammar_tokenizer.scan(grammar_str), true);
+        if (syntax_trees.size() > 1) {
+            throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
+        }
 
 
         return result;

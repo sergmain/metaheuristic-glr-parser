@@ -7,10 +7,13 @@
 
 package ai.metaheuristic.glr.glr;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Sergio Lissner
@@ -19,12 +22,11 @@ import java.util.List;
  */
 public class GlrStack {
 
-    public record SyntaxTree(String symbol, String token, int rule_index, List<SyntaxTree> children) {
+    public record SyntaxTree(String symbol, @Nullable GrlTokenizer.Token token, @Nullable Integer rule_index, List<SyntaxTree> children) {
         boolean is_leaf() {
             return children==null || children.isEmpty();
         }
     }
-
 
     String py2 = """
         class StackItem(namedtuple('StackItem', ['syntax_tree', 'state', 'prev'])):
@@ -33,18 +35,109 @@ public class GlrStack {
     public static class StackItem {
         @Nullable
         public SyntaxTree syntax_tree;
-        public int state;
         @Nullable
-        public StackItem prev;
+        public Integer state;
+        public final List<StackItem> prev = new ArrayList<>();
 
-        public StackItem(@Nullable SyntaxTree syntax_tree, int state, @Nullable StackItem prev) {
+        public StackItem(@Nullable SyntaxTree syntax_tree, @Nullable Integer state, @Nullable List<StackItem> prev) {
             this.syntax_tree = syntax_tree;
             this.state = state;
-            this.prev = prev;
+            if (prev!=null) {
+                this.prev.addAll(prev);
+            }
         }
 
         public static StackItem start_new() {
             return new StackItem(null, 0, null);
         }
+
+        String py0 = """
+        def pop(self, depth):
+            if depth == 0:
+                return [[self]]
+            if not self.prev:
+                return []
+    
+            result = []
+            for prev in self.prev:
+                for path in prev.pop(depth - 1):
+                    result.append(path + [self])
+            return result
+        """;
+
+        public List<List<StackItem>> pop(int depth) {
+            if (depth==0) {
+                return List.of(List.of(this));
+            }
+            if (prev.isEmpty()) {
+                return List.of();
+            }
+            List<List<StackItem>> result = new ArrayList<>();
+            for (StackItem prev : this.prev) {
+                for (List<StackItem> path : prev.pop(depth-1)) {
+                    List<StackItem> temp = new ArrayList<>(path);
+                    temp.add(this);
+                    result.add(temp);
+                }
+            }
+            return result;
+        }
+
+        String py1 = """
+        def reduce(self, action_goto_table, rule, reduce_validator=None):
+            result = []
+            depth = len(rule.right_symbols)
+            for path in self.pop(depth):
+                goto_actions = action_goto_table[path[0].state][rule.left_symbol]
+                # TODO: probably assert that only 1 goto action and it is 'G'
+                for goto_action in goto_actions:
+                    if goto_action.type == 'G':
+                        syntax_tree = SyntaxTree(rule.left_symbol, None, rule.index, tuple(stack_item.syntax_tree for stack_item in path[1:]))
+                        if reduce_validator is None or reduce_validator(syntax_tree):
+                            new_head = StackItem(syntax_tree, goto_action.state, (path[0],))
+                            result.append(new_head)
+            return result
+        """;
+
+        public List<StackItem> reduce(
+                List<LinkedHashMap<String, List<GlrLr.Action>>> action_goto_table,
+                GlrGrammar.Rule rule,
+                @Nullable Function<SyntaxTree, Boolean> reduce_validator) {
+
+            List<StackItem> result = new ArrayList<>();
+            int depth = rule.right_symbols().size();
+            for (List<StackItem> path : pop(depth)) {
+                final Integer stateIdx = path.get(0).state;
+                if (stateIdx==null) {
+                    throw new IllegalStateException("(stateIdx==null)");
+                }
+                List<GlrLr.Action> goto_actions = action_goto_table.get(stateIdx).get(rule.left_symbol());
+
+                // # TODO: probably assert that only 1 goto action and it is 'G'
+                for (GlrLr.Action goto_action : goto_actions ) {
+                    if ("G".equals(goto_action.type())) {
+                        List<SyntaxTree> tree = path.size()<2 ? List.of() : path.subList(1, path.size()).stream().map(o->o.syntax_tree).filter(Objects::nonNull).toList();
+                        syntax_tree = new SyntaxTree(rule.left_symbol(), null, rule.index(), tree);
+                        if (reduce_validator ==null || reduce_validator.apply(syntax_tree)){
+                            var new_head = new StackItem(syntax_tree, goto_action.state(), List.of(path.get(0)));
+                            result.add(new_head);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        String py3 = """
+        def shift(self, token, state):
+            syntax_tree = SyntaxTree(token.symbol, token, None, ())
+            return StackItem(syntax_tree, state, (self,))
+        """;
+
+        public StackItem shift(GrlTokenizer.Token token, int state) {
+            SyntaxTree syntax_tree = new SyntaxTree(token.symbol, token, null, List.of());
+            return new StackItem(syntax_tree, state, List.of(this));
+        }
     }
+
 }

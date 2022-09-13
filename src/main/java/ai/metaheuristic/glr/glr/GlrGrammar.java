@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class GlrGrammar {
 
     public record Rule(int index, String left_symbol, List<String> right_symbols,
-                       boolean commit, @Nullable List<String> params, double weight){}
+                       boolean commit, @Nullable List<Map<String, List<Object>>> params, double weight){}
 
     String py1 = """
     def __init__(self, rules):

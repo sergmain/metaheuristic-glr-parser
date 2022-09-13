@@ -51,6 +51,10 @@ public class GrlTokenizer {
         @Nullable
         public final Tag params;
 
+        public Token(String symbol) {
+            this(symbol, "", -1, -1, "", null);
+        }
+
         public Token(String symbol, String value, int start, int end, String input_term, @Nullable Tag params) {
             this.symbol = symbol;
             this.value = value;
