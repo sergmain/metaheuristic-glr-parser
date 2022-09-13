@@ -29,23 +29,6 @@ public class GlrAutomation {
         self.grammar = self.grammar_parser.parse(grammar_text, start)
         self.parser = Parser(self.grammar)
 
-    def parse(self, text, full_math=False):
-        def validator(syntax_tree):
-            rule = self.grammar[syntax_tree.rule_index]
-            tokens = [child.token for child in syntax_tree.children]
-            for i, token in enumerate(tokens):
-                params = rule.params[i]
-                for label_key, label_values in params.items():
-                    for label_value in label_values:
-                        ok = LABELS_CHECK[label_key](label_value, tokens, i)
-                        if not ok:
-                            #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
-                            return False
-            return True
-
-        tokens = list(self.lexer.scan(text))
-
-        return self.parser.parse(tokens, full_math, validator)
     """;
     public final GrlTokenizer.WordTokenizer tokenizer;
     public final GrlMorphologyLexer lexer;
@@ -67,4 +50,27 @@ public class GlrAutomation {
         this.parser = new GlrParser()
 
     }
+
+
+    String py2 = """
+    def parse(self, text, full_math=False):
+        def validator(syntax_tree):
+            rule = self.grammar[syntax_tree.rule_index]
+            tokens = [child.token for child in syntax_tree.children]
+            for i, token in enumerate(tokens):
+                params = rule.params[i]
+                for label_key, label_values in params.items():
+                    for label_value in label_values:
+                        ok = LABELS_CHECK[label_key](label_value, tokens, i)
+                        if not ok:
+                            #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
+                            return False
+            return True
+
+        tokens = list(self.lexer.scan(text))
+
+        return self.parser.parse(tokens, full_math, validator)
+    """;
 }
+
+

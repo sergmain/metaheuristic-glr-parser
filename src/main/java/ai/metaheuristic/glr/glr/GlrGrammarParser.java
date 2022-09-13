@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -98,4 +99,53 @@ public class GlrGrammarParser {
         return Grammar(rules)
     """;
 
+    public GlrGrammar parse(String grammar) {
+        return parse(grammar, "S");
+    }
+
+    public GlrGrammar parse(String grammar, String start) {
+        List<Rule> rules = new ArrayList<>();
+        rules.add(new Rule(0, "@", new ArrayList<>(List.of(start)), false, new ArrayList<>(List.of("")), 1.0));
+
+    }
+
+    String py4 = """
+    def _scan_rules(self, grammar_str):
+        syntax_trees = self.parser.parse(self.lr_grammar_tokenizer.scan(grammar_str), full_math=True)
+        if len(syntax_trees) > 1:
+            raise Exception('Ambiguous grammar')
+
+        for rule_node in flatten_syntax_tree(syntax_trees[0], 'Rule'):
+            left_symbol = rule_node.children[0].token.input_term
+
+            for option_node in flatten_syntax_tree(rule_node.children[2], 'Option'):
+                if option_node.rule_index == 6:
+                    weight = float(option_node.children[1].token.input_term[1:-1].replace(',', '.'))
+                else:
+                    weight = 1.0
+
+                right_symbols = []
+                for symbol_node in flatten_syntax_tree(option_node, 'Symbol'):
+                    if symbol_node.rule_index == 11:
+                        right_symbols.append((symbol_node.children[0].token.input_term, dict()))
+                    elif symbol_node.rule_index == 12:
+                        right_symbols.append((symbol_node.children[0].token.input_term[1:-1].strip(), {'raw': [True]}))
+                    elif symbol_node.rule_index == 10:
+                        right_symbols.append((symbol_node.children[0].token.input_term,
+                                              self._parse_labels(symbol_node.children[1].token.input_term[1:-1])))
+
+                yield left_symbol, weight, right_symbols
+    """;
+
+    public record ScanRule(String left_symbol, double weight, String right_symbols){}
+
+    public List<ScanRule> _scan_rules(String grammar_str) {
+        List<ScanRule> result = new ArrayList<>();
+        syntax_trees = parser.parse(self.lr_grammar_tokenizer.scan(grammar_str), full_math=True)
+        if len(syntax_trees) > 1:
+            raise Exception('Ambiguous grammar')
+
+
+        return result;
+    }
 }
