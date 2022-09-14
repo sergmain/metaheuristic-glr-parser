@@ -48,7 +48,11 @@ public class GlrGrammar {
     public final LinkedHashSet<String> terminals;
 
     public GlrGrammar(Rule ... rules) {
-        Collections.addAll(this.rules, rules);
+        this(Arrays.stream(rules).toList());
+    }
+    public GlrGrammar(List<Rule> rules) {
+        this.rules.addAll(rules);
+
         this.rules_for_symbol = new LinkedHashMap<>();
         for (Rule rule : this.rules) {
             rules_for_symbol.computeIfAbsent(rule.left_symbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));

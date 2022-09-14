@@ -7,12 +7,13 @@
 
 package ai.metaheuristic.glr.glr;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static ai.metaheuristic.glr.glr.GlrGrammar.*;
+import static ai.metaheuristic.glr.glr.GlrStack.*;
 
 /**
  * @author Sergio Lissner
@@ -20,6 +21,11 @@ import static ai.metaheuristic.glr.glr.GlrGrammar.*;
  * Time: 9:02 PM
  */
 public class GlrGrammarParser {
+    public static final Integer INTEGER_6 = 6;
+    public static final Integer INTEGER_10 = 10;
+    public static final Integer INTEGER_11 = 11;
+    public static final Integer INTEGER_12 = 12;
+
     String py1 = """
         lr_grammar_tokenizer = SimpleRegexTokenizer(dict(
             sep='=',
@@ -68,7 +74,7 @@ public class GlrGrammarParser {
     parser = Parser(grammar)
     """;
 
-    public GlrGrammar grammar = new GlrGrammar(
+    public static GlrGrammar grammar = new GlrGrammar(
             new Rule(0, "@", List.of("S"), false, null, 1.0),
             new Rule(1, "S", List.of("S", "Rule"), false, null, 1.0),
             new Rule(2,"S", List.of("Rule"), false, null, 1.0),
@@ -84,7 +90,7 @@ public class GlrGrammarParser {
             new Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
     );
 
-    public GlrParser parser = new GlrParser(grammar);
+    public static GlrParser parser = new GlrParser(grammar);
 
 
     String py3 = """
@@ -107,6 +113,20 @@ public class GlrGrammarParser {
     public static GlrGrammar parse(String grammar, String start) {
         List<Rule> rules = new ArrayList<>();
         rules.add(new Rule(0, "@", new ArrayList<>(List.of(start)), false, new ArrayList<>(List.of(Map.of("", List.of()))), 1.0));
+        for (ScanRule scan_rule : _scan_rules(grammar)) {
+            var left_symbol = scan_rule.left_symbol;
+            var weight = scan_rule.weight;
+            List<SymbolWithMap> right_symbols = scan_rule.right_symbols;
+            if (right_symbols.size()>0) {
+                final List<String> symbols = right_symbols.stream().map(o -> o.symbol).distinct().toList();
+                List<Map<String, List<Object>>> map = right_symbols.stream().map(o -> o.map).distinct().toList();
+                rules.add(new Rule(rules.size(), left_symbol, symbols, false, map, weight));
+            }
+            else {
+                throw new IllegalStateException("GLR parser does not support epsilon free rules");
+            }
+        }
+        return new GlrGrammar(rules);
 
     }
 
@@ -138,16 +158,86 @@ public class GlrGrammarParser {
                 yield left_symbol, weight, right_symbols
     """;
 
-    public record ScanRule(String left_symbol, double weight, String right_symbols){}
+    public record SymbolWithMap(String symbol, Map<String, List<Object>> map) {}
+    public record ScanRule(String left_symbol, double weight, List<SymbolWithMap> right_symbols){}
 
-    public List<ScanRule> _scan_rules(String grammar_str) {
+
+    public static List<ScanRule> _scan_rules(String grammar_str) {
         List<ScanRule> result = new ArrayList<>();
-        List<GlrStack.SyntaxTree> syntax_trees = parser.parse(lr_grammar_tokenizer.scan(grammar_str), true);
+        List<SyntaxTree> syntax_trees = parser.parse(lr_grammar_tokenizer.scan(grammar_str), true);
         if (syntax_trees.size() > 1) {
             throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
         }
+        for (SyntaxTree rule_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Rule")) {
+            String left_symbol = rule_node.children().get(0).token().input_term;
+            for (SyntaxTree option_node : GlrUtils.flatten_syntax_tree(rule_node.children().get(2), "Option")) {
+                double weight;
+                if (INTEGER_6.equals(option_node.rule_index())) {
+                    final String s = option_node.children().get(1).token().input_term;
+                    weight = Double.parseDouble(StringUtils.substring(s, 1, -1).replace(',', '.'));
+                }
+                else {
+                    weight = 1.0;
+                }
 
+                List<SymbolWithMap> right_symbols = new ArrayList<>();
+                for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Symbol")) {
+                    SymbolWithMap symbolWithMap = null;
+                    if (INTEGER_11.equals(symbol_node.rule_index())) {
+                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().input_term, Map.of());
+                    }
+                    else if (INTEGER_12.equals(symbol_node.rule_index())) {
+                        final String s = symbol_node.children().get(0).token().input_term;
+                        symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of("raw", List.of(true)));
+                    }
+                    else if (INTEGER_10.equals(symbol_node.rule_index())) {
+//                        right_symbols.add((symbol_node.children().get(0).token.input_term, _parse_labels(symbol_node.children().get(1).token.input_term[1:-1])))
+
+                        final String s0 = symbol_node.children().get(0).token().input_term;
+                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().input_term, 1, -1);
+                        symbolWithMap = new SymbolWithMap(s0, _parse_labels(s1));
+                    }
+
+                    if (symbolWithMap!=null) {
+                        right_symbols.add(symbolWithMap);
+                    }
+                }
+                result.add(new ScanRule(left_symbol, weight, right_symbols));
+            }
+        }
 
         return result;
+    }
+
+    String py5 = """
+    @staticmethod
+    def _parse_labels(labels_str):
+        labels_str = labels_str.strip().replace(" ", "")
+        labels = {}
+        for key_value in labels_str.split(","):
+            if '=' in key_value:
+                key, value = tuple(key_value.split("=", 1))
+                labels.setdefault(key, []).append(value)
+            else:
+                labels.setdefault(key_value, []).append(True)
+        return labels
+    """;
+
+    public static Map<String, List<Object>> _parse_labels(String labels_str_param) {
+        String labels_str = labels_str_param.strip().replace(" ", "");
+        Map<String, List<Object>> labels = new LinkedHashMap<>();
+        for (String key_value : labels_str.split(",")) {
+            if (key_value.indexOf('=')!=-1) {
+                String[] sp = key_value.split("=", 1);
+                String key = sp[0];
+                String value = sp[1];
+                labels.computeIfAbsent(key, (o)->new ArrayList<>()).add(value);
+            }
+            else {
+                labels.computeIfAbsent(key_value, (o)->new ArrayList<>()).add(true);
+            }
+        }
+        return labels;
+
     }
 }

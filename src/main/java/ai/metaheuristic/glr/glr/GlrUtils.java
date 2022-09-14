@@ -212,10 +212,16 @@ public class GlrUtils {
         return '\n'.join(lines)
         """;
 
-    public String format_syntax_tree(GlrStack.SyntaxTree syntax_tree) {
+    public static String format_syntax_tree(GlrStack.SyntaxTree syntax_tree) {
+        ArrayList<LineAndValue> ast = new ArrayList<>(generate_syntax_tree_lines(syntax_tree));
+        int depth = ast.stream().mapToInt(o->o.line.length()).max().orElse(0);
+        List<String> lines = new ArrayList<>();
+        for (LineAndValue lineAndValue : ast) {
+            String s = StringUtils.leftPad(lineAndValue.line, depth, lineAndValue.value.isBlank() ? " " : ".");
+            lines.add( String.format("%s %s", s, lineAndValue.value));
+        }
 
-        var ast = new ArrayList<>(generate_syntax_tree_lines(syntax_tree));
-
+        return String.join("\n", lines);
     }
 
     String py6 = """
@@ -238,5 +244,72 @@ public class GlrUtils {
                 for line, value in generate_syntax_tree_lines(r, last, prefix + ('   ' if last else u'  │')):
                     yield line, value
     
-    """
+    """;
+
+    public record LineAndValue(String line, String value) {}
+    public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree) {
+        return generate_syntax_tree_lines(syntax_tree, false, "");
+    }
+
+    public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree, boolean last, String prefix) {
+        List<LineAndValue> result = new ArrayList<>();
+        String line = StringUtils.substring(prefix, 0, -1);
+        if (prefix.isBlank()) {
+            if (!last) {
+                line += "├──";
+            }
+            else {
+                line += "╰──";
+            }
+        }
+        else {
+            line = "  ";
+        }
+        if (syntax_tree.is_leaf()) {
+            result.add(new LineAndValue(line + syntax_tree.symbol(), syntax_tree.token().input_term));
+        }
+        else {
+            result.add(new LineAndValue(line + syntax_tree.symbol(), ""));
+            for (int i = 0; i <syntax_tree.children().size(); i++) {
+                GlrStack.SyntaxTree r = syntax_tree.children().get(i);
+                last = i == syntax_tree.children().size() - 1;
+                result.addAll(generate_syntax_tree_lines(r, last, prefix + (last ? "   " : "  │")));
+            }
+        }
+
+        return result;
+    }
+
+    String py7 = """
+    def flatten_syntax_tree(syntax_tree, symbol):
+    ""/"
+    Recursively traverse syntax tree until finds searched symbol.
+    If found does not go deeper.
+    ""/"
+    if syntax_tree.symbol == symbol:
+        yield syntax_tree
+        return
+
+    if syntax_tree.children:
+        for child in syntax_tree.children:
+            for res in flatten_syntax_tree(child, symbol):
+                yield res
+
+    """;
+
+    public static List<GlrStack.SyntaxTree> flatten_syntax_tree(GlrStack.SyntaxTree syntax_tree, String symbol) {
+        List<GlrStack.SyntaxTree> result = new ArrayList<>();
+//        Recursively traverse syntax tree until finds searched symbol.
+//        If found does not go deeper.
+        if (syntax_tree.symbol().equals(symbol)) {
+            result.add(syntax_tree);
+        }
+        else if (!syntax_tree.children().isEmpty()) {
+            for (GlrStack.SyntaxTree child : syntax_tree.children()) {
+                result.addAll(flatten_syntax_tree(child, symbol));
+            }
+        }
+
+        return result;
+    }
 }

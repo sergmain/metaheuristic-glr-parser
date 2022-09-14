@@ -50,6 +50,9 @@ public class GlrParser {
     public List<NodeAndAction> get_by_action_type(List<GlrStack.StackItem> nodes, GrlTokenizer.Token token, String action_type) {
         List<NodeAndAction> result = new ArrayList<>();
         for (GlrStack.StackItem node : nodes) {
+            if (node.state==null) {
+                throw new IllegalStateException("(node.state==null)");
+            }
             List<GlrLr.Action> node_actions = action_goto_table.get(node.state).get(token.symbol);
             for (GlrLr.Action action : node_actions) {
                 if (action.type().equals(action_type)) {
@@ -208,7 +211,7 @@ public class GlrParser {
                 shifted_nodes.add(shifted_node);
             }
             current = shifted_nodes;
-            current = new LinkedList<>(List.of(GlrStack.StackItem.merge(current)));
+            current = new LinkedList<>(GlrStack.StackItem.merge(current));
             log(1, "\n- STACK:");
             for (GlrStack.StackItem node : current) {
                 log(1, "    %s", GlrUtils.format_stack_item(node, "     "));
@@ -216,7 +219,10 @@ public class GlrParser {
         }
         log(1, "\n--------------------\nACCEPTED:");
         for (GlrStack.StackItem node : accepted_nodes) {
-            log(1, "%s", format_syntax_tree(node.syntax_tree));
+            if (node.syntax_tree==null) {
+                throw new IllegalStateException("(node.syntax_tree==null)");
+            }
+            log(1, "%s", GlrUtils.format_syntax_tree(node.syntax_tree));
         }
         return accepted_nodes.stream().map(o->o.syntax_tree).filter(Objects::nonNull).toList();
     }

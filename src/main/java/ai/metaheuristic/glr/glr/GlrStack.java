@@ -9,10 +9,7 @@ package ai.metaheuristic.glr.glr;
 
 import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -137,6 +134,39 @@ public class GlrStack {
         public StackItem shift(GrlTokenizer.Token token, int state) {
             SyntaxTree syntax_tree = new SyntaxTree(token.symbol, token, null, List.of());
             return new StackItem(syntax_tree, state, List.of(this));
+        }
+
+        String py4 = """
+        @classmethod
+        def merge(cls, stack_items):
+            for key, group in groupby(sorted(stack_items), lambda si: (si.syntax_tree, si.state)):
+                group = [g for g in group]
+                if len(group) > 1:
+                    all_prevs = tuple(p for stack_item in group for p in stack_item.prev)
+                    yield StackItem(group[0].syntax_tree, group[0].state, all_prevs)
+                else:
+                    yield group[0]
+        """;
+
+        public static List<StackItem> merge(List<StackItem> stack_items) {
+            List<StackItem> result = new ArrayList<>();
+            List<StackItem> sorted = stack_items.stream().sorted().toList();
+            Map<SyntaxTree, List<StackItem>> map = new LinkedHashMap<>();
+            for (StackItem stackItem : sorted) {
+                map.computeIfAbsent(stackItem.syntax_tree, (o)->new ArrayList<>()).add(stackItem);
+            }
+            for (Map.Entry<SyntaxTree, List<StackItem>> entry : map.entrySet()) {
+                final List<StackItem> group = entry.getValue();
+                if (group.size() > 1) {
+                    List<StackItem> all_prevs = group.stream().flatMap(o->o.prev.stream()).toList();
+                    result.add( new StackItem(group.get(0).syntax_tree, group.get(0).state, all_prevs));
+                }
+                else {
+                    result.add(group.get(0));
+                }
+            }
+
+            return result;
         }
     }
 
