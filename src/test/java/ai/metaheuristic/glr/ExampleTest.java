@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.glrengine.Example;
+import ai.metaheuristic.glr.glrengine.Glr;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

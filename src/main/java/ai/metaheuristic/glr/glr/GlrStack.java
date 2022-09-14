@@ -29,7 +29,7 @@ public class GlrStack {
         class StackItem(namedtuple('StackItem', ['syntax_tree', 'state', 'prev'])):
         """;
 
-    public static class StackItem {
+    public static class StackItem implements Comparable<StackItem> {
         @Nullable
         public SyntaxTree syntax_tree;
         @Nullable
@@ -42,6 +42,13 @@ public class GlrStack {
             if (prev!=null) {
                 this.prev.addAll(prev);
             }
+        }
+
+        @Override
+        public int compareTo(StackItem o) {
+            return Integer.compare(
+                    this.syntax_tree==null ? 0 : this.syntax_tree.hashCode(),
+                    o.syntax_tree==null ? 0 : o.syntax_tree.hashCode());
         }
 
         public static StackItem start_new() {
@@ -114,7 +121,7 @@ public class GlrStack {
                 for (GlrLr.Action goto_action : goto_actions ) {
                     if ("G".equals(goto_action.type())) {
                         List<SyntaxTree> tree = path.size()<2 ? List.of() : path.subList(1, path.size()).stream().map(o->o.syntax_tree).filter(Objects::nonNull).toList();
-                        syntax_tree = new SyntaxTree(rule.left_symbol(), null, rule.index(), tree);
+                        SyntaxTree syntax_tree = new SyntaxTree(rule.left_symbol(), null, rule.index(), tree);
                         if (reduce_validator ==null || reduce_validator.apply(syntax_tree)){
                             var new_head = new StackItem(syntax_tree, goto_action.state(), List.of(path.get(0)));
                             result.add(new_head);

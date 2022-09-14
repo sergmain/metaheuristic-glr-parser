@@ -90,7 +90,10 @@ public class GlrGrammarParser {
             new Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
     );
 
-    public static GlrParser parser = new GlrParser(grammar);
+    private static Map<Integer, GlrParser> parser = new HashMap<>();
+    public static GlrParser getGlrParser() {
+        return parser.computeIfAbsent(1, (o)->new GlrParser(grammar));
+    }
 
 
     String py3 = """
@@ -164,7 +167,7 @@ public class GlrGrammarParser {
 
     public static List<ScanRule> _scan_rules(String grammar_str) {
         List<ScanRule> result = new ArrayList<>();
-        List<SyntaxTree> syntax_trees = parser.parse(lr_grammar_tokenizer.scan(grammar_str), true);
+        List<SyntaxTree> syntax_trees = getGlrParser().parse(lr_grammar_tokenizer.scan(grammar_str), true);
         if (syntax_trees.size() > 1) {
             throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
         }

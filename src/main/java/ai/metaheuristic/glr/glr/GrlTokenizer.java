@@ -95,6 +95,7 @@ public class GrlTokenizer {
         public Pattern re;
         public final LinkedHashSet<String> discard_symbols;
         public final LinkedHashSet<String> symbols;
+        public final LinkedHashSet<String> allSymbols = new LinkedHashSet<>();
 
         public SimpleRegexTokenizer(LinkedHashMap<String, String> symbol_regex_dict) {
             this(symbol_regex_dict, null, CASE_INSENSITIVE | MULTILINE | UNICODE_CASE);
@@ -120,21 +121,34 @@ public class GrlTokenizer {
 
             this.discard_symbols = discard_symbols==null ? new LinkedHashSet<>() : new LinkedHashSet<>(discard_symbols);
             this.symbols = symbol_regex_dict.keySet().stream().filter(o -> !this.discard_symbols.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
+            this.allSymbols.addAll(this.discard_symbols);
+            this.allSymbols.addAll(this.symbols);
         }
 
         public Stream<String> getParserRulesKeys() {
-            return symbols.stream().sorted(Comparator.reverseOrder());
+//            return allSymbols.stream().sorted(Comparator.reverseOrder());
+            return allSymbols.stream();
         }
 
         public List<Token> scan(String text) {
             List<Token> items = new ArrayList<>();
             int pos = 0;
 
-            Matcher m = re.matcher(text);
-            while(m.find()) {
+            while(true) {
+                final String subText = text.substring(pos);
+                Matcher m = re.matcher(subText);
+                if (!m.find()) {
+                    break;
+                }
+                int currPos = pos;
+                pos += m.end();
+
                 String tokname = getParserRulesKeys().filter(name -> m.group(name)!=null).findFirst().orElse(null);;
+                if (this.discard_symbols.contains(tokname)) {
+                    continue;
+                }
                 if (tokname==null) {
-                    throw new RuntimeException("Can't find any group");
+                    throw new RuntimeException("Can't find any group, name: ");
                 }
                 String tokvalue;
                 try {
@@ -143,10 +157,7 @@ public class GrlTokenizer {
                 catch (Exception e) {
                     throw new RuntimeException("No such group: " + tokname, e);
                 }
-
-                int startPos = m.start();
-                pos = m.end();
-                items.add( new Token(tokname, tokvalue, startPos, pos, tokvalue, null));
+                items.add( new Token(tokname, tokvalue, currPos+m.start(), currPos+m.end(), tokvalue, null));
             }
             items.add( new Token("$", "", text.length(), -1, "", null));
 

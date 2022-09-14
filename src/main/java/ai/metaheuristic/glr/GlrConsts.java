@@ -15,4 +15,9 @@ package ai.metaheuristic.glr;
 public class GlrConsts {
 
     public static final String DEFUALT_START = "S";
+    public static final String SIMPLE_GRAMMAR = """
+        
+        S = adj<agr-gnc=1> CLOTHES
+        S = CLOTHES adj<agr-gnc=-1>
+        """;
 }

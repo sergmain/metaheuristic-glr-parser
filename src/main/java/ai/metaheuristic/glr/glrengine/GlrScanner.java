@@ -7,7 +7,6 @@
 
 package ai.metaheuristic.glr.glrengine;
 
-import ai.metaheuristic.glr.Glr;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -15,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static ai.metaheuristic.glr.glrengine.GlrAutomaton.*;
 import static ai.metaheuristic.glr.glrengine.GlrNormalizer.*;
 import static java.util.regex.Pattern.*;
 

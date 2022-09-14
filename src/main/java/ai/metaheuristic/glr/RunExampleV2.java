@@ -7,6 +7,9 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.glr.GlrAutomation;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,22 +18,16 @@ import java.util.Map;
  * Date: 9/10/2022
  * Time: 2:15 PM
  */
-public class RunExample {
+public class RunExampleV2 {
 
-    public static final Map<String, List<String>> dictionaries = Map.of(
-            "CLOTHES",  List.of("куртка", "пальто", "шубы")
+    public static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
+            "CLOTHES",  List.of("куртка", "пальто", "шубы"))
     );
-
-    public static final String grammar = """
-        S = adj<agr-gnc=1> CLOTHES
-        S = CLOTHES adj<agr-gnc=-1>
-        """;
 
     public static void main(String[] args) {
         String s = "на вешалке висят пять красивых курток и вонючая шуба, а также пальто серое";
 
-        Glr glr = new Glr(grammar, dictionaries, null, true);
-        glr.parse(s).forEach(o->System.out.println("FOUND:" + o));
+        GlrAutomation automation = new GlrAutomation(GlrConsts.SIMPLE_GRAMMAR, dictionaries, "S");
     }
 
 }

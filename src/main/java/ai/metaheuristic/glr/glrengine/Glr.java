@@ -5,12 +5,8 @@
  *
  */
 
-package ai.metaheuristic.glr;
+package ai.metaheuristic.glr.glrengine;
 
-import ai.metaheuristic.glr.glrengine.GlrAutomaton;
-import ai.metaheuristic.glr.glrengine.GlrNormalizerFactory;
-import ai.metaheuristic.glr.glrengine.GlrScanner;
-import ai.metaheuristic.glr.glrengine.GlrSplitter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;

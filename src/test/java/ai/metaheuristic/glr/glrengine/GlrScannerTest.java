@@ -7,17 +7,13 @@
 
 package ai.metaheuristic.glr.glrengine;
 
-import ai.metaheuristic.glr.Glr;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ai.metaheuristic.glr.Glr.DEFAULT_PARSER;
-import static ai.metaheuristic.glr.Glr.DEFAULT_PARSER_DISCARD_NAMES;
+import static ai.metaheuristic.glr.glrengine.Glr.DEFAULT_PARSER;
+import static ai.metaheuristic.glr.glrengine.Glr.DEFAULT_PARSER_DISCARD_NAMES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -5,7 +5,9 @@
  *
  */
 
-package ai.metaheuristic.glr;
+package ai.metaheuristic.glr.glrengine;
+
+import ai.metaheuristic.glr.glrengine.Glr;
 
 import java.util.List;
 import java.util.Map;

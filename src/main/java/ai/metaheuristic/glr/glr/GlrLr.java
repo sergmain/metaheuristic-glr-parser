@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * Time: 10:49 PM
  */
 public class GlrLr {
+    public static final Item EMPTY_ITEM = new Item(0, 0);
     String py0 = """
         class Item(namedtuple('Item', ['rule_index', 'dot_position'])):
             __slots__ = ()
@@ -41,7 +42,7 @@ public class GlrLr {
                 return Integer.compare(dot_position, o.dot_position);
             }
         }
-    public record State(int index, List<Item> itemset, Map<String, List<Integer>> follow_dict, @Nullable Integer parent_state_index, @Nullable String parent_lookahead) {}
+    public record State(int index, List<Item> itemset, Map<String, Set<Integer>> follow_dict, @Nullable Integer parent_state_index, @Nullable String parent_lookahead) {}
     public record Action(String type, @Nullable Integer state, @Nullable Integer rule_index) {}
 
 
@@ -106,9 +107,9 @@ public class GlrLr {
             }
 
             // # Shifts & goto's
-            for (Map.Entry<String, List<Integer>> followEntry : state.follow_dict.entrySet()) {
+            for (Map.Entry<String, Set<Integer>> followEntry : state.follow_dict.entrySet()) {
                 String lookahead = followEntry.getKey();
-                List<Integer> state_indexes = followEntry.getValue();
+                Set<Integer> state_indexes = followEntry.getValue();
                 for (Integer state_index : state_indexes) {
                     State child_state = states.get(state_index);
                     if (followers.containsKey(lookahead)) {
@@ -162,7 +163,7 @@ public class GlrLr {
     public static List<State> generate_state_graph(GlrGrammar grammar) {
         List<State> states = new ArrayList<>();
         LinkedHashMap<List<Item>, State> state_by_itemset = new LinkedHashMap<>();
-        List<Item> first_itemset = closure(List.of(new Item(0, 0)), grammar);
+        List<Item> first_itemset = closure(List.of(EMPTY_ITEM), grammar);
         first_itemset = first_itemset.stream().sorted(Comparator.comparingInt(Item::rule_index)).collect(Collectors.toList());
         LinkedList<StackRec> stack = new LinkedList<>();
         stack.add(new StackRec(null, null, first_itemset));
@@ -179,15 +180,17 @@ public class GlrLr {
                 }
                 // # State already exist, just add follow link
                 state = state_by_itemset.get(itemset);
-                states.get(parent_state_index).follow_dict.get(parent_lookahead).add(state.index);
+                states.get(parent_state_index).follow_dict.computeIfAbsent(parent_lookahead, (o)->new HashSet<>()).add(state.index);
+                continue;
             }
-            state = new State(states.size(), itemset, Map.of(), parent_state_index, parent_lookahead);
+            state = new State(states.size(), itemset, new LinkedHashMap<>(), parent_state_index, parent_lookahead);
             states.add(state);
             state_by_itemset.putIfAbsent(state.itemset, state);
 
             if (parent_state_index!=null) {
-                states.get(parent_state_index).follow_dict.get(parent_lookahead).add(state.index);
+                states.get(parent_state_index).follow_dict.computeIfAbsent(parent_lookahead, (o)->new HashSet<>()).add(state.index);
             }
+            int i=0;
             for (Follows follows : follow(state.itemset, grammar)){
                 String lookahead = follows.lookahead;
                 LinkedList<GlrLr.Item> itemset1 = GlrLr.uniqueAndSorted(follows.item);
@@ -388,7 +391,7 @@ public class GlrLr {
                     }
                 }
             }
-            if (!nested_to_process.isEmpty()) {
+            if (nested_to_process.isEmpty()) {
                 // # no changes;
                 break;
             }

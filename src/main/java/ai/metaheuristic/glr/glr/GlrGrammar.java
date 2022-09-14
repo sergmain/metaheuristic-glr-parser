@@ -57,14 +57,14 @@ public class GlrGrammar {
         for (Rule rule : this.rules) {
             rules_for_symbol.computeIfAbsent(rule.left_symbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));
         }
-        this.symbols = all_symbols();
+        this.symbols = new LinkedHashSet<>(all_symbols());
         this.symbols.add("$");
         this.nonterminals = this.rules.stream().map(o->o.left_symbol).collect(Collectors.toCollection(LinkedHashSet::new));
         this.terminals = symbols.stream().filter(o->!nonterminals.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public LinkedHashSet<String> all_symbols() {
-        LinkedHashSet<String> set = new LinkedHashSet<>();
+    public List<String> all_symbols() {
+        List<String> set = new ArrayList<>();
         for (Rule rule : rules) {
             set.add(rule.left_symbol);
             set.addAll(rule.right_symbols);

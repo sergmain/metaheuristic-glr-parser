@@ -7,15 +7,13 @@
 
 package ai.metaheuristic.glr.glrengine;
 
-import ai.metaheuristic.glr.Example;
-import ai.metaheuristic.glr.Glr;
 import ai.metaheuristic.glr.GlrConsts;
 import org.junit.jupiter.api.Test;
 import org.springframework.lang.Nullable;
 
 import java.util.*;
 
-import static ai.metaheuristic.glr.Glr.DEFAULT_PARSER;
+import static ai.metaheuristic.glr.glrengine.Glr.DEFAULT_PARSER;
 import static ai.metaheuristic.glr.glrengine.GlrParser.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
