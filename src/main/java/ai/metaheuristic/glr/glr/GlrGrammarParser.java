@@ -92,7 +92,7 @@ public class GlrGrammarParser {
 
     private static Map<Integer, GlrParser> parser = new HashMap<>();
     public static GlrParser getGlrParser() {
-        return parser.computeIfAbsent(1, (o)->new GlrParser(grammar));
+        return parser.computeIfAbsent(1, (o)->new GlrParser(grammar, 1));
     }
 
 
@@ -231,7 +231,7 @@ public class GlrGrammarParser {
         Map<String, List<Object>> labels = new LinkedHashMap<>();
         for (String key_value : labels_str.split(",")) {
             if (key_value.indexOf('=')!=-1) {
-                String[] sp = key_value.split("=", 1);
+                String[] sp = key_value.split(".*=", 2);
                 String key = sp[0];
                 String value = sp[1];
                 labels.computeIfAbsent(key, (o)->new ArrayList<>()).add(value);

@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr.glr;
 
 import company.evo.jmorphy2.Tag;
+import lombok.ToString;
 import org.springframework.lang.Nullable;
 
 import java.util.*;
@@ -42,12 +43,19 @@ public class GrlTokenizer {
         pass
     """;
 
+    @ToString(onlyExplicitlyIncluded=true)
     public static final class Token {
+        @ToString.Include
         public final String symbol;
+        @ToString.Include
         public final String value;
+        @ToString.Include
         public final int start;
+        @ToString.Include
         public final int end;
+        @ToString.Include
         public final String input_term;
+        @ToString.Include
         @Nullable
         public final Tag params;
 

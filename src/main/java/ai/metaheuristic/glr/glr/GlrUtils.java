@@ -49,11 +49,12 @@ public class GlrUtils {
             String symbol = rule.right_symbols().get(i);
             right_symbols.add(format_symbol(rule, i, symbol));
         }
-        return String.format("#%d: %s = %s%s",
+        final String s = String.format("#%d: %s = %s%s",
                 rule.index(),
                 StringUtils.leftPad(rule.left_symbol(), ljust_symbol),
                 String.join(" ", right_symbols),
                 rule.weight() != 1.0 ? String.format("   (%g)", rule.weight()) : "");
+        return s;
 
     }
 
@@ -217,7 +218,7 @@ public class GlrUtils {
         int depth = ast.stream().mapToInt(o->o.line.length()).max().orElse(0);
         List<String> lines = new ArrayList<>();
         for (LineAndValue lineAndValue : ast) {
-            String s = StringUtils.leftPad(lineAndValue.line, depth, lineAndValue.value.isBlank() ? " " : ".");
+            String s = StringUtils.rightPad(lineAndValue.line, depth, lineAndValue.value.isBlank() ? " " : ".");
             lines.add( String.format("%s %s", s, lineAndValue.value));
         }
 
@@ -254,7 +255,7 @@ public class GlrUtils {
     public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree, boolean last, String prefix) {
         List<LineAndValue> result = new ArrayList<>();
         String line = StringUtils.substring(prefix, 0, -1);
-        if (prefix.isBlank()) {
+        if (!prefix.isBlank()) {
             if (!last) {
                 line += "├──";
             }

@@ -54,6 +54,9 @@ public class GlrParser {
                 throw new IllegalStateException("(node.state==null)");
             }
             List<GlrLr.Action> node_actions = action_goto_table.get(node.state).get(token.symbol);
+            if (node_actions==null) {
+                continue;
+            }
             for (GlrLr.Action action : node_actions) {
                 if (action.type().equals(action_type)) {
                     result.add(new NodeAndAction(node, action));
@@ -200,7 +203,8 @@ public class GlrParser {
                 }
             }
             List<GlrStack.StackItem> shifted_nodes = new ArrayList<>();
-            for (NodeAndAction nodeAndAction : get_by_action_type(current, token, "S")) {
+            final List<NodeAndAction> list = get_by_action_type(current, token, "S");
+            for (NodeAndAction nodeAndAction : list) {
                 GlrStack.StackItem node = nodeAndAction.node;
                 GlrLr.Action action = nodeAndAction.action;
                 if (action.state()==null) {
@@ -214,8 +218,10 @@ public class GlrParser {
             current = new LinkedList<>(GlrStack.StackItem.merge(current));
             log(1, "\n- STACK:");
             for (GlrStack.StackItem node : current) {
-                log(1, "    %s", GlrUtils.format_stack_item(node, "     "));
+                final String path = GlrUtils.format_stack_item(node, "    ");
+                log(1, "    %s", path);
             }
+            int i=0;
         }
         log(1, "\n--------------------\nACCEPTED:");
         for (GlrStack.StackItem node : accepted_nodes) {

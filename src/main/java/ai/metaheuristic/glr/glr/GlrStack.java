@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr.glr;
 
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
 import java.util.*;
@@ -44,11 +46,27 @@ public class GlrStack {
             }
         }
 
+        String py01 = """
+        def __repr__(self):
+            if self.prev:
+                return '%s.%s' % (self.syntax_tree.symbol, self.state)
+            else:
+                return '0'
+        """;
+        public String toString() {
+            if (!prev.isEmpty())
+                return String.format("%s.%s", syntax_tree!=null ? syntax_tree.symbol : "null", state);
+            else {
+                return "0";
+            }
+        }
+
         @Override
         public int compareTo(StackItem o) {
-            return Integer.compare(
-                    this.syntax_tree==null ? 0 : this.syntax_tree.hashCode(),
-                    o.syntax_tree==null ? 0 : o.syntax_tree.hashCode());
+            final int compare = Integer.compare(
+                    this.syntax_tree == null ? 0 : this.syntax_tree.hashCode(),
+                    o.syntax_tree == null ? 0 : o.syntax_tree.hashCode());
+            return compare!=0 ? compare : Integer.compare(this.state == null ? 0 : this.state, o.state == null ? 0 : o.state);
         }
 
         public static StackItem start_new() {
@@ -155,14 +173,21 @@ public class GlrStack {
                     yield group[0]
         """;
 
+        @EqualsAndHashCode
+        @RequiredArgsConstructor
+        public static class TreeStateAsKey {
+            public final SyntaxTree syntax_tree;
+            public final Integer state;
+        }
+
         public static List<StackItem> merge(List<StackItem> stack_items) {
             List<StackItem> result = new ArrayList<>();
             List<StackItem> sorted = stack_items.stream().sorted().toList();
-            Map<SyntaxTree, List<StackItem>> map = new LinkedHashMap<>();
+            LinkedHashMap<TreeStateAsKey, List<StackItem>> map = new LinkedHashMap<>();
             for (StackItem stackItem : sorted) {
-                map.computeIfAbsent(stackItem.syntax_tree, (o)->new ArrayList<>()).add(stackItem);
+                map.computeIfAbsent(new TreeStateAsKey(stackItem.syntax_tree, stackItem.state), (o)->new ArrayList<>()).add(stackItem);
             }
-            for (Map.Entry<SyntaxTree, List<StackItem>> entry : map.entrySet()) {
+            for (Map.Entry<TreeStateAsKey, List<StackItem>> entry : map.entrySet()) {
                 final List<StackItem> group = entry.getValue();
                 if (group.size() > 1) {
                     List<StackItem> all_prevs = group.stream().flatMap(o->o.prev.stream()).toList();
