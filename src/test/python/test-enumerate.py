@@ -11,7 +11,7 @@ for i in enumerate(list):
     print(i)
 
     list = [6]
-    if k>2:
+    if k>10:
         break
 
     k += 1
