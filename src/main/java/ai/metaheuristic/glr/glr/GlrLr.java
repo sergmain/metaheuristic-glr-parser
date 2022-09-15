@@ -95,7 +95,7 @@ public class GlrLr {
                 GlrGrammar.Rule rule = grammar.rules.get(item.rule_index);
                 if (item.dot_position==rule.right_symbols().size()) {
                     if ("@".equals(rule.left_symbol())) {
-                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("A", null, item.rule_index));
+                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("A", null, null));
                     }
                     else {
                         for (String follower : followers.get(rule.left_symbol())) {

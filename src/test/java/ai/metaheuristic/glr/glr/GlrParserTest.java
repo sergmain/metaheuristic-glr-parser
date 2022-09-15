@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +27,67 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class GlrParserTest {
 
     @Test
+    public void test_97() {
+        GlrGrammar grammar = new GlrGrammar(
+                new GlrGrammar.Rule(0, "@", List.of("S"), false, null, 1.0),
+                new GlrGrammar.Rule(1, "S", List.of("S", "Rule"), false, null, 1.0),
+                new GlrGrammar.Rule(2,"S", List.of("Rule"), false, null, 1.0),
+                new GlrGrammar.Rule(3,"Rule", List.of("word", "sep", "Options"), false, null, 1.0),
+                new GlrGrammar.Rule(4,"Options", List.of("Options", "alt", "Option"), false, null, 1.0),
+                new GlrGrammar.Rule(5,"Options", List.of("Option"), false, null, 1.0),
+                new GlrGrammar.Rule(6,"Option", List.of("Symbols", "weight"), false, null, 1.0),
+                new GlrGrammar.Rule(7,"Option", List.of("Symbols"), false, null, 1.0),
+                new GlrGrammar.Rule(8,"Symbols", List.of("Symbols", "Symbol"), false, null, 1.0),
+                new GlrGrammar.Rule(9,"Symbols", List.of("Symbol"), false, null, 1.0),
+                new GlrGrammar.Rule(10,"Symbol", List.of("word", "label"), false, null, 1.0),
+                new GlrGrammar.Rule(11,"Symbol", List.of("word"), false, null, 1.0),
+                new GlrGrammar.Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
+        );
+
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(grammar);
+
+        String expected = """
+        00 = {'S': [Action(type='G', state=1, rule_index=None)], 'Rule': [Action(type='G', state=2, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
+        01 = {'$': [Action(type='A', state=None, rule_index=None)], 'Rule': [Action(type='G', state=4, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
+        02 = {'word': [Action(type='R', state=None, rule_index=2)], '$': [Action(type='R', state=None, rule_index=2)]})
+        03 = {'sep': [Action(type='S', state=5, rule_index=None)]})
+        04 = {'word': [Action(type='R', state=None, rule_index=1)], '$': [Action(type='R', state=None, rule_index=1)]})
+        05 = {'Options': [Action(type='G', state=6, rule_index=None)], 'Option': [Action(type='G', state=7, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
+        06 = {'word': [Action(type='R', state=None, rule_index=3)], '$': [Action(type='R', state=None, rule_index=3)], 'alt': [Action(type='S', state=12, rule_index=None)]})
+        07 = {'word': [Action(type='R', state=None, rule_index=5)], 'alt': [Action(type='R', state=None, rule_index=5)], '$': [Action(type='R', state=None, rule_index=5)]})
+        08 = {'word': [Action(type='R', state=None, rule_index=7), Action(type='S', state=10, rule_index=None)], 'alt': [Action(type='R', state=None, rule_index=7)], '$': [Action(type='R', state=None, rule_index=7)], 'weight': [Action(type='S', state=13, rule_index=None)], 'Symbol': [Action(type='G', state=14, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
+        09 = {'weight': [Action(type='R', state=None, rule_index=9)], 'word': [Action(type='R', state=None, rule_index=9)], 'alt': [Action(type='R', state=None, rule_index=9)], 'raw': [Action(type='R', state=None, rule_index=9)], '$': [Action(type='R', state=None, rule_index=9)]})
+        10 = {'weight': [Action(type='R', state=None, rule_index=11)], 'word': [Action(type='R', state=None, rule_index=11)], 'alt': [Action(type='R', state=None, rule_index=11)], 'raw': [Action(type='R', state=None, rule_index=11)], '$': [Action(type='R', state=None, rule_index=11)], 'label': [Action(type='S', state=15, rule_index=None)]})
+        11 = {'weight': [Action(type='R', state=None, rule_index=12)], 'word': [Action(type='R', state=None, rule_index=12)], 'alt': [Action(type='R', state=None, rule_index=12)], 'raw': [Action(type='R', state=None, rule_index=12)], '$': [Action(type='R', state=None, rule_index=12)]})
+        12 = {'Option': [Action(type='G', state=16, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
+        13 = {'word': [Action(type='R', state=None, rule_index=6)], 'alt': [Action(type='R', state=None, rule_index=6)], '$': [Action(type='R', state=None, rule_index=6)]})
+        14 = {'weight': [Action(type='R', state=None, rule_index=8)], 'word': [Action(type='R', state=None, rule_index=8)], 'alt': [Action(type='R', state=None, rule_index=8)], 'raw': [Action(type='R', state=None, rule_index=8)], '$': [Action(type='R', state=None, rule_index=8)]})
+        15 = {'weight': [Action(type='R', state=None, rule_index=10)], 'word': [Action(type='R', state=None, rule_index=10)], 'alt': [Action(type='R', state=None, rule_index=10)], 'raw': [Action(type='R', state=None, rule_index=10)], '$': [Action(type='R', state=None, rule_index=10)]})
+        16 = {'word': [Action(type='R', state=None, rule_index=4)], 'alt': [Action(type='R', state=None, rule_index=4)], '$': [Action(type='R', state=None, rule_index=4)]})       
+        """;
+
+        assertEquals(17, actionTable.size());
+
+        String actual = "";
+        for (int i = 0; i < actionTable.size(); i++) {
+            LinkedHashMap<String, List<GlrLr.Action>> t = actionTable.get(i);
+            String line = String.format("%02d = {", i);
+            List<String> ss = new ArrayList<>();
+            for (Map.Entry<String, List<GlrLr.Action>> en : t.entrySet()) {
+                // [Action(type='R', state=None, rule_index=7), Action(type='S', state=10, rule_index=None)]
+                String as = en.getValue().stream().map(o->"Action(type='"+o.type()+"', state=" +
+                                                          (o.state()==null ? "None" : o.state().toString()) + ", rule_index="+(o.rule_index()==null?"None":o.rule_index().toString())+")").collect(Collectors.joining(", "));
+                String s = "'"+en.getKey()+"': [" + as +"]";
+                ss.add(s);
+            }
+            line += String.join(", ", ss);
+            line += "})\n";
+            actual += line;
+        }
+        assertEquals(expected, actual);
+    }
+
+    @Test
     public void test_98() {
         List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(GlrGrammarParser.grammar);
 
@@ -36,26 +98,6 @@ public class GlrParserTest {
                 "word,alt,$,weight,Symbol,raw", "weight,word,alt,raw,$", "weight,word,alt,raw,$,label",
                 "weight,word,alt,raw,$", "Option,Symbols,Symbol,word,raw", "word,alt,$", "weight,word,alt,raw,$", "weight,word,alt,raw,$", "word,alt,$"
         };
-
-        String expected = """
-        00 = {defaultdict: 3} defaultdict(<class 'list'>, {'S': [Action(type='G', state=1, rule_index=None)], 'Rule': [Action(type='G', state=2, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
-        01 = {defaultdict: 3} defaultdict(<class 'list'>, {'$': [Action(type='A', state=None, rule_index=None)], 'Rule': [Action(type='G', state=4, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
-        02 = {defaultdict: 2} defaultdict(<class 'list'>, {'word': [Action(type='R', state=None, rule_index=2)], '$': [Action(type='R', state=None, rule_index=2)]})
-        03 = {defaultdict: 1} defaultdict(<class 'list'>, {'sep': [Action(type='S', state=5, rule_index=None)]})
-        04 = {defaultdict: 2} defaultdict(<class 'list'>, {'word': [Action(type='R', state=None, rule_index=1)], '$': [Action(type='R', state=None, rule_index=1)]})
-        05 = {defaultdict: 6} defaultdict(<class 'list'>, {'Options': [Action(type='G', state=6, rule_index=None)], 'Option': [Action(type='G', state=7, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        06 = {defaultdict: 3} defaultdict(<class 'list'>, {'word': [Action(type='R', state=None, rule_index=3)], '$': [Action(type='R', state=None, rule_index=3)], 'alt': [Action(type='S', state=12, rule_index=None)]})
-        07 = {defaultdict: 3} defaultdict(<class 'list'>, {'alt': [Action(type='R', state=None, rule_index=5)], 'word': [Action(type='R', state=None, rule_index=5)], '$': [Action(type='R', state=None, rule_index=5)]})
-        08 = {defaultdict: 6} defaultdict(<class 'list'>, {'alt': [Action(type='R', state=None, rule_index=7)], 'word': [Action(type='R', state=None, rule_index=7), Action(type='S', state=10, rule_index=None)], '$': [Action(type='R', state=None, rule_index=7)], 'weight': [Action(type='S', state=13, rule_index=None)], 'Symbol': [Action(type='G', state=14, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        09 = {defaultdict: 5} defaultdict(<class 'list'>, {'weight': [Action(type='R', state=None, rule_index=9)], 'word': [Action(type='R', state=None, rule_index=9)], 'raw': [Action(type='R', state=None, rule_index=9)], 'alt': [Action(type='R', state=None, rule_index=9)], '$': [Action(type='R', state=None, rule_index=9)]})
-        10 = {defaultdict: 6} defaultdict(<class 'list'>, {'weight': [Action(type='R', state=None, rule_index=11)], 'word': [Action(type='R', state=None, rule_index=11)], 'raw': [Action(type='R', state=None, rule_index=11)], 'alt': [Action(type='R', state=None, rule_index=11)], '$': [Action(type='R', state=None, rule_index=11)], 'label': [Action(type='S', state=15, rule_index=None)]})
-        11 = {defaultdict: 5} defaultdict(<class 'list'>, {'weight': [Action(type='R', state=None, rule_index=12)], 'word': [Action(type='R', state=None, rule_index=12)], 'raw': [Action(type='R', state=None, rule_index=12)], 'alt': [Action(type='R', state=None, rule_index=12)], '$': [Action(type='R', state=None, rule_index=12)]})
-        12 = {defaultdict: 5} defaultdict(<class 'list'>, {'Option': [Action(type='G', state=16, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        13 = {defaultdict: 3} defaultdict(<class 'list'>, {'alt': [Action(type='R', state=None, rule_index=6)], 'word': [Action(type='R', state=None, rule_index=6)], '$': [Action(type='R', state=None, rule_index=6)]})
-        14 = {defaultdict: 5} defaultdict(<class 'list'>, {'weight': [Action(type='R', state=None, rule_index=8)], 'word': [Action(type='R', state=None, rule_index=8)], 'raw': [Action(type='R', state=None, rule_index=8)], 'alt': [Action(type='R', state=None, rule_index=8)], '$': [Action(type='R', state=None, rule_index=8)]})
-        15 = {defaultdict: 5} defaultdict(<class 'list'>, {'weight': [Action(type='R', state=None, rule_index=10)], 'word': [Action(type='R', state=None, rule_index=10)], 'raw': [Action(type='R', state=None, rule_index=10)], 'alt': [Action(type='R', state=None, rule_index=10)], '$': [Action(type='R', state=None, rule_index=10)]})
-        16 = {defaultdict: 3} defaultdict(<class 'list'>, {'alt': [Action(type='R', state=None, rule_index=4)], 'word': [Action(type='R', state=None, rule_index=4)], '$': [Action(type='R', state=None, rule_index=4)]})       
-        """;
 
         assertEquals(17, actionTable.size());
 
@@ -69,7 +111,13 @@ public class GlrParserTest {
 
     @Test
     public void test_99() {
-        List<GrlTokenizer.Token> tokens = GlrGrammarParser.lr_grammar_tokenizer.scan(GlrConsts.SIMPLE_GRAMMAR);
+        final String SIMPLE_GRAMMAR = """
+        
+        S = adj<agr-gnc=1> CLOTHES
+        S = CLOTHES adj<agr-gnc=-1>
+        """;
+
+        List<GrlTokenizer.Token> tokens = GlrGrammarParser.lr_grammar_tokenizer.scan(SIMPLE_GRAMMAR);
         assertEquals(11, tokens.size());
         String actual = "";
         for (int i = 0; i < tokens.size(); i++) {
