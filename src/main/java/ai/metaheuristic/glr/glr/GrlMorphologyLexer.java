@@ -161,6 +161,9 @@ public class GrlMorphologyLexer {
                     tokens.add( new GrlTokenizer.Token(symbol, value, token.start, token.end, token.input_term, parsedWord.tag));
                 }
             }
+            else {
+                tokens.add(token);
+            }
         }
 
         return tokens;

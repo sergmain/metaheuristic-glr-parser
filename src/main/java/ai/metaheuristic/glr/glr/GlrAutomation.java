@@ -9,10 +9,12 @@ package ai.metaheuristic.glr.glr;
 
 import org.springframework.lang.Nullable;
 
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Sergio Lissner
@@ -89,19 +91,29 @@ public class GlrAutomation {
                 String label_key = entry.getKey();
                 List<Object> label_values = entry.getValue();
                 for (Object label_value : label_values) {
-                    if (!(label_value instanceof String)) {
+                    if (!(label_value instanceof String label_value_str)) {
                         throw new IllegalStateException("(!(label_value instanceof String))");
                     }
-//                    GrlLabels.LabelCheck labelCheck = new GrlLabels.LabelCheck(label_value, tokens, i);
-//                    boolean ok = GrlLabels.LABELS_CHECK.computeIfPresent(label_key, (k,v)->v.apply(k, labelCheck)).;
+                    GrlLabels.LabelCheck labelCheck = new GrlLabels.LabelCheck(label_value_str, tokens, i);
+                    boolean ok = GrlLabels.LABELS_CHECK.getOrDefault(label_key, (v)->false).apply(labelCheck);
+                    if (!ok) {
+                        // #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
+                        return false;
+                    }
                 }
             }
         }
         return true;
     }
 
-    public void parse(String text, boolean full_math) {
+    public List<GlrStack.SyntaxTree> parse(String text) {
+        return parse(text, false);
+    }
 
+    public List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
+        List<GrlTokenizer.Token> tokens = lexer.scan(text);
+
+        return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));
     }
 }
 

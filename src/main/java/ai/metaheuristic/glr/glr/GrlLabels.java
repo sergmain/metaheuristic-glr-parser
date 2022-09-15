@@ -34,7 +34,7 @@ public class GrlLabels {
                and (one.number == another.number or not one.number or not another.number)
     """;
 
-    public static boolean agr_gnc_label(String key, LabelCheck labelCheck) {
+    public static boolean agr_gnc_label(LabelCheck labelCheck) {
         if (labelCheck.value==null) {
             throw new IllegalStateException("(labelCheck.value==null)");
         }
@@ -63,7 +63,7 @@ public class GrlLabels {
     }
     """;
 
-    public static final Map<String, BiFunction<String, LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
+    public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(
                     "agr-gnc",  GrlLabels::agr_gnc_label
             )
