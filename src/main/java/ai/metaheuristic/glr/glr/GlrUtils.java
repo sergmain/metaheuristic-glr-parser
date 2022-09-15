@@ -255,7 +255,7 @@ public class GlrUtils {
     public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree, boolean last, String prefix) {
         List<LineAndValue> result = new ArrayList<>();
         String line = StringUtils.substring(prefix, 0, -1);
-        if (!prefix.isBlank()) {
+        if (prefix.length()>0) {
             if (!last) {
                 line += "├──";
             }
@@ -274,7 +274,9 @@ public class GlrUtils {
             for (int i = 0; i <syntax_tree.children().size(); i++) {
                 GlrStack.SyntaxTree r = syntax_tree.children().get(i);
                 last = i == syntax_tree.children().size() - 1;
-                result.addAll(generate_syntax_tree_lines(r, last, prefix + (last ? "   " : "  │")));
+                final List<LineAndValue> c = generate_syntax_tree_lines(r, last, prefix + (last ? "   " : "  │"));
+                boolean exist = c.stream().anyMatch(o->o.line.contains("  Options"));
+                result.addAll(c);
             }
         }
 
