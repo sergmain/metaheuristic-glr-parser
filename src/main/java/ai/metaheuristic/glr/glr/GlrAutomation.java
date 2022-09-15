@@ -11,6 +11,8 @@ import org.springframework.lang.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Sergio Lissner
@@ -68,6 +70,39 @@ public class GlrAutomation {
 
         return self.parser.parse(tokens, full_math, validator)
     """;
+
+    public static boolean validator(GlrGrammar grammar, GlrStack.SyntaxTree syntax_tree) {
+        if (syntax_tree.rule_index()==null) {
+            return true;
+        }
+        GlrGrammar.Rule rule = grammar.rules.get(syntax_tree.rule_index());
+        List<GrlTokenizer.Token> tokens = syntax_tree.children().stream()
+                .map(GlrStack.SyntaxTree::token)
+                .filter(Objects::nonNull).toList();
+        for (int i = 0; i < tokens.size(); i++) {
+            GrlTokenizer.Token token = tokens.get(i);
+            if (rule.params()==null) {
+                continue;
+            }
+            Map<String, List<Object>> params = rule.params().get(i);
+            for (Map.Entry<String, List<Object>> entry : params.entrySet()) {
+                String label_key = entry.getKey();
+                List<Object> label_values = entry.getValue();
+                for (Object label_value : label_values) {
+                    if (!(label_value instanceof String)) {
+                        throw new IllegalStateException("(!(label_value instanceof String))");
+                    }
+//                    GrlLabels.LabelCheck labelCheck = new GrlLabels.LabelCheck(label_value, tokens, i);
+//                    boolean ok = GrlLabels.LABELS_CHECK.computeIfPresent(label_key, (k,v)->v.apply(k, labelCheck)).;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void parse(String text, boolean full_math) {
+
+    }
 }
 
 
