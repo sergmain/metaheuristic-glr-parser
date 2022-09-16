@@ -10,10 +10,8 @@ package ai.metaheuristic.glr.glr;
 import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -44,8 +42,8 @@ public class GrlLabels {
             return false;
         }
         return (one.Case==another.Case && one.Case!=null)
-               && (one.gender==another.gender && one.gender!=null)
-               && (one.number==another.number && one.number!=null);
+               && (one.gender==another.gender || one.gender==null || another.gender==null)
+               && (one.number==another.number  || one.number==null || another.number==null);
     }
 
     String py99 = """

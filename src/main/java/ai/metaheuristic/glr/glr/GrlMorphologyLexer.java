@@ -69,7 +69,7 @@ public class GrlMorphologyLexer {
                     self.dictionary[value] = category
     """;
 
-    private static final String DICT_PATH = "/company/evo/jmorphy2/ru/pymorphy2_dicts";
+    public static final String DICT_PATH = "/company/evo/jmorphy2/ru/pymorphy2_dicts";
 
     public final GrlTokenizer.WordTokenizer tokenizer;
     public final MorphAnalyzer morph;
