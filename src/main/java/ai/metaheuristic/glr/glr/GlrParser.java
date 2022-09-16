@@ -48,7 +48,7 @@ public class GlrParser {
                     yield node, action
     """;
     public record NodeAndAction(GlrStack.StackItem node, GlrLr.Action action) {}
-    public List<NodeAndAction> get_by_action_type(List<GlrStack.StackItem> nodes, GlrTextToken token, String action_type) {
+    public List<NodeAndAction> get_by_action_type(List<GlrStack.StackItem> nodes, GlrToken token, String action_type) {
         List<NodeAndAction> result = new ArrayList<>();
         for (GlrStack.StackItem node : nodes) {
             if (node.state==null) {
@@ -143,12 +143,12 @@ public class GlrParser {
     """;
 
 
-    public List<GlrStack.SyntaxTree> parse(List<GlrTextToken> reduce_by_tokens, boolean full_math) {
+    public List<GlrStack.SyntaxTree> parse(List<GlrToken> reduce_by_tokens, boolean full_math) {
         return parse(reduce_by_tokens, full_math, null);
     }
 
     public List<GlrStack.SyntaxTree> parse(
-            List<GlrTextToken> reduce_by_tokens_params, boolean full_math, @Nullable Function<GlrStack.SyntaxTree, Boolean> reduce_validator) {
+            List<GlrToken> reduce_by_tokens_params, boolean full_math, @Nullable Function<GlrStack.SyntaxTree, Boolean> reduce_validator) {
 
         List<GlrStack.StackItem> accepted_nodes = new ArrayList<>();
 
@@ -156,11 +156,11 @@ public class GlrParser {
                 ? new ArrayList<>(List.of(GlrStack.StackItem.start_new()))
                 : new ArrayList<>();
         for (int token_index = 0; token_index < reduce_by_tokens_params.size(); token_index++) {
-            GlrTextToken token = reduce_by_tokens_params.get(token_index);
+            GlrToken token = reduce_by_tokens_params.get(token_index);
 
             log(1, "\nTOKEN: %s", token);
 
-            List<GlrTextToken> reduce_by_tokens = new ArrayList<>(List.of(token));
+            List<GlrToken> reduce_by_tokens = new ArrayList<>(List.of(token));
 
             if (!full_math) {
                 if ( !grammar.terminals.contains(token.getSymbol())) {
@@ -175,7 +175,7 @@ public class GlrParser {
                 }
             }
 
-            for (GlrTextToken reduce_by_token : reduce_by_tokens) {
+            for (GlrToken reduce_by_token : reduce_by_tokens) {
                 List<GlrStack.StackItem> process_reduce_nodes = new ArrayList<>(current);
                 while (!process_reduce_nodes.isEmpty()) {
                     List<GlrStack.StackItem> new_reduce_nodes = new ArrayList<>();

@@ -24,7 +24,7 @@ public class GlrLrTest {
 
     @Test
     public void test_97() {
-        List<GlrLr.State> states = GlrLr.generate_state_graph(GlrGrammarParser.grammar);
+        List<GlrLr.State> states = GlrLr.generate_state_graph(GlrGrammarParser.GLR_BASE_GRAMMAR);
 
         assertEquals(17, states.size());
     }
@@ -32,7 +32,7 @@ public class GlrLrTest {
 
     @Test
     public void test_98() {
-        List<GlrLr.Item> items = GlrLr.closure(List.of(GlrLr.EMPTY_ITEM), GlrGrammarParser.grammar);
+        List<GlrLr.Item> items = GlrLr.closure(List.of(GlrLr.EMPTY_ITEM), GlrGrammarParser.GLR_BASE_GRAMMAR);
 
         assertEquals(4, items.size());
         // (#0.0, #1.0, #2.0, #3.0)

@@ -18,5 +18,5 @@ import java.util.function.Function;
  * Time: 2:23 PM
  */
 public interface GlrTokenizer {
-    List<GlrTextToken> tokenize(String text);
+    List<? extends GlrToken> tokenize(String text);
 }

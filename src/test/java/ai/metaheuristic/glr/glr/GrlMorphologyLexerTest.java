@@ -7,7 +7,6 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.glr.token.GlrTextToken;
 import ai.metaheuristic.glr.glr.token.GlrWordTokenizer;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +34,7 @@ public class GrlMorphologyLexerTest {
         var lexer = new GlrMorphologyLexer(tokenizer, dictionaries);
         String text = "на вешалке висят пять красивых курток и вонючая шуба, а также пальто серое";
 
-        List<GlrTextToken> tokens = lexer.scan(text);
+        List<GlrToken> tokens = lexer.scan(text);
         assertEquals(15, tokens.size());
 
 

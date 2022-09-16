@@ -8,8 +8,10 @@
 package ai.metaheuristic.glr.glr.token;
 
 import ai.metaheuristic.glr.glr.GlrToken;
+import ai.metaheuristic.glr.glr.GlrTokenPosition;
 import company.evo.jmorphy2.Tag;
 import lombok.ToString;
+
 import javax.annotation.Nullable;
 
 /**
@@ -19,7 +21,9 @@ import javax.annotation.Nullable;
  */
 @ToString(onlyExplicitlyIncluded = true)
 public final class GlrTextToken implements GlrToken {
-    String py1 = """
+
+    @SuppressWarnings("unused")
+    private final String py1 = """
     class Token(namedtuple('Token', ['symbol', 'value', 'start', 'end', 'input_term', 'params'])):
         '''
         Used as token and as node in AST (abstract syntax tree)
@@ -54,10 +58,13 @@ public final class GlrTextToken implements GlrToken {
         this(symbol, "", null, "", null);
     }
 
-    public GlrTextToken(String symbol, String value, @Nullable GlrTextTokenPosition position, String input_term, @Nullable Tag params) {
+    public GlrTextToken(String symbol, String value, @Nullable GlrTokenPosition position, String input_term, @Nullable Tag params) {
+        if (position!=null && !(position instanceof GlrTextTokenPosition)) {
+            throw new IllegalStateException("(!(position instanceof GlrTextTokenPosition glrTextTokenPosition))");
+        }
         this.symbol = symbol;
         this.value = value;
-        this.position = position;
+        this.position = (GlrTextTokenPosition)position;
         this.input_term = input_term;
         this.params = params;
     }
@@ -81,5 +88,10 @@ public final class GlrTextToken implements GlrToken {
     @Nullable
     public Tag getParams() {
         return params;
+    }
+
+    @Override
+    public GlrTokenPosition getPosition() {
+        return position;
     }
 }

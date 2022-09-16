@@ -22,7 +22,7 @@ import java.util.function.Function;
  */
 public class GlrStack {
 
-    public record SyntaxTree(String symbol, @Nullable GlrTextToken token, @Nullable Integer rule_index, List<SyntaxTree> children) {
+    public record SyntaxTree(String symbol, @Nullable GlrToken token, @Nullable Integer rule_index, List<SyntaxTree> children) {
         boolean is_leaf() {
             return children==null || children.isEmpty();
         }
@@ -157,7 +157,7 @@ public class GlrStack {
             return StackItem(syntax_tree, state, (self,))
         """;
 
-        public StackItem shift(GlrTextToken token, int state) {
+        public StackItem shift(GlrToken token, int state) {
             SyntaxTree syntax_tree = new SyntaxTree(token.getSymbol(), token, null, List.of());
             return new StackItem(syntax_tree, state, List.of(this));
         }

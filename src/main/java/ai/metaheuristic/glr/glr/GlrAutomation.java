@@ -7,11 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.glr.token.GlrTextToken;
-import ai.metaheuristic.glr.glr.token.GlrWordTokenizer;
 import javax.annotation.Nullable;
-
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +41,6 @@ public class GlrAutomation {
         this.parser = new GlrParser(grammar);
     }
 
-
     String py2 = """
     def parse(self, text, full_math=False):
         def validator(syntax_tree):
@@ -71,11 +66,11 @@ public class GlrAutomation {
             return true;
         }
         GlrGrammar.Rule rule = grammar.rules.get(syntax_tree.rule_index());
-        List<GlrTextToken> tokens = syntax_tree.children().stream()
+        List<GlrToken> tokens = syntax_tree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
                 .filter(Objects::nonNull).toList();
         for (int i = 0; i < tokens.size(); i++) {
-            GlrTextToken token = tokens.get(i);
+            GlrToken token = tokens.get(i);
             if (rule.params()==null) {
                 continue;
             }
@@ -104,7 +99,7 @@ public class GlrAutomation {
     }
 
     public List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
-        List<GlrTextToken> tokens = lexer.scan(text);
+        List<GlrToken> tokens = lexer.scan(text);
 
         return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));
     }

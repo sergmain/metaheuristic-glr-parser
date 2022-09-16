@@ -7,12 +7,12 @@
 
 package ai.metaheuristic.glr.glr.token;
 
+import ai.metaheuristic.glr.glr.GlrToken;
 import ai.metaheuristic.glr.glr.GlrTokenizer;
 import ai.metaheuristic.glr.glr.exceptions.GlrTokenizerException;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -79,8 +79,8 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
         return allSymbols.stream();
     }
 
-    public List<GlrTextToken> tokenize(String text) {
-        List<GlrTextToken> items = new ArrayList<>();
+    public List<GlrToken> tokenize(String text) {
+        List<GlrToken> items = new ArrayList<>();
         int pos = 0;
 
         while (true) {
@@ -93,7 +93,7 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
             pos += m.end();
 
             String tokname = getParserRulesKeys().filter(name -> m.group(name) != null).findFirst().orElse(null);
-            ;
+
             if (this.discard_symbols.contains(tokname)) {
                 continue;
             }

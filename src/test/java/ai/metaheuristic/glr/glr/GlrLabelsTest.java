@@ -44,7 +44,7 @@ public class GlrLabelsTest {
         assertEquals("NOUN,inan,femn plur,gent", pw2.tag.toString());
 
 
-        List<GlrTextToken> tokens = List.of(
+        List<GlrToken> tokens = List.of(
                 new GlrTextToken("adj", "красивый", new GlrTextTokenPosition(22,  30), "красивых", pw1.tag),
                 new GlrTextToken("CLOTHES", "куртка", new GlrTextTokenPosition(31,  37), "курток", pw2.tag)
         );

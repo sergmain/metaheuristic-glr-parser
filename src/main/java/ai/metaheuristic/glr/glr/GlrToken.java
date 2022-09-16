@@ -24,4 +24,6 @@ public interface GlrToken {
 
     @Nullable
     Tag getParams();
+
+    GlrTokenPosition getPosition();
 }

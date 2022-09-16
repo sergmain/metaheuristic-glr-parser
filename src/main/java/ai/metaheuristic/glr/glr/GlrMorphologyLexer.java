@@ -142,10 +142,10 @@ public class GlrMorphologyLexer {
     """;
 
     @SneakyThrows
-    public List<GlrTextToken> scan(String text) {
-        List<GlrTextToken> tokens = new ArrayList<>();
+    public List<GlrToken> scan(String text) {
+        List<GlrToken> tokens = new ArrayList<>();
 
-        for (GlrTextToken token : tokenizer.tokenize(text)) {
+        for (GlrToken token : tokenizer.tokenize(text)) {
             if (token.getSymbol().equals("word")) {
                 List<ParsedWord> morphed = morph.parse(token.getValue());
                 if (!morphed.isEmpty()) {
@@ -159,7 +159,7 @@ public class GlrMorphologyLexer {
                         final String tag = TAG_MAPPER.get(morphed.get(0).tag.POS.value);
                         symbol = tag != null ? tag : token.getSymbol();
                     }
-                    tokens.add( new GlrTextToken(symbol, value, token.position, token.getInput_term(), parsedWord.tag));
+                    tokens.add( new GlrTextToken(symbol, value, token.getPosition(), token.getInput_term(), parsedWord.tag));
                 }
             }
             else {

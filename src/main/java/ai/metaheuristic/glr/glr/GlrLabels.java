@@ -7,9 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.glr.token.GlrTextToken;
 import javax.annotation.Nullable;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +20,7 @@ import java.util.function.Function;
  */
 public class GlrLabels {
 
-    public record LabelCheck(@Nullable String value, List<GlrTextToken> tokens, int i) {}
+    public record LabelCheck(@Nullable String value, List<GlrToken> tokens, int i) {}
 
     String py1 = """
     def agr_gnc_label(value, tokens, i):
@@ -33,6 +31,7 @@ public class GlrLabels {
                and (one.number == another.number or not one.number or not another.number)
     """;
 
+    @SuppressWarnings("ObjectEquality")
     public static boolean agr_gnc_label(LabelCheck labelCheck) {
         if (labelCheck.value==null) {
             throw new IllegalStateException("(labelCheck.value==null)");

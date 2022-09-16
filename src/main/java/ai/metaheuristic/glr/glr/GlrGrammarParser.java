@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static ai.metaheuristic.glr.GlrConsts.*;
 import static ai.metaheuristic.glr.glr.GlrGrammar.*;
 import static ai.metaheuristic.glr.glr.GlrStack.*;
 
@@ -21,10 +22,10 @@ import static ai.metaheuristic.glr.glr.GlrStack.*;
  * Time: 9:02 PM
  */
 public class GlrGrammarParser {
-    public static final Integer INTEGER_6 = 6;
-    public static final Integer INTEGER_10 = 10;
-    public static final Integer INTEGER_11 = 11;
-    public static final Integer INTEGER_12 = 12;
+    public static final Integer RULE_OPTION_SYMBOLS_WEIGHT_IDX = 6;
+    public static final Integer RULE_SYMBOL_WORD_WITH_LABEL_IDX = 10;
+    public static final Integer RULE_SYMBOL_WORD_IDX = 11;
+    public static final Integer RULE_SYMBOL_RAW_IDX = 12;
 
     String py1 = """
         lr_grammar_tokenizer = SimpleRegexTokenizer(dict(
@@ -45,13 +46,13 @@ public class GlrGrammarParser {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
         map.put("sep", "=");
         map.put("alt", "[|]");
-        map.put("word", "\\b[\\p{L}\\p{Digit}_]+\\b");
+        map.put(SYMBOL_WORD_RIGHT_SYMBOLS, "\\b[\\p{L}\\p{Digit}_]+\\b");
 //        map.put("raw", "'[\\p{L}\\p{Digit}_]+'");
-        map.put("raw", "(?:'.+?'|\\\".+?\\\")");
+        map.put(SYMBOL_RAW_RIGHT_SYMBOLS, "(?:'.+?'|\\\".+?\\\")");
         map.put("whitespace", "[ \\t\\r\\n]+");
         map.put("minus", "[-]");
-        map.put("label", "<.+?>");
-        map.put("weight", "\\(\\d+(?:[.,]\\d+)?\\)");
+        map.put(SYMBOL_LABEL_RIGHT_SYMBOLS, "<.+?>");
+        map.put(SYMBOL_WEIGHT_RIGHT_SYMBOLS, "\\(\\d+(?:[.,]\\d+)?\\)");
         lr_grammar_tokenizer = new GlrSimpleRegexTokenizer(map, List.of("whitespace"));
     }
 
@@ -74,25 +75,25 @@ public class GlrGrammarParser {
     parser = Parser(grammar)
     """;
 
-    public static GlrGrammar grammar = new GlrGrammar(
+    public static final GlrGrammar GLR_BASE_GRAMMAR = new GlrGrammar(
             new Rule(0, "@", List.of("S"), false, null, 1.0),
             new Rule(1, "S", List.of("S", "Rule"), false, null, 1.0),
             new Rule(2,"S", List.of("Rule"), false, null, 1.0),
-            new Rule(3,"Rule", List.of("word", "sep", "Options"), false, null, 1.0),
+            new Rule(3,"Rule", List.of(SYMBOL_WORD_RIGHT_SYMBOLS, "sep", "Options"), false, null, 1.0),
             new Rule(4,"Options", List.of("Options", "alt", "Option"), false, null, 1.0),
             new Rule(5,"Options", List.of("Option"), false, null, 1.0),
-            new Rule(6,"Option", List.of("Symbols", "weight"), false, null, 1.0),
+            new Rule(6,"Option", List.of("Symbols", SYMBOL_WEIGHT_RIGHT_SYMBOLS), false, null, 1.0),
             new Rule(7,"Option", List.of("Symbols"), false, null, 1.0),
             new Rule(8,"Symbols", List.of("Symbols", "Symbol"), false, null, 1.0),
             new Rule(9,"Symbols", List.of("Symbol"), false, null, 1.0),
-            new Rule(10,"Symbol", List.of("word", "label"), false, null, 1.0),
-            new Rule(11,"Symbol", List.of("word"), false, null, 1.0),
-            new Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
+            new Rule(10,"Symbol", List.of(SYMBOL_WORD_RIGHT_SYMBOLS, SYMBOL_LABEL_RIGHT_SYMBOLS), false, null, 1.0),
+            new Rule(11,"Symbol", List.of(SYMBOL_WORD_RIGHT_SYMBOLS), false, null, 1.0),
+            new Rule(12,"Symbol", List.of(SYMBOL_RAW_RIGHT_SYMBOLS), false, null, 1.0)
     );
 
-    private static Map<Integer, GlrParser> parser = new HashMap<>();
-    public static GlrParser getGlrParser() {
-        return parser.computeIfAbsent(1, (o)->new GlrParser(grammar, 1));
+    private static final Map<Integer, GlrParser> parser = new HashMap<>();
+    private static GlrParser getGlrParser() {
+        return parser.computeIfAbsent(1, (o)->new GlrParser(GLR_BASE_GRAMMAR, 1));
     }
 
 
@@ -175,7 +176,7 @@ public class GlrGrammarParser {
             String left_symbol = rule_node.children().get(0).token().getInput_term();
             for (SyntaxTree option_node : GlrUtils.flatten_syntax_tree(rule_node.children().get(2), "Option")) {
                 double weight;
-                if (INTEGER_6.equals(option_node.rule_index())) {
+                if (RULE_OPTION_SYMBOLS_WEIGHT_IDX.equals(option_node.rule_index())) {
                     final String s = option_node.children().get(1).token().getInput_term();
                     weight = Double.parseDouble(StringUtils.substring(s, 1, -1).replace(',', '.'));
                 }
@@ -186,14 +187,14 @@ public class GlrGrammarParser {
                 List<SymbolWithMap> right_symbols = new ArrayList<>();
                 for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(option_node, "Symbol")) {
                     SymbolWithMap symbolWithMap = null;
-                    if (INTEGER_11.equals(symbol_node.rule_index())) {
+                    if (RULE_SYMBOL_WORD_IDX.equals(symbol_node.rule_index())) {
                         symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().getInput_term(), Map.of());
                     }
-                    else if (INTEGER_12.equals(symbol_node.rule_index())) {
+                    else if (RULE_SYMBOL_RAW_IDX.equals(symbol_node.rule_index())) {
                         final String s = symbol_node.children().get(0).token().getInput_term();
-                        symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of("raw", List.of(true)));
+                        symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of(SYMBOL_RAW_RIGHT_SYMBOLS, List.of(true)));
                     }
-                    else if (INTEGER_10.equals(symbol_node.rule_index())) {
+                    else if (RULE_SYMBOL_WORD_WITH_LABEL_IDX.equals(symbol_node.rule_index())) {
                         final String s0 = symbol_node.children().get(0).token().getInput_term();
                         final String s1 = StringUtils.substring(symbol_node.children().get(1).token().getInput_term(), 1, -1);
                         symbolWithMap = new SymbolWithMap(s0, _parse_labels(s1));

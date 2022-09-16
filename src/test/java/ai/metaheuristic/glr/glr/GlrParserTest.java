@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr.glr;
 
 import ai.metaheuristic.glr.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.glr.token.GlrTextTokenPosition;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class GlrParserTest {
 
     @Test
     public void test_98() {
-        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(GlrGrammarParser.grammar);
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(GlrGrammarParser.GLR_BASE_GRAMMAR);
 
         String[] keys = new String[] {
                 "S,Rule,word", "$,Rule,word", "word,$", "sep", "word,$",
@@ -121,15 +122,17 @@ public class GlrParserTest {
         S = CLOTHES adj<agr-gnc=-1>
         """;
 
-        List<GlrTextToken> tokens = GlrGrammarParser.lr_grammar_tokenizer.tokenize(SIMPLE_GRAMMAR);
+        List<GlrToken> tokens = GlrGrammarParser.lr_grammar_tokenizer.tokenize(SIMPLE_GRAMMAR);
         assertEquals(11, tokens.size());
         String actual = "";
         for (int i = 0; i < tokens.size(); i++) {
-            GlrTextToken t = tokens.get(i);
-            assertNotNull(t.position);
+            GlrToken t = tokens.get(i);
+            assertTrue(t instanceof GlrTextToken);
+            GlrTextToken glrTextToken = (GlrTextToken)t;
+            GlrTextTokenPosition pos = (GlrTextTokenPosition)glrTextToken.getPosition();
             actual += String.format(
                     "%02d = {Token: 6} Token(symbol='%s', value='%s', start=%d, end=%d, input_term='%s', params=None)\n",
-                    i, t.getSymbol(), t.getValue(), t.position.start, t.position.end, t.getInput_term());
+                    i, t.getSymbol(), t.getValue(), pos.start, pos.end, t.getInput_term());
         }
 
         String expected = """

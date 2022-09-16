@@ -26,7 +26,7 @@ public class GlrGrammarTest {
 
         String expected = "['@', 'S', 'S', 'S', 'Rule', 'S', 'Rule', 'Rule', 'word', 'sep', 'Options', 'Options', 'Options', 'alt', 'Option', 'Options', 'Option', 'Option', 'Symbols', 'weight', 'Option', 'Symbols', 'Symbols', 'Symbols', 'Symbol', 'Symbols', 'Symbol', 'Symbol', 'word', 'label', 'Symbol', 'word', 'Symbol', 'raw']";
 
-        List<String> allSymbols = GlrGrammarParser.grammar.all_symbols();
+        List<String> allSymbols = GlrGrammarParser.GLR_BASE_GRAMMAR.all_symbols();
 
         assertEquals(expected, "["+allSymbols.stream().map(s->"'"+s+"'").collect(Collectors.joining(", "))+"]");
     }

@@ -20,4 +20,8 @@ public class GlrConsts {
         S = adj<agr-gnc=1> CLOTHES
         S = CLOTHES adj<agr-gnc=-1>
         """;
+    public static final String SYMBOL_WEIGHT_RIGHT_SYMBOLS = "weight";
+    public static final String SYMBOL_WORD_RIGHT_SYMBOLS = "word";
+    public static final String SYMBOL_LABEL_RIGHT_SYMBOLS = "label";
+    public static final String SYMBOL_RAW_RIGHT_SYMBOLS = "raw";
 }
