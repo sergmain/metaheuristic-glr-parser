@@ -7,10 +7,10 @@
 
 package ai.metaheuristic.glr.glr;
 
+import ai.metaheuristic.glr.glr.token.GlrSimpleRegexTokenizer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ai.metaheuristic.glr.glr.GlrGrammar.*;
 import static ai.metaheuristic.glr.glr.GlrStack.*;
@@ -39,7 +39,7 @@ public class GlrGrammarParser {
         ), ['whitespace'])
         """;
 
-    public static final GrlTokenizer.SimpleRegexTokenizer lr_grammar_tokenizer;
+    public static final GlrSimpleRegexTokenizer lr_grammar_tokenizer;
 
     static {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
@@ -52,7 +52,7 @@ public class GlrGrammarParser {
         map.put("minus", "[-]");
         map.put("label", "<.+?>");
         map.put("weight", "\\(\\d+(?:[.,]\\d+)?\\)");
-        lr_grammar_tokenizer = new GrlTokenizer.SimpleRegexTokenizer(map, List.of("whitespace"));
+        lr_grammar_tokenizer = new GlrSimpleRegexTokenizer(map, List.of("whitespace"));
     }
 
     String py2 = """
@@ -167,16 +167,16 @@ public class GlrGrammarParser {
 
     public static List<ScanRule> _scan_rules(String grammar_str) {
         List<ScanRule> result = new ArrayList<>();
-        List<SyntaxTree> syntax_trees = getGlrParser().parse(lr_grammar_tokenizer.scan(grammar_str), true);
+        List<SyntaxTree> syntax_trees = getGlrParser().parse(lr_grammar_tokenizer.tokenize(grammar_str), true);
         if (syntax_trees.size() > 1) {
             throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
         }
         for (SyntaxTree rule_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Rule")) {
-            String left_symbol = rule_node.children().get(0).token().input_term;
+            String left_symbol = rule_node.children().get(0).token().getInput_term();
             for (SyntaxTree option_node : GlrUtils.flatten_syntax_tree(rule_node.children().get(2), "Option")) {
                 double weight;
                 if (INTEGER_6.equals(option_node.rule_index())) {
-                    final String s = option_node.children().get(1).token().input_term;
+                    final String s = option_node.children().get(1).token().getInput_term();
                     weight = Double.parseDouble(StringUtils.substring(s, 1, -1).replace(',', '.'));
                 }
                 else {
@@ -187,15 +187,15 @@ public class GlrGrammarParser {
                 for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(option_node, "Symbol")) {
                     SymbolWithMap symbolWithMap = null;
                     if (INTEGER_11.equals(symbol_node.rule_index())) {
-                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().input_term, Map.of());
+                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().getInput_term(), Map.of());
                     }
                     else if (INTEGER_12.equals(symbol_node.rule_index())) {
-                        final String s = symbol_node.children().get(0).token().input_term;
+                        final String s = symbol_node.children().get(0).token().getInput_term();
                         symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of("raw", List.of(true)));
                     }
                     else if (INTEGER_10.equals(symbol_node.rule_index())) {
-                        final String s0 = symbol_node.children().get(0).token().input_term;
-                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().input_term, 1, -1);
+                        final String s0 = symbol_node.children().get(0).token().getInput_term();
+                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().getInput_term(), 1, -1);
                         symbolWithMap = new SymbolWithMap(s0, _parse_labels(s1));
                     }
 

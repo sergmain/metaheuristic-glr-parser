@@ -7,7 +7,8 @@
 
 package ai.metaheuristic.glr.glr;
 
-import org.springframework.lang.Nullable;
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
+import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,9 @@ import java.util.function.Function;
  * Date: 9/14/2022
  * Time: 8:47 PM
  */
-public class GrlLabels {
+public class GlrLabels {
 
-    public record LabelCheck(@Nullable String value, List<GrlTokenizer.Token> tokens, int i) {}
+    public record LabelCheck(@Nullable String value, List<GlrTextToken> tokens, int i) {}
 
     String py1 = """
     def agr_gnc_label(value, tokens, i):
@@ -36,8 +37,8 @@ public class GrlLabels {
         if (labelCheck.value==null) {
             throw new IllegalStateException("(labelCheck.value==null)");
         }
-        var one = labelCheck.tokens.get(labelCheck.i).params;
-        var another = labelCheck.tokens.get(labelCheck.i + Integer.parseInt(labelCheck.value)).params;
+        var one = labelCheck.tokens.get(labelCheck.i).getParams();
+        var another = labelCheck.tokens.get(labelCheck.i + Integer.parseInt(labelCheck.value)).getParams();
         if (one==null || another==null) {
             return false;
         }
@@ -63,7 +64,7 @@ public class GrlLabels {
 
     public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(
-                    "agr-gnc",  GrlLabels::agr_gnc_label
+                    "agr-gnc",  GlrLabels::agr_gnc_label
             )
     );
 

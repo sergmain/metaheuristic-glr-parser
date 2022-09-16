@@ -7,7 +7,9 @@
 
 package ai.metaheuristic.glr.glr;
 
-import org.springframework.lang.Nullable;
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.glr.token.GlrWordTokenizer;
+import javax.annotation.Nullable;
 
 
 import java.util.LinkedHashMap;
@@ -32,21 +34,13 @@ public class GlrAutomation {
         self.parser = Parser(self.grammar)
 
     """;
-    public final GrlTokenizer.WordTokenizer tokenizer;
-    public final GrlMorphologyLexer lexer;
-    public final GlrGrammarParser grammar_parser;
-    public final GlrParser parser;
-    public final GlrGrammar grammar;
 
-    public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
-        this(grammar_text, dictionaries, "S");
-    }
+    private final GlrMorphologyLexer lexer;
+    private final GlrParser parser;
+    private final GlrGrammar grammar;
 
-    public GlrAutomation(String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries, String start) {
-        this.tokenizer = new GrlTokenizer.WordTokenizer();
-        this.lexer = new GrlMorphologyLexer(tokenizer, dictionaries);
-        this.grammar_parser = new GlrGrammarParser();
-
+    public GlrAutomation(GlrTokenizer glrTokenizer, String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries, String start) {
+        this.lexer = new GlrMorphologyLexer(glrTokenizer, dictionaries);
         this.grammar = GlrGrammarParser.parse(grammar_text, start);
         this.parser = new GlrParser(grammar);
     }
@@ -77,11 +71,11 @@ public class GlrAutomation {
             return true;
         }
         GlrGrammar.Rule rule = grammar.rules.get(syntax_tree.rule_index());
-        List<GrlTokenizer.Token> tokens = syntax_tree.children().stream()
+        List<GlrTextToken> tokens = syntax_tree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
                 .filter(Objects::nonNull).toList();
         for (int i = 0; i < tokens.size(); i++) {
-            GrlTokenizer.Token token = tokens.get(i);
+            GlrTextToken token = tokens.get(i);
             if (rule.params()==null) {
                 continue;
             }
@@ -93,8 +87,8 @@ public class GlrAutomation {
                     if (!(label_value instanceof String label_value_str)) {
                         throw new IllegalStateException("(!(label_value instanceof String))");
                     }
-                    GrlLabels.LabelCheck labelCheck = new GrlLabels.LabelCheck(label_value_str, tokens, i);
-                    boolean ok = GrlLabels.LABELS_CHECK.getOrDefault(label_key, (v)->false).apply(labelCheck);
+                    GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck(label_value_str, tokens, i);
+                    boolean ok = GlrLabels.LABELS_CHECK.getOrDefault(label_key, (v)->false).apply(labelCheck);
                     if (!ok) {
                         // #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
                         return false;
@@ -110,7 +104,7 @@ public class GlrAutomation {
     }
 
     public List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
-        List<GrlTokenizer.Token> tokens = lexer.scan(text);
+        List<GlrTextToken> tokens = lexer.scan(text);
 
         return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));
     }

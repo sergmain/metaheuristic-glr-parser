@@ -7,9 +7,10 @@
 
 package ai.metaheuristic.glr.glr;
 
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,7 +22,7 @@ import java.util.function.Function;
  */
 public class GlrStack {
 
-    public record SyntaxTree(String symbol, @Nullable GrlTokenizer.Token token, @Nullable Integer rule_index, List<SyntaxTree> children) {
+    public record SyntaxTree(String symbol, @Nullable GlrTextToken token, @Nullable Integer rule_index, List<SyntaxTree> children) {
         boolean is_leaf() {
             return children==null || children.isEmpty();
         }
@@ -156,8 +157,8 @@ public class GlrStack {
             return StackItem(syntax_tree, state, (self,))
         """;
 
-        public StackItem shift(GrlTokenizer.Token token, int state) {
-            SyntaxTree syntax_tree = new SyntaxTree(token.symbol, token, null, List.of());
+        public StackItem shift(GlrTextToken token, int state) {
+            SyntaxTree syntax_tree = new SyntaxTree(token.getSymbol(), token, null, List.of());
             return new StackItem(syntax_tree, state, List.of(this));
         }
 

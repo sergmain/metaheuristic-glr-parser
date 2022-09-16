@@ -9,7 +9,9 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.glr.GlrAutomation;
 import ai.metaheuristic.glr.glr.GlrStack;
+import ai.metaheuristic.glr.glr.GlrTokenizer;
 import ai.metaheuristic.glr.glr.GlrUtils;
+import ai.metaheuristic.glr.glr.token.GlrWordTokenizer;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +31,9 @@ public class RunExampleV2 {
     public static void main(String[] args) {
         String text = "на вешалке висят пять красивых курток и вонючая шуба, а также пальто серое";
 
-        GlrAutomation automation = new GlrAutomation(GlrConsts.SIMPLE_GRAMMAR, dictionaries, "S");
+        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+
+        GlrAutomation automation = new GlrAutomation(glrTokenizer, GlrConsts.SIMPLE_GRAMMAR, dictionaries, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(text);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
             System.out.println(GlrUtils.format_syntax_tree(syntaxTree));

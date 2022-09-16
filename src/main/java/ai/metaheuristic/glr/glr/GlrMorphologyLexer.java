@@ -7,11 +7,12 @@
 
 package ai.metaheuristic.glr.glr;
 
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
 import company.evo.jmorphy2.ResourceFileLoader;
 import lombok.SneakyThrows;
-import org.springframework.lang.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -20,9 +21,9 @@ import java.util.*;
  * Date: 9/10/2022
  * Time: 7:52 PM
  */
-public class GrlMorphologyLexer {
+public class GlrMorphologyLexer {
 
-    public static final Map<String, String> TAG_MAPPER_1 = Map.of(
+    private static final Map<String, String> TAG_MAPPER_1 = Map.of(
             "NOUN", "noun",
             "ADJF", "adj",
             "ADJS", "adj",
@@ -35,7 +36,7 @@ public class GrlMorphologyLexer {
             "NUMR", "num"
     );
 
-    public static final Map<String, String> TAG_MAPPER_2 = Map.of(
+    private static final Map<String, String> TAG_MAPPER_2 = Map.of(
             "ADVB", "adv",
             "NPRO", "pnoun",
             "PRED", "adv",
@@ -47,7 +48,7 @@ public class GrlMorphologyLexer {
             "NUMB", "num"
     );
 
-    public static final Map<String, String> TAG_MAPPER = new HashMap<>();
+    private static final Map<String, String> TAG_MAPPER = new HashMap<>();
 
     static {
         TAG_MAPPER.putAll(TAG_MAPPER_1);
@@ -71,12 +72,12 @@ public class GrlMorphologyLexer {
 
     public static final String DICT_PATH = "/company/evo/jmorphy2/ru/pymorphy2_dicts";
 
-    public final GrlTokenizer.WordTokenizer tokenizer;
-    public final MorphAnalyzer morph;
-    public LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
+    private final GlrTokenizer tokenizer;
+    private final MorphAnalyzer morph;
+    private final LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
 
     @SneakyThrows
-    public GrlMorphologyLexer(GrlTokenizer.WordTokenizer tokenizer, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
+    public GlrMorphologyLexer(GlrTokenizer tokenizer, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this.tokenizer = tokenizer;
         this.morph = new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(DICT_PATH)).build();
 
@@ -102,7 +103,7 @@ public class GrlMorphologyLexer {
     """;
 
     @SneakyThrows
-    public String normal(String word) {
+    private String normal(String word) {
         List<ParsedWord> morphed = morph.parse(word);
         if (!morphed.isEmpty()) {
             return morphed.get(0).normalForm;
@@ -141,12 +142,12 @@ public class GrlMorphologyLexer {
     """;
 
     @SneakyThrows
-    public List<GrlTokenizer.Token> scan(String text) {
-        List<GrlTokenizer.Token> tokens = new ArrayList<>();
+    public List<GlrTextToken> scan(String text) {
+        List<GlrTextToken> tokens = new ArrayList<>();
 
-        for (GrlTokenizer.Token token : tokenizer.scan(text)) {
-            if (token.symbol.equals("word")) {
-                List<ParsedWord> morphed = morph.parse(token.value);
+        for (GlrTextToken token : tokenizer.tokenize(text)) {
+            if (token.getSymbol().equals("word")) {
+                List<ParsedWord> morphed = morph.parse(token.getValue());
                 if (!morphed.isEmpty()) {
                     final ParsedWord parsedWord = morphed.get(0);
                     String value = parsedWord.normalForm;
@@ -156,9 +157,9 @@ public class GrlMorphologyLexer {
                     }
                     else {
                         final String tag = TAG_MAPPER.get(morphed.get(0).tag.POS.value);
-                        symbol = tag != null ? tag : token.symbol;
+                        symbol = tag != null ? tag : token.getSymbol();
                     }
-                    tokens.add( new GrlTokenizer.Token(symbol, value, token.start, token.end, token.input_term, parsedWord.tag));
+                    tokens.add( new GlrTextToken(symbol, value, token.position, token.getInput_term(), parsedWord.tag));
                 }
             }
             else {
@@ -168,13 +169,4 @@ public class GrlMorphologyLexer {
 
         return tokens;
     }
-
-    String py5 = """
-    def parse_tags(self, word):
-        parsed = self.morph.parse(word)
-        if not parsed:
-            return None
-        return parsed[0].tag
-    """;
-
 }

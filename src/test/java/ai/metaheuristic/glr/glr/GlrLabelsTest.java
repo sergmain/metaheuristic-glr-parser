@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr.glr;
 
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.glr.token.GlrTextTokenPosition;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
 import company.evo.jmorphy2.ResourceFileLoader;
@@ -30,7 +32,7 @@ public class GlrLabelsTest {
 
 //0 = Token(symbol=adj, value=красивый, start=22, end=30, input_term=красивых, params=ADJF,Qual plur,gent)"
 //1 = Token(symbol=CLOTHES, value=куртка, start=31, end=37, input_term=курток, params=NOUN,inan,femn plur,gent)"
-        var morph = new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(GrlMorphologyLexer.DICT_PATH)).build();
+        var morph = new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(GlrMorphologyLexer.DICT_PATH)).build();
         List<ParsedWord> morphed1 = morph.parse("красивых");
         assertFalse(morphed1.isEmpty());
         final ParsedWord pw1 = morphed1.get(0);
@@ -42,13 +44,13 @@ public class GlrLabelsTest {
         assertEquals("NOUN,inan,femn plur,gent", pw2.tag.toString());
 
 
-        List<GrlTokenizer.Token> tokens = List.of(
-                new GrlTokenizer.Token("adj", "красивый", 22,  30, "красивых", pw1.tag),
-                new GrlTokenizer.Token("CLOTHES", "куртка", 31,  37, "курток", pw2.tag)
+        List<GlrTextToken> tokens = List.of(
+                new GlrTextToken("adj", "красивый", new GlrTextTokenPosition(22,  30), "красивых", pw1.tag),
+                new GlrTextToken("CLOTHES", "куртка", new GlrTextTokenPosition(31,  37), "курток", pw2.tag)
         );
 
-        GrlLabels.LabelCheck labelCheck = new GrlLabels.LabelCheck("1", tokens, 0);
-        boolean ok = GrlLabels.agr_gnc_label(labelCheck);
+        GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck("1", tokens, 0);
+        boolean ok = GlrLabels.agr_gnc_label(labelCheck);
         assertTrue(ok);
     }
 }

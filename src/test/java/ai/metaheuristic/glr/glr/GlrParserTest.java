@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
+import ai.metaheuristic.glr.glr.token.GlrTextToken;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -120,14 +121,15 @@ public class GlrParserTest {
         S = CLOTHES adj<agr-gnc=-1>
         """;
 
-        List<GrlTokenizer.Token> tokens = GlrGrammarParser.lr_grammar_tokenizer.scan(SIMPLE_GRAMMAR);
+        List<GlrTextToken> tokens = GlrGrammarParser.lr_grammar_tokenizer.tokenize(SIMPLE_GRAMMAR);
         assertEquals(11, tokens.size());
         String actual = "";
         for (int i = 0; i < tokens.size(); i++) {
-            GrlTokenizer.Token t = tokens.get(i);
+            GlrTextToken t = tokens.get(i);
+            assertNotNull(t.position);
             actual += String.format(
                     "%02d = {Token: 6} Token(symbol='%s', value='%s', start=%d, end=%d, input_term='%s', params=None)\n",
-                    i, t.symbol, t.value, t.start, t.end, t.input_term);
+                    i, t.getSymbol(), t.getValue(), t.position.start, t.position.end, t.getInput_term());
         }
 
         String expected = """

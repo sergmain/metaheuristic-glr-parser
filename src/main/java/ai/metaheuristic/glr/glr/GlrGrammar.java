@@ -7,7 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
-import org.springframework.lang.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
