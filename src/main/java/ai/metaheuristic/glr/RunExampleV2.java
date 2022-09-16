@@ -7,11 +7,7 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.glr.GlrAutomation;
-import ai.metaheuristic.glr.glr.GlrStack;
-import ai.metaheuristic.glr.glr.GlrTokenizer;
-import ai.metaheuristic.glr.glr.GlrUtils;
-import ai.metaheuristic.glr.glr.token.GlrWordTokenizer;
+import ai.metaheuristic.glr.token.GlrWordTokenizer;
 
 import java.util.LinkedHashMap;
 import java.util.List;
