@@ -20,17 +20,6 @@ import java.util.Objects;
  */
 public class GlrAutomation {
 
-    String py1 = """
-    def __init__(self, grammar_text, dictionaries=None, start='S'):
-        self.tokenizer = WordTokenizer()
-        self.lexer = MorphologyLexer(self.tokenizer, dictionaries)
-        self.grammar_parser = GrammarParser()
-
-        self.grammar = self.grammar_parser.parse(grammar_text, start)
-        self.parser = Parser(self.grammar)
-
-    """;
-
     private final GlrMorphologyLexer lexer;
     private final GlrParser parser;
     private final GlrGrammar grammar;
@@ -41,27 +30,7 @@ public class GlrAutomation {
         this.parser = new GlrParser(grammar);
     }
 
-    String py2 = """
-    def parse(self, text, full_math=False):
-        def validator(syntax_tree):
-            rule = self.grammar[syntax_tree.rule_index]
-            tokens = [child.token for child in syntax_tree.children]
-            for i, token in enumerate(tokens):
-                params = rule.params[i]
-                for label_key, label_values in params.items():
-                    for label_value in label_values:
-                        ok = LABELS_CHECK[label_key](label_value, tokens, i)
-                        if not ok:
-                            #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
-                            return False
-            return True
-
-        tokens = list(self.lexer.scan(text))
-
-        return self.parser.parse(tokens, full_math, validator)
-    """;
-
-    public static boolean validator(GlrGrammar grammar, GlrStack.SyntaxTree syntax_tree) {
+    private static boolean validator(GlrGrammar grammar, GlrStack.SyntaxTree syntax_tree) {
         if (syntax_tree.rule_index()==null) {
             return true;
         }
@@ -98,7 +67,7 @@ public class GlrAutomation {
         return parse(text, false);
     }
 
-    public List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
+    private List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
         List<GlrToken> tokens = lexer.scan(text);
 
         return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));

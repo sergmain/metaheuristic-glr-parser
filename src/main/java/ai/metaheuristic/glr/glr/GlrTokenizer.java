@@ -7,10 +7,7 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.glr.token.GlrTextToken;
-
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Sergio Lissner

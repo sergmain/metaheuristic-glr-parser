@@ -26,25 +26,6 @@ import static java.util.regex.Pattern.*;
  * Time: 9:58 PM
  */
 public class GlrSimpleRegexTokenizer implements GlrTokenizer {
-    String py2 = """
-            class SimpleRegexTokenizer(object):
-                def __init__(self, symbol_regex_dict, discard_symbols=None, regex_flags=re.M | re.U | re.I):
-                    patterns = []
-                    for symbol, regex in symbol_regex_dict.items():
-                        if '(?P<' in regex:
-                            raise TokenizerException('Invalid regex "%s" for symbol "%s"' % (regex, symbol))
-                        patterns.append('(?P<%s>%s)' % (symbol, regex))
-                    self.re = re.compile('|'.join(patterns), regex_flags)
-                    self.discard_symbols = set(discard_symbols) or set()
-                    self.symbols = set(symbol for symbol in symbol_regex_dict.keys() if symbol not in self.discard_symbols)
-                
-                def scan(self, text):
-                    for m in self.re.finditer(text):
-                        if m.lastgroup not in self.discard_symbols:
-                            yield Token(m.lastgroup, m.group(m.lastgroup), m.start(), m.end(), m.group(m.lastgroup), None)
-                    yield Token('$', '', m.end(), -1, '', None)
-            """;
-
     private final Pattern re;
     private final LinkedHashSet<String> discard_symbols;
     private final LinkedHashSet<String> symbols;
@@ -55,6 +36,7 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
         this(symbol_regex_dict, discard_symbols, CASE_INSENSITIVE | MULTILINE | UNICODE_CASE);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public GlrSimpleRegexTokenizer(
             LinkedHashMap<String, String> symbol_regex_dict, @Nullable List<String> discard_symbols,
             int regex_flags) {

@@ -19,26 +19,6 @@ import java.util.stream.Collectors;
  */
 public class GlrUtils {
 
-    String py1 = """
-    def format_rule(rule, ljust_symbol=0):
-        def format_symbol(i, symbol):
-            if not rule.params or not rule.params[i]:
-                return symbol
-    
-            all_pairs = sorted((k, v) for k, values in rule.params[i].items() for v in values)
-            if all_pairs == [('raw', True)]:
-                return '"%s"' % symbol
-            return '%s<%s>' % (symbol, ','.join('%s=%s' % (k, v) if v is not True else k for k, v in all_pairs))
-    
-        right_symbols = [format_symbol(i, symbol) for i, symbol in enumerate(rule.right_symbols)]
-        return '#%d: %s = %s%s' % (
-            rule.index,
-            rule.left_symbol.ljust(ljust_symbol),
-            ' '.join(right_symbols),
-            '   (%g)' % rule.weight if rule.weight != 1.0 else '')
-    """;
-
-
     public static String format_rule(GlrGrammar.Rule rule) {
         return format_rule(rule, 0);
     }
@@ -55,20 +35,8 @@ public class GlrUtils {
                 String.join(" ", right_symbols),
                 rule.weight() != 1.0 ? String.format("   (%g)", rule.weight()) : "");
         return s;
-
     }
 
-    String py2 = """
-        def format_symbol(i, symbol):
-            if not rule.params or not rule.params[i]:
-                return symbol
-    
-            all_pairs = sorted((k, v) for k, values in rule.params[i].items() for v in values)
-            if all_pairs == [('raw', True)]:
-                return '"%s"' % symbol
-            return '%s<%s>' % (symbol, ','.join('%s=%s' % (k, v) if v is not True else k for k, v in all_pairs))
-    
-    """;
     public static String format_symbol(GlrGrammar.Rule rule, int i, String symbol) {
         if (rule.params()!=null && rule.params().get(i)!=null) {
             return symbol;
@@ -101,41 +69,6 @@ public class GlrUtils {
 
         return String.format("%s<%s>", symbol, String.join(", ", temp));
     }
-
-    String py3 = """
-    def format_stack_item(stack_item, second_line_prefix=''):
-        def get_pathes(stack_item):
-            if stack_item.prev:
-                for prev in stack_item.prev:
-                    for p in get_pathes(prev):
-                        yield p + [stack_item]
-            else:
-                yield [stack_item]
-    
-        if stack_item.prev:
-            pathes = []
-            for path in get_pathes(stack_item):
-                pathes.append(' > '.join(repr(i) for i in path))
-            length = max(len(p) for p in pathes)
-    
-            results = []
-            for i, path in enumerate(pathes):
-                result = '' if i == 0 else second_line_prefix
-                result += path.rjust(length)
-                if len(pathes) > 1:
-                    if i == 0:
-                        result += ' ╮'
-                    elif i != len(pathes) - 1:
-                        result += ' │'
-                    else:
-                        result += ' ╯'
-                results.append(result)
-    
-            return '\n'.join(results)
-        else:
-            return '0'
-    
-    """;
 
     public static String format_stack_item(GlrStack.StackItem stack_item, String second_line_prefix) {
         if (!stack_item.prev.isEmpty()) {
@@ -174,15 +107,6 @@ public class GlrUtils {
     }
 
 
-    String py4 = """
-        def get_pathes(stack_item):
-            if stack_item.prev:
-                for prev in stack_item.prev:
-                    for p in get_pathes(prev):
-                        yield p + [stack_item]
-            else:
-                yield [stack_item]
-        """;
     public static List<List<GlrStack.StackItem>> get_pathes(GlrStack.StackItem stack_item) {
         List<List<GlrStack.StackItem>> result = new ArrayList<>();
         if (!stack_item.prev.isEmpty()) {
@@ -201,18 +125,6 @@ public class GlrUtils {
         return result;
     }
 
-    String py5 = """
-    def format_syntax_tree(syntax_tree):
-        assert isinstance(syntax_tree, SyntaxTree)
-        ast = list(generate_syntax_tree_lines(syntax_tree))
-        depth = max(len(l) for l, v in ast)
-        lines = []
-        for l, v in ast:
-            lines.append('%s %s' % (l.ljust(depth, '.' if v else ' '), v))
-            
-        return '\n'.join(lines)
-        """;
-
     public static String format_syntax_tree(GlrStack.SyntaxTree syntax_tree) {
         ArrayList<LineAndValue> ast = new ArrayList<>(generate_syntax_tree_lines(syntax_tree));
         int depth = ast.stream().mapToInt(o->o.line.length()).max().orElse(0);
@@ -224,28 +136,6 @@ public class GlrUtils {
 
         return String.join("\n", lines);
     }
-
-    String py6 = """
-    def generate_syntax_tree_lines(syntax_tree, last=False, prefix=''):
-        line = prefix[:-1]
-        if prefix:
-            if not last:
-                line += u'├──'
-            else:
-                line += u'╰──'
-        else:
-            line = '  '
-    
-        if syntax_tree.is_leaf():
-            yield line + syntax_tree.symbol, syntax_tree.token.input_term
-        else:
-            yield line + syntax_tree.symbol, ''
-            for i, r in enumerate(syntax_tree.children):
-                last = i == len(syntax_tree.children) - 1
-                for line, value in generate_syntax_tree_lines(r, last, prefix + ('   ' if last else u'  │')):
-                    yield line, value
-    
-    """;
 
     public record LineAndValue(String line, String value) {}
     public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree) {
@@ -282,23 +172,6 @@ public class GlrUtils {
 
         return result;
     }
-
-    String py7 = """
-    def flatten_syntax_tree(syntax_tree, symbol):
-    ""/"
-    Recursively traverse syntax tree until finds searched symbol.
-    If found does not go deeper.
-    ""/"
-    if syntax_tree.symbol == symbol:
-        yield syntax_tree
-        return
-
-    if syntax_tree.children:
-        for child in syntax_tree.children:
-            for res in flatten_syntax_tree(child, symbol):
-                yield res
-
-    """;
 
     public static List<GlrStack.SyntaxTree> flatten_syntax_tree(GlrStack.SyntaxTree syntax_tree, String symbol) {
         List<GlrStack.SyntaxTree> result = new ArrayList<>();

@@ -16,6 +16,7 @@ import java.util.List;
  * Time: 9:57 PM
  */
 public class GlrCharTypeTokenizer extends GlrSimpleRegexTokenizer {
+/*
     String py3 = """
             class CharTypeTokenizer(SimpleRegexTokenizer):
                 def __init__(self):
@@ -28,6 +29,7 @@ public class GlrCharTypeTokenizer extends GlrSimpleRegexTokenizer {
                     super(CharTypeTokenizer, self).__init__(symbol_regex_dict, ['space'])
             """;
 
+*/
     public static final LinkedHashMap<String, String> symbol_regex_char_dict = new LinkedHashMap<>();
 
     static {

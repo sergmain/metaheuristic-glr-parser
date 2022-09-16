@@ -22,15 +22,6 @@ public class GlrLabels {
 
     public record LabelCheck(@Nullable String value, List<GlrToken> tokens, int i) {}
 
-    String py1 = """
-    def agr_gnc_label(value, tokens, i):
-        one = tokens[i].params
-        another = tokens[i + int(value)].params
-        return (one.case == another.case or not one.case or not another.case) \\
-               and (one.gender == another.gender or not one.gender or not another.gender) \\
-               and (one.number == another.number or not one.number or not another.number)
-    """;
-
     @SuppressWarnings("ObjectEquality")
     public static boolean agr_gnc_label(LabelCheck labelCheck) {
         if (labelCheck.value==null) {
@@ -46,6 +37,7 @@ public class GlrLabels {
                && (one.number==another.number  || one.number==null || another.number==null);
     }
 
+/*
     String py99 = """
     LABELS_CHECK = {
         "gram": gram_label,
@@ -60,6 +52,7 @@ public class GlrLabels {
         "regex": regex_label
     }
     """;
+*/
 
     public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(

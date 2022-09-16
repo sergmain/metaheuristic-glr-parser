@@ -28,10 +28,6 @@ public class GlrStack {
         }
     }
 
-    String py2 = """
-        class StackItem(namedtuple('StackItem', ['syntax_tree', 'state', 'prev'])):
-        """;
-
     public static class StackItem implements Comparable<StackItem> {
         @Nullable
         public SyntaxTree syntax_tree;
@@ -47,13 +43,6 @@ public class GlrStack {
             }
         }
 
-        String py01 = """
-        def __repr__(self):
-            if self.prev:
-                return '%s.%s' % (self.syntax_tree.symbol, self.state)
-            else:
-                return '0'
-        """;
         public String toString() {
             if (!prev.isEmpty())
                 return String.format("%s.%s", syntax_tree!=null ? syntax_tree.symbol : "null", state);
@@ -74,20 +63,6 @@ public class GlrStack {
             return new StackItem(null, 0, null);
         }
 
-        String py0 = """
-        def pop(self, depth):
-            if depth == 0:
-                return [[self]]
-            if not self.prev:
-                return []
-    
-            result = []
-            for prev in self.prev:
-                for path in prev.pop(depth - 1):
-                    result.append(path + [self])
-            return result
-        """;
-
         public List<List<StackItem>> pop(int depth) {
             if (depth==0) {
                 return List.of(List.of(this));
@@ -105,22 +80,6 @@ public class GlrStack {
             }
             return result;
         }
-
-        String py1 = """
-        def reduce(self, action_goto_table, rule, reduce_validator=None):
-            result = []
-            depth = len(rule.right_symbols)
-            for path in self.pop(depth):
-                goto_actions = action_goto_table[path[0].state][rule.left_symbol]
-                # TODO: probably assert that only 1 goto action and it is 'G'
-                for goto_action in goto_actions:
-                    if goto_action.type == 'G':
-                        syntax_tree = SyntaxTree(rule.left_symbol, None, rule.index, tuple(stack_item.syntax_tree for stack_item in path[1:]))
-                        if reduce_validator is None or reduce_validator(syntax_tree):
-                            new_head = StackItem(syntax_tree, goto_action.state, (path[0],))
-                            result.append(new_head)
-            return result
-        """;
 
         public List<StackItem> reduce(
                 List<LinkedHashMap<String, List<GlrLr.Action>>> action_goto_table,
@@ -151,28 +110,10 @@ public class GlrStack {
             return result;
         }
 
-        String py3 = """
-        def shift(self, token, state):
-            syntax_tree = SyntaxTree(token.symbol, token, None, ())
-            return StackItem(syntax_tree, state, (self,))
-        """;
-
         public StackItem shift(GlrToken token, int state) {
             SyntaxTree syntax_tree = new SyntaxTree(token.getSymbol(), token, null, List.of());
             return new StackItem(syntax_tree, state, List.of(this));
         }
-
-        String py4 = """
-        @classmethod
-        def merge(cls, stack_items):
-            for key, group in groupby(sorted(stack_items), lambda si: (si.syntax_tree, si.state)):
-                group = [g for g in group]
-                if len(group) > 1:
-                    all_prevs = tuple(p for stack_item in group for p in stack_item.prev)
-                    yield StackItem(group[0].syntax_tree, group[0].state, all_prevs)
-                else:
-                    yield group[0]
-        """;
 
         @EqualsAndHashCode
         @RequiredArgsConstructor

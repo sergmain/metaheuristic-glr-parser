@@ -22,28 +22,9 @@ public class GlrGrammar {
     public record Rule(int index, String left_symbol, List<String> right_symbols,
                        boolean commit, @Nullable List<Map<String, List<Object>>> params, double weight){}
 
-    String py1 = """
-    def __init__(self, rules):
-        self._rules = rules
-        self._rules_for_symbol = dict()
-        for rule in self._rules:
-            self._rules_for_symbol.setdefault(rule.left_symbol, []).append(self._rules.index(rule))
-
-        def all_symbols():
-            for rule in self._rules:
-                yield rule.left_symbol
-                for symbol in rule.right_symbols:
-                    yield symbol
-
-        self._symbols = set(all_symbols())
-        self._symbols.add('$')
-        self._nonterminals = set(rule.left_symbol for rule in self._rules)
-        self._terminals = self._symbols - self._nonterminals
-    """;
-
     public final List<Rule> rules = new ArrayList<>();
     public final LinkedHashMap<String, List<Integer>> rules_for_symbol;
-    public final LinkedHashSet<String> symbols;
+    private final LinkedHashSet<String> symbols;
     public final LinkedHashSet<String> nonterminals;
     public final LinkedHashSet<String> terminals;
 

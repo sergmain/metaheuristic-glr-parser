@@ -19,18 +19,6 @@ import java.util.stream.Collectors;
  */
 public class GlrLr {
     public static final Item EMPTY_ITEM = new Item(0, 0);
-    String py0 = """
-        class Item(namedtuple('Item', ['rule_index', 'dot_position'])):
-            __slots__ = ()
-            
-            def __repr__(self):
-                return '#%d.%d' % self
-            
-            
-        State = namedtuple('State', ['index', 'itemset', 'follow_dict', 'parent_state_index', 'parent_lookahead'])
-            
-        Action = namedtuple('Action', ['type', 'state', 'rule_index'])
-        """;
 
     public record Item(int rule_index, int dot_position) implements Comparable<Item> {
         @Override
@@ -44,42 +32,6 @@ public class GlrLr {
         }
     public record State(int index, List<Item> itemset, Map<String, Set<Integer>> follow_dict, @Nullable Integer parent_state_index, @Nullable String parent_lookahead) {}
     public record Action(String type, @Nullable Integer state, @Nullable Integer rule_index) {}
-
-
-    String py1 = """
-        def generate_action_goto_table(grammar):
-            assert isinstance(grammar, Grammar)
-        
-            states = generate_state_graph(grammar)
-            followers = generate_followers(grammar)
-        
-            result = []
-            for state in states:
-                actions = defaultdict(list)
-        
-                # Reduces
-                for item in state.itemset:
-                    rule = grammar[item.rule_index]
-                    if item.dot_position == len(rule.right_symbols):
-                        if rule.left_symbol == '@':
-                            actions['$'].append(Action('A', None, None))
-                        else:
-                            for follower in followers[rule.left_symbol]:
-                                actions[follower].append(Action('R', None, item.rule_index))
-                            actions['$'].append(Action('R', None, item.rule_index))
-        
-                # Shifts & goto's
-                for lookahead, state_indexes in state.follow_dict.items():
-                    for state_index in state_indexes:
-                        child_state = states[state_index]
-                        if lookahead in followers:
-                            actions[lookahead].append(Action('G', child_state.index, None))
-                        else:
-                            actions[lookahead].append(Action('S', child_state.index, None))
-        
-                result.append(actions)
-            return result
-        """;
 
     public static List<LinkedHashMap<String, List<Action>>> generate_action_goto_table(GlrGrammar grammar) {
         List<LinkedHashMap<String, List<Action>>> result = new ArrayList<>();
@@ -126,39 +78,7 @@ public class GlrLr {
         return result;
     }
 
-    String py2 = """
-        def generate_state_graph(grammar):
-            assert isinstance(grammar, Grammar)
-        
-            states = []
-            state_by_itemset = {}
-        
-            first_itemset = closure([Item(0, 0)], grammar)
-            first_itemset = tuple(sorted(first_itemset))
-            stack = [(None, None, first_itemset)]
-            while stack:
-                parent_state_index, parent_lookahead, itemset = stack.pop(0)
-        
-                if itemset in state_by_itemset:
-                    # State already exist, just add follow link
-                    state = state_by_itemset[itemset]
-                    states[parent_state_index].follow_dict[parent_lookahead].add(state.index)
-                    continue
-        
-                state = State(len(states), itemset, defaultdict(set), parent_state_index, parent_lookahead)
-                states.append(state)
-                state_by_itemset[state.itemset] = state
-        
-                if parent_state_index is not None:
-                    states[parent_state_index].follow_dict[parent_lookahead].add(state.index)
-        
-                for lookahead, itemset in follow(state.itemset, grammar):
-                    itemset = tuple(sorted(itemset))
-                    stack.append((state.index, lookahead, itemset))
-            return states
-            """;
-
-    public record StackRec(@Nullable Integer index, @Nullable String lookahead, List<Item> itemset) {}
+    private record StackRec(@Nullable Integer index, @Nullable String lookahead, List<Item> itemset) {}
 
     public static List<State> generate_state_graph(GlrGrammar grammar) {
         List<State> states = new ArrayList<>();
@@ -200,51 +120,6 @@ public class GlrLr {
         return states;
     }
 
-    String py21 = """
-        def generate_followers(grammar):
-            assert isinstance(grammar, Grammar)
-        
-            def get_starters(symbol):
-                result = []
-                for rule_index in grammar.rules_for_symbol(symbol):
-                    rule = grammar[rule_index]
-                    if rule.right_symbols[0] in grammar.nonterminals:
-                        if rule.right_symbols[0] != symbol:
-                            result.extend(get_starters(rule.right_symbols[0]))
-                    else:
-                        result.append(rule.right_symbols[0])
-                return result
-        
-            starters = dict((s, set(get_starters(s))) for s in grammar.nonterminals)
-        
-            def get_followers(symbol, seen_symbols=None):
-                seen_symbols = seen_symbols or set()
-                seen_symbols.add(symbol)
-        
-                result = []
-                for rule in grammar.rules:
-                    if isinstance(rule, set):  # TODO: remove workaround
-                        continue
-        
-                    if symbol not in rule.right_symbols:
-                        continue
-        
-                    index = rule.right_symbols.index(symbol)
-                    if index + 1 == len(rule.right_symbols):
-                        if rule.left_symbol != symbol and rule.left_symbol not in seen_symbols:
-                            result.extend(get_followers(rule.left_symbol, seen_symbols))
-                    else:
-                        next = rule.right_symbols[index + 1]
-                        if next in grammar.nonterminals:
-                            result.extend(starters[next])
-                        else:
-                            result.append(next)
-                return result
-        
-            followers = dict((s, set(get_followers(s))) for s in grammar.nonterminals)
-            return followers
-        """;
-
     public static class GenerateFollowers {
         public final GlrGrammar grammar;
         public final LinkedHashMap<String, LinkedHashSet<String>> starters = new LinkedHashMap<>();
@@ -259,19 +134,6 @@ public class GlrLr {
                 this.followers.put(s, get_followers(s, null, grammar));
             }
         }
-
-        String py1 = """
-            def get_starters(symbol):
-                result = []
-                for rule_index in grammar.rules_for_symbol(symbol):
-                    rule = grammar[rule_index]
-                    if rule.right_symbols[0] in grammar.nonterminals:
-                        if rule.right_symbols[0] != symbol:
-                            result.extend(get_starters(rule.right_symbols[0]))
-                    else:
-                        result.append(rule.right_symbols[0])
-                return result
-            """;
 
         public static LinkedHashSet<String> get_starters(String symbol, GlrGrammar grammar) {
             LinkedHashSet<String> result = new LinkedHashSet<>();
@@ -289,32 +151,6 @@ public class GlrLr {
             }
             return result;
         }
-
-        String py2 = """
-            def get_followers(symbol, seen_symbols=None):
-                seen_symbols = seen_symbols or set()
-                seen_symbols.add(symbol)
-        
-                result = []
-                for rule in grammar.rules:
-                    if isinstance(rule, set):  # TODO: remove workaround
-                        continue
-        
-                    if symbol not in rule.right_symbols:
-                        continue
-        
-                    index = rule.right_symbols.index(symbol)
-                    if index + 1 == len(rule.right_symbols):
-                        if rule.left_symbol != symbol and rule.left_symbol not in seen_symbols:
-                            result.extend(get_followers(rule.left_symbol, seen_symbols))
-                    else:
-                        next = rule.right_symbols[index + 1]
-                        if next in grammar.nonterminals:
-                            result.extend(starters[next])
-                        else:
-                            result.append(next)
-                return result
-            """;
 
         public LinkedHashSet<String> get_followers(String symbol, @Nullable LinkedHashSet<String> seen_symbols_temp, GlrGrammar grammar) {
             LinkedHashSet<String> seen_symbols = seen_symbols_temp!=null ? seen_symbols_temp : new LinkedHashSet<>();

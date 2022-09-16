@@ -16,6 +16,7 @@ import java.util.List;
  * Time: 9:56 PM
  */
 public class GlrWordTokenizer extends GlrSimpleRegexTokenizer {
+/*
     String py4 = """
     class WordTokenizer(SimpleRegexTokenizer):
         def __init__(self):
@@ -33,6 +34,7 @@ public class GlrWordTokenizer extends GlrSimpleRegexTokenizer {
             }
             super(WordTokenizer, self).__init__(symbol_regex_dict, ['space'])
     """;
+*/
 
 
     private static final LinkedHashMap<String, String> symbol_regex_word_dict = new LinkedHashMap<>();
