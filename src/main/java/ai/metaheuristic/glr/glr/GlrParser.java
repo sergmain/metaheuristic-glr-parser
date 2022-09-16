@@ -76,8 +76,8 @@ public class GlrParser {
 
     public GlrParser(GlrGrammar grammar, int log_level) {
         this.grammar = grammar;
-        this.log_level = log_level;
         this.action_goto_table = GlrLr.generate_action_goto_table(grammar);
+        this.log_level = log_level;
     }
 
 

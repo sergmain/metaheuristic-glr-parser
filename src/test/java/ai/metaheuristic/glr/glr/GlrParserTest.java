@@ -7,7 +7,6 @@
 
 package ai.metaheuristic.glr.glr;
 
-import ai.metaheuristic.glr.GlrConsts;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sergio Lissner
@@ -68,6 +66,11 @@ public class GlrParserTest {
 
         assertEquals(17, actionTable.size());
 
+        String actual = actionTableAsString(actionTable);
+        assertEquals(expected, actual);
+    }
+
+    private static String actionTableAsString(List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable) {
         String actual = "";
         for (int i = 0; i < actionTable.size(); i++) {
             LinkedHashMap<String, List<GlrLr.Action>> t = actionTable.get(i);
@@ -84,7 +87,7 @@ public class GlrParserTest {
             line += "})\n";
             actual += line;
         }
-        assertEquals(expected, actual);
+        return actual;
     }
 
     @Test
@@ -144,4 +147,77 @@ public class GlrParserTest {
         assertEquals(expected, actual);
 
     }
+
+    @Test
+    public void test_198() {
+        final String SIMPLE_GRAMMAR = """
+        
+        S = adj<agr-gnc=1> CLOTHES
+        S = CLOTHES adj<agr-gnc=-1>
+        """;
+
+        GlrGrammar grammar = GlrGrammarParser.parse(SIMPLE_GRAMMAR, "S");
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(grammar);
+
+        String expected = """
+        00 = {'S': [Action(type='G', state=1, rule_index=None)], 'adj': [Action(type='S', state=2, rule_index=None)], 'CLOTHES': [Action(type='S', state=3, rule_index=None)]})
+        01 = {'$': [Action(type='A', state=None, rule_index=None)]})
+        02 = {'CLOTHES': [Action(type='S', state=4, rule_index=None)]})
+        03 = {'adj': [Action(type='S', state=5, rule_index=None)]})
+        04 = {'$': [Action(type='R', state=None, rule_index=1)]})
+        05 = {'$': [Action(type='R', state=None, rule_index=2)]})
+        """;
+
+        assertEquals(6, actionTable.size());
+
+        String actual = actionTableAsString(actionTable);
+        assertEquals(expected, actual);
+
+    }
+
+    @Test
+    public void test_197() {
+        final String SIMPLE_GRAMMAR = """
+        
+        S = adj<agr-gnc=1> CLOTHES
+        S = CLOTHES adj<agr-gnc=-1>
+        """;
+
+        GlrGrammar grammar = GlrGrammarParser.parse(SIMPLE_GRAMMAR, "S");
+
+
+        assertEquals(3, grammar.rules.size());
+        final GlrGrammar.Rule rule0 = grammar.rules.get(0);
+        assertEquals("@", rule0.left_symbol());
+        assertEquals(0, rule0.index());
+        assertNotNull(rule0.params());
+        assertEquals(1, rule0.params().size());
+        assertTrue(rule0.params().get(0).containsKey(""));
+        assertEquals(0, rule0.params().get(0).get("").size());
+
+
+        final GlrGrammar.Rule rule1 = grammar.rules.get(1);
+        assertEquals("S", rule1.left_symbol());
+        assertEquals(1, rule1.index());
+        assertNotNull(rule1.params());
+        assertEquals(2, rule1.params().size());
+        assertTrue(rule1.params().get(0).containsKey("agr-gnc"));
+        assertEquals(1, rule1.params().get(0).get("agr-gnc").size());
+        assertEquals("1", rule1.params().get(0).get("agr-gnc").get(0));
+        assertEquals(0, rule1.params().get(1).size());
+
+
+        final GlrGrammar.Rule rule2 = grammar.rules.get(2);
+        assertEquals("S", rule2.left_symbol());
+        assertEquals(2, rule2.index());
+        assertNotNull(rule2.params());
+        assertEquals(2, rule2.params().size());
+        assertEquals(0, rule2.params().get(0).size());
+        assertTrue(rule2.params().get(1).containsKey("agr-gnc"));
+        assertEquals("-1", rule2.params().get(1).get("agr-gnc").get(0));
+
+
+    }
+
+
 }

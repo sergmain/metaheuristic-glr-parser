@@ -184,7 +184,7 @@ public class GlrGrammarParser {
                 }
 
                 List<SymbolWithMap> right_symbols = new ArrayList<>();
-                for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Symbol")) {
+                for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(option_node, "Symbol")) {
                     SymbolWithMap symbolWithMap = null;
                     if (INTEGER_11.equals(symbol_node.rule_index())) {
                         symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().input_term, Map.of());
@@ -194,8 +194,6 @@ public class GlrGrammarParser {
                         symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of("raw", List.of(true)));
                     }
                     else if (INTEGER_10.equals(symbol_node.rule_index())) {
-//                        right_symbols.add((symbol_node.children().get(0).token.input_term, _parse_labels(symbol_node.children().get(1).token.input_term[1:-1])))
-
                         final String s0 = symbol_node.children().get(0).token().input_term;
                         final String s1 = StringUtils.substring(symbol_node.children().get(1).token().input_term, 1, -1);
                         symbolWithMap = new SymbolWithMap(s0, _parse_labels(s1));
@@ -231,7 +229,7 @@ public class GlrGrammarParser {
         Map<String, List<Object>> labels = new LinkedHashMap<>();
         for (String key_value : labels_str.split(",")) {
             if (key_value.indexOf('=')!=-1) {
-                String[] sp = key_value.split(".*=", 2);
+                String[] sp = key_value.split("=", 2);
                 String key = sp[0];
                 String value = sp[1];
                 labels.computeIfAbsent(key, (o)->new ArrayList<>()).add(value);
