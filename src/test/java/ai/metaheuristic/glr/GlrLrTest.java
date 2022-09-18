@@ -7,8 +7,6 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.GlrGrammarParser;
-import ai.metaheuristic.glr.GlrLr;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +24,7 @@ public class GlrLrTest {
 
     @Test
     public void test_97() {
-        List<GlrLr.State> states = GlrLr.generate_state_graph(GlrGrammarParser.GLR_BASE_GRAMMAR);
+        List<GlrLr.State> states = GlrLr.generateStateGraph(GlrGrammarParser.GLR_BASE_GRAMMAR);
 
         assertEquals(17, states.size());
     }

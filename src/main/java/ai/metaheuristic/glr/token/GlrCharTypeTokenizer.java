@@ -30,16 +30,16 @@ public class GlrCharTypeTokenizer extends GlrSimpleRegexTokenizer {
             """;
 
 */
-    public static final LinkedHashMap<String, String> symbol_regex_char_dict = new LinkedHashMap<>();
+    public static final LinkedHashMap<String, String> symbolRegexCharDict = new LinkedHashMap<>();
 
     static {
-        symbol_regex_char_dict.put("alpha", "[^\\p{L}\\p{Digit}_]+");
-        symbol_regex_char_dict.put("space", "\\s+");
-        symbol_regex_char_dict.put("digit", "\\d+");
-        symbol_regex_char_dict.put("punct", "[^[\\p{L}\\p{Digit}_-]\\s]|_");
+        symbolRegexCharDict.put("alpha", "[^\\p{L}\\p{Digit}_]+");
+        symbolRegexCharDict.put("space", "\\s+");
+        symbolRegexCharDict.put("digit", "\\d+");
+        symbolRegexCharDict.put("punct", "[^[\\p{L}\\p{Digit}_-]\\s]|_");
     }
 
     public GlrCharTypeTokenizer() {
-        super(symbol_regex_char_dict, List.of("space"));
+        super(symbolRegexCharDict, List.of("space"));
     }
 }

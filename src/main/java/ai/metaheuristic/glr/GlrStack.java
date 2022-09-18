@@ -22,21 +22,21 @@ import java.util.function.Function;
  */
 public class GlrStack {
 
-    public record SyntaxTree(String symbol, @Nullable GlrToken token, @Nullable Integer rule_index, List<SyntaxTree> children) {
-        boolean is_leaf() {
+    public record SyntaxTree(String symbol, @Nullable GlrToken token, @Nullable Integer ruleIndex, List<SyntaxTree> children) {
+        boolean isLeaf() {
             return children==null || children.isEmpty();
         }
     }
 
     public static class StackItem implements Comparable<StackItem> {
         @Nullable
-        public SyntaxTree syntax_tree;
+        public SyntaxTree syntaxTree;
         @Nullable
         public Integer state;
         public final List<StackItem> prev = new ArrayList<>();
 
-        public StackItem(@Nullable SyntaxTree syntax_tree, @Nullable Integer state, @Nullable List<StackItem> prev) {
-            this.syntax_tree = syntax_tree;
+        public StackItem(@Nullable SyntaxTree syntaxTree, @Nullable Integer state, @Nullable List<StackItem> prev) {
+            this.syntaxTree = syntaxTree;
             this.state = state;
             if (prev!=null) {
                 this.prev.addAll(prev);
@@ -45,7 +45,7 @@ public class GlrStack {
 
         public String toString() {
             if (!prev.isEmpty())
-                return String.format("%s.%s", syntax_tree!=null ? syntax_tree.symbol : "null", state);
+                return String.format("%s.%s", syntaxTree != null ? syntaxTree.symbol : "null", state);
             else {
                 return "0";
             }
@@ -54,12 +54,12 @@ public class GlrStack {
         @Override
         public int compareTo(StackItem o) {
             final int compare = Integer.compare(
-                    this.syntax_tree == null ? 0 : this.syntax_tree.hashCode(),
-                    o.syntax_tree == null ? 0 : o.syntax_tree.hashCode());
+                    this.syntaxTree == null ? 0 : this.syntaxTree.hashCode(),
+                    o.syntaxTree == null ? 0 : o.syntaxTree.hashCode());
             return compare!=0 ? compare : Integer.compare(this.state == null ? 0 : this.state, o.state == null ? 0 : o.state);
         }
 
-        public static StackItem start_new() {
+        public static StackItem startNew() {
             return new StackItem(null, 0, null);
         }
 
@@ -82,27 +82,27 @@ public class GlrStack {
         }
 
         public List<StackItem> reduce(
-                List<LinkedHashMap<String, List<GlrLr.Action>>> action_goto_table,
+                List<LinkedHashMap<String, List<GlrLr.Action>>> actionGotoTable,
                 GlrGrammar.Rule rule,
-                @Nullable Function<SyntaxTree, Boolean> reduce_validator) {
+                @Nullable Function<SyntaxTree, Boolean> reduceValidator) {
 
             List<StackItem> result = new ArrayList<>();
-            int depth = rule.right_symbols().size();
+            int depth = rule.rightSymbols().size();
             for (List<StackItem> path : pop(depth)) {
                 final Integer stateIdx = path.get(0).state;
                 if (stateIdx==null) {
                     throw new IllegalStateException("(stateIdx==null)");
                 }
-                List<GlrLr.Action> goto_actions = action_goto_table.get(stateIdx).get(rule.left_symbol());
+                List<GlrLr.Action> gotoActions = actionGotoTable.get(stateIdx).get(rule.leftSymbol());
 
                 // # TODO: probably assert that only 1 goto action and it is 'G'
-                for (GlrLr.Action goto_action : goto_actions ) {
-                    if ("G".equals(goto_action.type())) {
-                        List<SyntaxTree> tree = path.size()<2 ? List.of() : path.subList(1, path.size()).stream().map(o->o.syntax_tree).filter(Objects::nonNull).toList();
-                        SyntaxTree syntax_tree = new SyntaxTree(rule.left_symbol(), null, rule.index(), tree);
-                        if (reduce_validator ==null || reduce_validator.apply(syntax_tree)){
-                            var new_head = new StackItem(syntax_tree, goto_action.state(), List.of(path.get(0)));
-                            result.add(new_head);
+                for (GlrLr.Action gotoAction : gotoActions ) {
+                    if ("G".equals(gotoAction.type())) {
+                        List<SyntaxTree> tree = path.size()<2 ? List.of() : path.subList(1, path.size()).stream().map(o->o.syntaxTree).filter(Objects::nonNull).toList();
+                        SyntaxTree syntaxTree = new SyntaxTree(rule.leftSymbol(), null, rule.index(), tree);
+                        if (reduceValidator ==null || reduceValidator.apply(syntaxTree)){
+                            var newHead = new StackItem(syntaxTree, gotoAction.state(), List.of(path.get(0)));
+                            result.add(newHead);
                         }
                     }
                 }
@@ -111,29 +111,29 @@ public class GlrStack {
         }
 
         public StackItem shift(GlrToken token, int state) {
-            SyntaxTree syntax_tree = new SyntaxTree(token.symbol, token, null, List.of());
-            return new StackItem(syntax_tree, state, List.of(this));
+            SyntaxTree syntaxTree = new SyntaxTree(token.symbol, token, null, List.of());
+            return new StackItem(syntaxTree, state, List.of(this));
         }
 
         @EqualsAndHashCode
         @RequiredArgsConstructor
         public static class TreeStateAsKey {
-            public final SyntaxTree syntax_tree;
+            public final SyntaxTree syntaxTree;
             public final Integer state;
         }
 
-        public static List<StackItem> merge(List<StackItem> stack_items) {
+        public static List<StackItem> merge(List<StackItem> stackItems) {
             List<StackItem> result = new ArrayList<>();
-            List<StackItem> sorted = stack_items.stream().sorted().toList();
+            List<StackItem> sorted = stackItems.stream().sorted().toList();
             LinkedHashMap<TreeStateAsKey, List<StackItem>> map = new LinkedHashMap<>();
             for (StackItem stackItem : sorted) {
-                map.computeIfAbsent(new TreeStateAsKey(stackItem.syntax_tree, stackItem.state), (o)->new ArrayList<>()).add(stackItem);
+                map.computeIfAbsent(new TreeStateAsKey(stackItem.syntaxTree, stackItem.state), (o)->new ArrayList<>()).add(stackItem);
             }
             for (Map.Entry<TreeStateAsKey, List<StackItem>> entry : map.entrySet()) {
                 final List<StackItem> group = entry.getValue();
                 if (group.size() > 1) {
-                    List<StackItem> all_prevs = group.stream().flatMap(o->o.prev.stream()).toList();
-                    result.add( new StackItem(group.get(0).syntax_tree, group.get(0).state, all_prevs));
+                    List<StackItem> allPrevs = group.stream().flatMap(o->o.prev.stream()).toList();
+                    result.add( new StackItem(group.get(0).syntaxTree, group.get(0).state, allPrevs));
                 }
                 else {
                     result.add(group.get(0));

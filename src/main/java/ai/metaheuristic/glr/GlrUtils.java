@@ -19,25 +19,25 @@ import java.util.stream.Collectors;
  */
 public class GlrUtils {
 
-    public static String format_rule(GlrGrammar.Rule rule) {
-        return format_rule(rule, 0);
+    public static String formatRule(GlrGrammar.Rule rule) {
+        return formatRule(rule, 0);
     }
 
-    public static String format_rule(GlrGrammar.Rule rule , int ljust_symbol) {
-        List<String> right_symbols = new ArrayList<>();
-        for (int i = 0; i < rule.right_symbols().size(); i++) {
-            String symbol = rule.right_symbols().get(i);
-            right_symbols.add(format_symbol(rule, i, symbol));
+    public static String formatRule(GlrGrammar.Rule rule , int ljustSymbol) {
+        List<String> rightSymbols = new ArrayList<>();
+        for (int i = 0; i < rule.rightSymbols().size(); i++) {
+            String symbol = rule.rightSymbols().get(i);
+            rightSymbols.add(formatSymbol(rule, i, symbol));
         }
         final String s = String.format("#%d: %s = %s%s",
                 rule.index(),
-                StringUtils.leftPad(rule.left_symbol(), ljust_symbol),
-                String.join(" ", right_symbols),
+                StringUtils.leftPad(rule.leftSymbol(), ljustSymbol),
+                String.join(" ", rightSymbols),
                 rule.weight() != 1.0 ? String.format("   (%g)", rule.weight()) : "");
         return s;
     }
 
-    public static String format_symbol(GlrGrammar.Rule rule, int i, String symbol) {
+    public static String formatSymbol(GlrGrammar.Rule rule, int i, String symbol) {
         if (rule.params()!=null && rule.params().get(i)!=null) {
             return symbol;
         }
@@ -45,17 +45,17 @@ public class GlrUtils {
             return "rule.params()==null";
         }
 
-        LinkedHashMap<String, Object> all_pairs_temp = new LinkedHashMap<>();
+        LinkedHashMap<String, Object> allPairsTemp = new LinkedHashMap<>();
         for (Map.Entry<String, List<Object>> entry : rule.params().get(i).entrySet()) {
             for (Object o : entry.getValue()) {
-                all_pairs_temp.put(entry.getKey(), o);
+                allPairsTemp.put(entry.getKey(), o);
             }
         }
 
-        LinkedHashMap<String, Object> all_pairs = new LinkedHashMap<>();
-        all_pairs_temp.entrySet().stream().sorted().forEach(en->all_pairs.put(en.getKey(), en.getValue()));
+        LinkedHashMap<String, Object> allPairs = new LinkedHashMap<>();
+        allPairsTemp.entrySet().stream().sorted().forEach(en->allPairs.put(en.getKey(), en.getValue()));
 
-        if (all_pairs.size()==1 && Boolean.TRUE.equals(all_pairs.get("raw"))) {
+        if (allPairs.size()==1 && Boolean.TRUE.equals(allPairs.get("raw"))) {
             return String.format("'%s'", symbol);
         }
 
@@ -70,17 +70,17 @@ public class GlrUtils {
         return String.format("%s<%s>", symbol, String.join(", ", temp));
     }
 
-    public static String format_stack_item(GlrStack.StackItem stack_item, String second_line_prefix) {
-        if (!stack_item.prev.isEmpty()) {
+    public static String formatStackItem(GlrStack.StackItem stackItem, String secondLinePrefix) {
+        if (!stackItem.prev.isEmpty()) {
             List<String> pathes = new ArrayList<>();
-            for (List<GlrStack.StackItem> path : get_pathes(stack_item)) {
+            for (List<GlrStack.StackItem> path : getPathes(stackItem)) {
                 pathes.add(path.stream().map(Object::toString).collect(Collectors.joining(" > ")));
             }
             int length = pathes.stream().mapToInt(String::length).max().orElse(0);
             List<String> results = new ArrayList<>();
             for (int i = 0; i < pathes.size(); i++) {
                 String path = pathes.get(i);
-                String result = (i == 0 ? "" : second_line_prefix);
+                String result = (i == 0 ? "" : secondLinePrefix);
                 result += StringUtils.rightPad(path, length);
                 if (pathes.size()>1) {
                     if (i == 0) {
@@ -102,31 +102,31 @@ public class GlrUtils {
             return "0";
         }
     }
-    public static String format_stack_item(GlrStack.StackItem stack_item) {
-        return format_stack_item(stack_item, "");
+    public static String formatStackItem(GlrStack.StackItem stackItem) {
+        return formatStackItem(stackItem, "");
     }
 
 
-    public static List<List<GlrStack.StackItem>> get_pathes(GlrStack.StackItem stack_item) {
+    public static List<List<GlrStack.StackItem>> getPathes(GlrStack.StackItem stackItem) {
         List<List<GlrStack.StackItem>> result = new ArrayList<>();
-        if (!stack_item.prev.isEmpty()) {
-            for (GlrStack.StackItem prev : stack_item.prev) {
-                for (List<GlrStack.StackItem> p : get_pathes(prev)) {
+        if (!stackItem.prev.isEmpty()) {
+            for (GlrStack.StackItem prev : stackItem.prev) {
+                for (List<GlrStack.StackItem> p : getPathes(prev)) {
                     List<GlrStack.StackItem> pp = new ArrayList<>(p);
-                    pp.add(stack_item);
+                    pp.add(stackItem);
                     result.add(pp);
                 }
             }
         }
         else {
-            result.add(new ArrayList<>(List.of(stack_item)));
+            result.add(new ArrayList<>(List.of(stackItem)));
         }
 
         return result;
     }
 
-    public static String format_syntax_tree(GlrStack.SyntaxTree syntax_tree) {
-        ArrayList<LineAndValue> ast = new ArrayList<>(generate_syntax_tree_lines(syntax_tree));
+    public static String formatSyntaxTree(GlrStack.SyntaxTree syntaxTree) {
+        ArrayList<LineAndValue> ast = new ArrayList<>(generateSyntaxTreeLines(syntaxTree));
         int depth = ast.stream().mapToInt(o->o.line.length()).max().orElse(0);
         List<String> lines = new ArrayList<>();
         for (LineAndValue lineAndValue : ast) {
@@ -138,11 +138,11 @@ public class GlrUtils {
     }
 
     public record LineAndValue(String line, String value) {}
-    public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree) {
-        return generate_syntax_tree_lines(syntax_tree, false, "");
+    public static List<LineAndValue> generateSyntaxTreeLines(GlrStack.SyntaxTree syntaxTree) {
+        return generateSyntaxTreeLines(syntaxTree, false, "");
     }
 
-    public static List<LineAndValue> generate_syntax_tree_lines(GlrStack.SyntaxTree syntax_tree, boolean last, String prefix) {
+    public static List<LineAndValue> generateSyntaxTreeLines(GlrStack.SyntaxTree syntaxTree, boolean last, String prefix) {
         List<LineAndValue> result = new ArrayList<>();
         String line = StringUtils.substring(prefix, 0, -1);
         if (prefix.length()>0) {
@@ -156,15 +156,15 @@ public class GlrUtils {
         else {
             line = "  ";
         }
-        if (syntax_tree.is_leaf()) {
-            result.add(new LineAndValue(line + syntax_tree.symbol(), syntax_tree.token().input_term));
+        if (syntaxTree.isLeaf()) {
+            result.add(new LineAndValue(line + syntaxTree.symbol(), syntaxTree.token().inputTerm));
         }
         else {
-            result.add(new LineAndValue(line + syntax_tree.symbol(), ""));
-            for (int i = 0; i <syntax_tree.children().size(); i++) {
-                GlrStack.SyntaxTree r = syntax_tree.children().get(i);
-                last = i == syntax_tree.children().size() - 1;
-                final List<LineAndValue> c = generate_syntax_tree_lines(r, last, prefix + (last ? "   " : "  │"));
+            result.add(new LineAndValue(line + syntaxTree.symbol(), ""));
+            for (int i = 0; i <syntaxTree.children().size(); i++) {
+                GlrStack.SyntaxTree r = syntaxTree.children().get(i);
+                last = i == syntaxTree.children().size() - 1;
+                final List<LineAndValue> c = generateSyntaxTreeLines(r, last, prefix + (last ? "   " : "  │"));
                 boolean exist = c.stream().anyMatch(o->o.line.contains("  Options"));
                 result.addAll(c);
             }
@@ -173,16 +173,16 @@ public class GlrUtils {
         return result;
     }
 
-    public static List<GlrStack.SyntaxTree> flatten_syntax_tree(GlrStack.SyntaxTree syntax_tree, String symbol) {
+    public static List<GlrStack.SyntaxTree> flattenSyntaxTree(GlrStack.SyntaxTree syntaxTree, String symbol) {
         List<GlrStack.SyntaxTree> result = new ArrayList<>();
 //        Recursively traverse syntax tree until finds searched symbol.
 //        If found does not go deeper.
-        if (syntax_tree.symbol().equals(symbol)) {
-            result.add(syntax_tree);
+        if (syntaxTree.symbol().equals(symbol)) {
+            result.add(syntaxTree);
         }
-        else if (!syntax_tree.children().isEmpty()) {
-            for (GlrStack.SyntaxTree child : syntax_tree.children()) {
-                result.addAll(flatten_syntax_tree(child, symbol));
+        else if (!syntaxTree.children().isEmpty()) {
+            for (GlrStack.SyntaxTree child : syntaxTree.children()) {
+                result.addAll(flattenSyntaxTree(child, symbol));
             }
         }
 

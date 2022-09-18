@@ -20,22 +20,22 @@ import java.util.stream.Collectors;
 public class GlrLr {
     public static final Item EMPTY_ITEM = new Item(0, 0);
 
-    public record Item(int rule_index, int dot_position) implements Comparable<Item> {
+    public record Item(int ruleIndex, int dotPosition) implements Comparable<Item> {
         @Override
             public int compareTo(Item o) {
-                int compare = Integer.compare(rule_index, o.rule_index);
+                int compare = Integer.compare(ruleIndex, o.ruleIndex);
                 if (compare != 0) {
                     return compare;
                 }
-                return Integer.compare(dot_position, o.dot_position);
+                return Integer.compare(dotPosition, o.dotPosition);
             }
         }
-    public record State(int index, List<Item> itemset, Map<String, Set<Integer>> follow_dict, @Nullable Integer parent_state_index, @Nullable String parent_lookahead) {}
-    public record Action(String type, @Nullable Integer state, @Nullable Integer rule_index) {}
+    public record State(int index, List<Item> itemset, Map<String, Set<Integer>> followDict, @Nullable Integer parentStateIndex, @Nullable String parentLookahead) {}
+    public record Action(String type, @Nullable Integer state, @Nullable Integer ruleIndex) {}
 
-    public static List<LinkedHashMap<String, List<Action>>> generate_action_goto_table(GlrGrammar grammar) {
+    public static List<LinkedHashMap<String, List<Action>>> generateActionGotoTable(GlrGrammar grammar) {
         List<LinkedHashMap<String, List<Action>>> result = new ArrayList<>();
-        List<State> states = generate_state_graph(grammar);
+        List<State> states = generateStateGraph(grammar);
         GenerateFollowers generateFollowers = new GenerateFollowers(grammar);
         LinkedHashMap<String, LinkedHashSet<String>> followers = generateFollowers.followers;
 
@@ -44,31 +44,31 @@ public class GlrLr {
 
             // # Reduces
             for (Item item : state.itemset) {
-                GlrGrammar.Rule rule = grammar.rules.get(item.rule_index);
-                if (item.dot_position==rule.right_symbols().size()) {
-                    if ("@".equals(rule.left_symbol())) {
+                GlrGrammar.Rule rule = grammar.rules.get(item.ruleIndex);
+                if (item.dotPosition == rule.rightSymbols().size()) {
+                    if ("@".equals(rule.leftSymbol())) {
                         actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("A", null, null));
                     }
                     else {
-                        for (String follower : followers.get(rule.left_symbol())) {
-                            actions.computeIfAbsent(follower, o->new ArrayList<>()).add(new Action("R", null, item.rule_index));
+                        for (String follower : followers.get(rule.leftSymbol())) {
+                            actions.computeIfAbsent(follower, o->new ArrayList<>()).add(new Action("R", null, item.ruleIndex));
                         }
-                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("R", null, item.rule_index));
+                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("R", null, item.ruleIndex));
                     }
                 }
             }
 
             // # Shifts & goto's
-            for (Map.Entry<String, Set<Integer>> followEntry : state.follow_dict.entrySet()) {
+            for (Map.Entry<String, Set<Integer>> followEntry : state.followDict.entrySet()) {
                 String lookahead = followEntry.getKey();
-                Set<Integer> state_indexes = followEntry.getValue();
-                for (Integer state_index : state_indexes) {
-                    State child_state = states.get(state_index);
+                Set<Integer> stateIndexes = followEntry.getValue();
+                for (Integer stateIndex : stateIndexes) {
+                    State childState = states.get(stateIndex);
                     if (followers.containsKey(lookahead)) {
-                        actions.computeIfAbsent(lookahead, o->new ArrayList<>()).add(new Action("G", child_state.index, null));
+                        actions.computeIfAbsent(lookahead, o->new ArrayList<>()).add(new Action("G", childState.index, null));
                     }
                     else{
-                        actions.computeIfAbsent(lookahead, o->new ArrayList<>()).add(new Action("S", child_state.index, null));
+                        actions.computeIfAbsent(lookahead, o->new ArrayList<>()).add(new Action("S", childState.index, null));
                     }
                 }
             }
@@ -80,35 +80,35 @@ public class GlrLr {
 
     private record StackRec(@Nullable Integer index, @Nullable String lookahead, List<Item> itemset) {}
 
-    public static List<State> generate_state_graph(GlrGrammar grammar) {
+    public static List<State> generateStateGraph(GlrGrammar grammar) {
         List<State> states = new ArrayList<>();
-        LinkedHashMap<List<Item>, State> state_by_itemset = new LinkedHashMap<>();
-        List<Item> first_itemset = closure(List.of(EMPTY_ITEM), grammar);
-        first_itemset = first_itemset.stream().sorted(Comparator.comparingInt(Item::rule_index)).collect(Collectors.toList());
+        LinkedHashMap<List<Item>, State> stateByItemset = new LinkedHashMap<>();
+        List<Item> firstItemset = closure(List.of(EMPTY_ITEM), grammar);
+        firstItemset = firstItemset.stream().sorted(Comparator.comparingInt(Item::ruleIndex)).collect(Collectors.toList());
         LinkedList<StackRec> stack = new LinkedList<>();
-        stack.add(new StackRec(null, null, first_itemset));
+        stack.add(new StackRec(null, null, firstItemset));
 
         while (!stack.isEmpty()) {
             StackRec stackRec = stack.removeFirst();
-            Integer parent_state_index = stackRec.index;
-            String parent_lookahead = stackRec.lookahead;
+            Integer parentStateIndex = stackRec.index;
+            String parentLookahead = stackRec.lookahead;
             List<Item> itemset = stackRec.itemset;
             State state;
-            if (state_by_itemset.containsKey(itemset)) {
-                if (parent_state_index==null) {
-                    throw new IllegalStateException("(parent_state_index==null)");
+            if (stateByItemset.containsKey(itemset)) {
+                if (parentStateIndex==null) {
+                    throw new IllegalStateException("(parentStateIndex==null)");
                 }
                 // # State already exist, just add follow link
-                state = state_by_itemset.get(itemset);
-                states.get(parent_state_index).follow_dict.computeIfAbsent(parent_lookahead, (o)->new HashSet<>()).add(state.index);
+                state = stateByItemset.get(itemset);
+                states.get(parentStateIndex).followDict.computeIfAbsent(parentLookahead, (o)->new HashSet<>()).add(state.index);
                 continue;
             }
-            state = new State(states.size(), itemset, new LinkedHashMap<>(), parent_state_index, parent_lookahead);
+            state = new State(states.size(), itemset, new LinkedHashMap<>(), parentStateIndex, parentLookahead);
             states.add(state);
-            state_by_itemset.putIfAbsent(state.itemset, state);
+            stateByItemset.putIfAbsent(state.itemset, state);
 
-            if (parent_state_index!=null) {
-                states.get(parent_state_index).follow_dict.computeIfAbsent(parent_lookahead, (o)->new HashSet<>()).add(state.index);
+            if (parentStateIndex!=null) {
+                states.get(parentStateIndex).followDict.computeIfAbsent(parentLookahead, (o)->new HashSet<>()).add(state.index);
             }
             int i=0;
             for (Follows follows : follow(state.itemset, grammar)){
@@ -128,21 +128,21 @@ public class GlrLr {
         public GenerateFollowers(GlrGrammar grammar) {
             this.grammar = grammar;
             for (String s : grammar.nonterminals) {
-                this.starters.put(s, get_starters(s, grammar));
+                this.starters.put(s, getStarters(s, grammar));
             }
             for (String s : grammar.nonterminals) {
-                this.followers.put(s, get_followers(s, null, grammar));
+                this.followers.put(s, getFollowers(s, null, grammar));
             }
         }
 
-        public static LinkedHashSet<String> get_starters(String symbol, GlrGrammar grammar) {
+        public static LinkedHashSet<String> getStarters(String symbol, GlrGrammar grammar) {
             LinkedHashSet<String> result = new LinkedHashSet<>();
-            for (Integer rule_index : grammar.rules_for_symbol.get(symbol)) {
-                GlrGrammar.Rule rule = grammar.rules.get(rule_index);
-                final String rightSymbol = rule.right_symbols().get(0);
+            for (Integer ruleIndex : grammar.rulesForSymbol.get(symbol)) {
+                GlrGrammar.Rule rule = grammar.rules.get(ruleIndex);
+                final String rightSymbol = rule.rightSymbols().get(0);
                 if (grammar.nonterminals.contains(rightSymbol)) {
                     if (!rightSymbol.equals(symbol)) {
-                        result.addAll(get_starters(rightSymbol, grammar));
+                        result.addAll(getStarters(rightSymbol, grammar));
                     }
                 }
                 else {
@@ -152,23 +152,23 @@ public class GlrLr {
             return result;
         }
 
-        public LinkedHashSet<String> get_followers(String symbol, @Nullable LinkedHashSet<String> seen_symbols_temp, GlrGrammar grammar) {
-            LinkedHashSet<String> seen_symbols = seen_symbols_temp!=null ? seen_symbols_temp : new LinkedHashSet<>();
+        public LinkedHashSet<String> getFollowers(String symbol, @Nullable LinkedHashSet<String> seenSymbolsTemp, GlrGrammar grammar) {
+            LinkedHashSet<String> seenSymbols = seenSymbolsTemp!=null ? seenSymbolsTemp : new LinkedHashSet<>();
             LinkedHashSet<String> result = new LinkedHashSet<>();
             for (GlrGrammar.Rule rule : grammar.rules) {
 //                if isinstance(rule, set):  # TODO: remove workaround
 //                    continue
-                if (!rule.right_symbols().contains(symbol)) {
+                if (!rule.rightSymbols().contains(symbol)) {
                     continue;
                 }
-                int index = rule.right_symbols().indexOf(symbol);
-                if (index + 1 == rule.right_symbols().size()) {
-                    if (!rule.left_symbol().equals(symbol) && !seen_symbols.contains(rule.left_symbol())) {
-                        result.addAll(get_followers(rule.left_symbol(), seen_symbols, grammar));
+                int index = rule.rightSymbols().indexOf(symbol);
+                if (index + 1 == rule.rightSymbols().size()) {
+                    if (!rule.leftSymbol().equals(symbol) && !seenSymbols.contains(rule.leftSymbol())) {
+                        result.addAll(getFollowers(rule.leftSymbol(), seenSymbols, grammar));
                     }
                 }
                 else {
-                    String next = rule.right_symbols().get(index+1);
+                    String next = rule.rightSymbols().get(index + 1);
                     if (grammar.nonterminals.contains(next)) {
                         result.addAll(starters.get(next));
                     }
@@ -211,27 +211,27 @@ public class GlrLr {
     public static List<Item> closure(List<Item> itemset, GlrGrammar grammar) {
         List<Item> result = new ArrayList<>();
 
-        List<Item> items_to_process = itemset;
-        LinkedHashSet<String> visited_lookaheads = new LinkedHashSet<>();
+        List<Item> itemsToProcess = itemset;
+        LinkedHashSet<String> visitedLookaheads = new LinkedHashSet<>();
         while (true) {
-            result.addAll(items_to_process);
+            result.addAll(itemsToProcess);
 
-            List<Item> nested_to_process = new ArrayList<>();
-            for (Lookaheads iterateLookahead : iterate_lookaheads(items_to_process, grammar)) {
+            List<Item> nestedToProcess = new ArrayList<>();
+            for (Lookaheads iterateLookahead : iterateLookaheads(itemsToProcess, grammar)) {
                 Item item = iterateLookahead.item;
                 String lookahead = iterateLookahead.lookahead;
-                if (grammar.nonterminals.contains(lookahead) && !visited_lookaheads.contains(lookahead)) {
-                    visited_lookaheads.add(lookahead);
-                    for (Integer rule_index : grammar.rules_for_symbol.get(lookahead)) {
-                        nested_to_process.add(new Item(rule_index, 0));
+                if (grammar.nonterminals.contains(lookahead) && !visitedLookaheads.contains(lookahead)) {
+                    visitedLookaheads.add(lookahead);
+                    for (Integer ruleIndex : grammar.rulesForSymbol.get(lookahead)) {
+                        nestedToProcess.add(new Item(ruleIndex, 0));
                     }
                 }
             }
-            if (nested_to_process.isEmpty()) {
+            if (nestedToProcess.isEmpty()) {
                 // # no changes;
                 break;
             }
-            items_to_process = nested_to_process;
+            itemsToProcess = nestedToProcess;
         }
 
         return result;
@@ -252,16 +252,16 @@ public class GlrLr {
         """;
     public record Lookaheads(Item item, String lookahead) {}
 
-    public static List<Lookaheads> iterate_lookaheads(List<Item> itemset, GlrGrammar grammar) {
+    public static List<Lookaheads> iterateLookaheads(List<Item> itemset, GlrGrammar grammar) {
         List<Lookaheads> list = new ArrayList<>();
         for (Item item : itemset) {
-            GlrGrammar.Rule rule = grammar.rules.get(item.rule_index);
+            GlrGrammar.Rule rule = grammar.rules.get(item.ruleIndex);
 
-            if (item.dot_position==rule.right_symbols().size()) {
+            if (item.dotPosition == rule.rightSymbols().size()) {
                 // # dot is in the end, there is no look ahead symbol
                 continue;
             }
-            String lookahead = rule.right_symbols().get(item.dot_position);
+            String lookahead = rule.rightSymbols().get(item.dotPosition);
             list.add(new Lookaheads(item, lookahead));
         }
 
@@ -291,10 +291,10 @@ public class GlrLr {
         List<Follows> list = new ArrayList<>();
         // All transitions from an item set in a dictionary [token]->item set
         LinkedHashMap<String, List<Item>> result = new LinkedHashMap<>();
-        for (Lookaheads iterateLookahead : iterate_lookaheads(itemset, grammar)) {
+        for (Lookaheads iterateLookahead : iterateLookaheads(itemset, grammar)) {
             Item item = iterateLookahead.item;
             String lookahead = iterateLookahead.lookahead;
-            List<Item> tmp = closure(List.of(new Item(item.rule_index, item.dot_position + 1)), grammar);
+            List<Item> tmp = closure(List.of(new Item(item.ruleIndex, item.dotPosition + 1)), grammar);
             if (!result.containsKey(lookahead)) {
                 result.put(lookahead, new ArrayList<>());
             }

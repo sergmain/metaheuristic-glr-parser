@@ -44,26 +44,26 @@ public class GlrParserTest {
                 new GlrGrammar.Rule(12,"Symbol", List.of("raw"), false, null, 1.0)
         );
 
-        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(grammar);
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generateActionGotoTable(grammar);
 
         String expected = """
-        00 = {'S': [Action(type='G', state=1, rule_index=None)], 'Rule': [Action(type='G', state=2, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
-        01 = {'$': [Action(type='A', state=None, rule_index=None)], 'Rule': [Action(type='G', state=4, rule_index=None)], 'word': [Action(type='S', state=3, rule_index=None)]})
-        02 = {'word': [Action(type='R', state=None, rule_index=2)], '$': [Action(type='R', state=None, rule_index=2)]})
-        03 = {'sep': [Action(type='S', state=5, rule_index=None)]})
-        04 = {'word': [Action(type='R', state=None, rule_index=1)], '$': [Action(type='R', state=None, rule_index=1)]})
-        05 = {'Options': [Action(type='G', state=6, rule_index=None)], 'Option': [Action(type='G', state=7, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        06 = {'word': [Action(type='R', state=None, rule_index=3)], '$': [Action(type='R', state=None, rule_index=3)], 'alt': [Action(type='S', state=12, rule_index=None)]})
-        07 = {'word': [Action(type='R', state=None, rule_index=5)], 'alt': [Action(type='R', state=None, rule_index=5)], '$': [Action(type='R', state=None, rule_index=5)]})
-        08 = {'word': [Action(type='R', state=None, rule_index=7), Action(type='S', state=10, rule_index=None)], 'alt': [Action(type='R', state=None, rule_index=7)], '$': [Action(type='R', state=None, rule_index=7)], 'weight': [Action(type='S', state=13, rule_index=None)], 'Symbol': [Action(type='G', state=14, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        09 = {'weight': [Action(type='R', state=None, rule_index=9)], 'word': [Action(type='R', state=None, rule_index=9)], 'alt': [Action(type='R', state=None, rule_index=9)], 'raw': [Action(type='R', state=None, rule_index=9)], '$': [Action(type='R', state=None, rule_index=9)]})
-        10 = {'weight': [Action(type='R', state=None, rule_index=11)], 'word': [Action(type='R', state=None, rule_index=11)], 'alt': [Action(type='R', state=None, rule_index=11)], 'raw': [Action(type='R', state=None, rule_index=11)], '$': [Action(type='R', state=None, rule_index=11)], 'label': [Action(type='S', state=15, rule_index=None)]})
-        11 = {'weight': [Action(type='R', state=None, rule_index=12)], 'word': [Action(type='R', state=None, rule_index=12)], 'alt': [Action(type='R', state=None, rule_index=12)], 'raw': [Action(type='R', state=None, rule_index=12)], '$': [Action(type='R', state=None, rule_index=12)]})
-        12 = {'Option': [Action(type='G', state=16, rule_index=None)], 'Symbols': [Action(type='G', state=8, rule_index=None)], 'Symbol': [Action(type='G', state=9, rule_index=None)], 'word': [Action(type='S', state=10, rule_index=None)], 'raw': [Action(type='S', state=11, rule_index=None)]})
-        13 = {'word': [Action(type='R', state=None, rule_index=6)], 'alt': [Action(type='R', state=None, rule_index=6)], '$': [Action(type='R', state=None, rule_index=6)]})
-        14 = {'weight': [Action(type='R', state=None, rule_index=8)], 'word': [Action(type='R', state=None, rule_index=8)], 'alt': [Action(type='R', state=None, rule_index=8)], 'raw': [Action(type='R', state=None, rule_index=8)], '$': [Action(type='R', state=None, rule_index=8)]})
-        15 = {'weight': [Action(type='R', state=None, rule_index=10)], 'word': [Action(type='R', state=None, rule_index=10)], 'alt': [Action(type='R', state=None, rule_index=10)], 'raw': [Action(type='R', state=None, rule_index=10)], '$': [Action(type='R', state=None, rule_index=10)]})
-        16 = {'word': [Action(type='R', state=None, rule_index=4)], 'alt': [Action(type='R', state=None, rule_index=4)], '$': [Action(type='R', state=None, rule_index=4)]})       
+        00 = {'S': [Action(type='G', state=1, ruleIndex=None)], 'Rule': [Action(type='G', state=2, ruleIndex=None)], 'word': [Action(type='S', state=3, ruleIndex=None)]})
+        01 = {'$': [Action(type='A', state=None, ruleIndex=None)], 'Rule': [Action(type='G', state=4, ruleIndex=None)], 'word': [Action(type='S', state=3, ruleIndex=None)]})
+        02 = {'word': [Action(type='R', state=None, ruleIndex=2)], '$': [Action(type='R', state=None, ruleIndex=2)]})
+        03 = {'sep': [Action(type='S', state=5, ruleIndex=None)]})
+        04 = {'word': [Action(type='R', state=None, ruleIndex=1)], '$': [Action(type='R', state=None, ruleIndex=1)]})
+        05 = {'Options': [Action(type='G', state=6, ruleIndex=None)], 'Option': [Action(type='G', state=7, ruleIndex=None)], 'Symbols': [Action(type='G', state=8, ruleIndex=None)], 'Symbol': [Action(type='G', state=9, ruleIndex=None)], 'word': [Action(type='S', state=10, ruleIndex=None)], 'raw': [Action(type='S', state=11, ruleIndex=None)]})
+        06 = {'word': [Action(type='R', state=None, ruleIndex=3)], '$': [Action(type='R', state=None, ruleIndex=3)], 'alt': [Action(type='S', state=12, ruleIndex=None)]})
+        07 = {'word': [Action(type='R', state=None, ruleIndex=5)], 'alt': [Action(type='R', state=None, ruleIndex=5)], '$': [Action(type='R', state=None, ruleIndex=5)]})
+        08 = {'word': [Action(type='R', state=None, ruleIndex=7), Action(type='S', state=10, ruleIndex=None)], 'alt': [Action(type='R', state=None, ruleIndex=7)], '$': [Action(type='R', state=None, ruleIndex=7)], 'weight': [Action(type='S', state=13, ruleIndex=None)], 'Symbol': [Action(type='G', state=14, ruleIndex=None)], 'raw': [Action(type='S', state=11, ruleIndex=None)]})
+        09 = {'weight': [Action(type='R', state=None, ruleIndex=9)], 'word': [Action(type='R', state=None, ruleIndex=9)], 'alt': [Action(type='R', state=None, ruleIndex=9)], 'raw': [Action(type='R', state=None, ruleIndex=9)], '$': [Action(type='R', state=None, ruleIndex=9)]})
+        10 = {'weight': [Action(type='R', state=None, ruleIndex=11)], 'word': [Action(type='R', state=None, ruleIndex=11)], 'alt': [Action(type='R', state=None, ruleIndex=11)], 'raw': [Action(type='R', state=None, ruleIndex=11)], '$': [Action(type='R', state=None, ruleIndex=11)], 'label': [Action(type='S', state=15, ruleIndex=None)]})
+        11 = {'weight': [Action(type='R', state=None, ruleIndex=12)], 'word': [Action(type='R', state=None, ruleIndex=12)], 'alt': [Action(type='R', state=None, ruleIndex=12)], 'raw': [Action(type='R', state=None, ruleIndex=12)], '$': [Action(type='R', state=None, ruleIndex=12)]})
+        12 = {'Option': [Action(type='G', state=16, ruleIndex=None)], 'Symbols': [Action(type='G', state=8, ruleIndex=None)], 'Symbol': [Action(type='G', state=9, ruleIndex=None)], 'word': [Action(type='S', state=10, ruleIndex=None)], 'raw': [Action(type='S', state=11, ruleIndex=None)]})
+        13 = {'word': [Action(type='R', state=None, ruleIndex=6)], 'alt': [Action(type='R', state=None, ruleIndex=6)], '$': [Action(type='R', state=None, ruleIndex=6)]})
+        14 = {'weight': [Action(type='R', state=None, ruleIndex=8)], 'word': [Action(type='R', state=None, ruleIndex=8)], 'alt': [Action(type='R', state=None, ruleIndex=8)], 'raw': [Action(type='R', state=None, ruleIndex=8)], '$': [Action(type='R', state=None, ruleIndex=8)]})
+        15 = {'weight': [Action(type='R', state=None, ruleIndex=10)], 'word': [Action(type='R', state=None, ruleIndex=10)], 'alt': [Action(type='R', state=None, ruleIndex=10)], 'raw': [Action(type='R', state=None, ruleIndex=10)], '$': [Action(type='R', state=None, ruleIndex=10)]})
+        16 = {'word': [Action(type='R', state=None, ruleIndex=4)], 'alt': [Action(type='R', state=None, ruleIndex=4)], '$': [Action(type='R', state=None, ruleIndex=4)]})       
         """;
 
         assertEquals(17, actionTable.size());
@@ -79,9 +79,9 @@ public class GlrParserTest {
             String line = String.format("%02d = {", i);
             List<String> ss = new ArrayList<>();
             for (Map.Entry<String, List<GlrLr.Action>> en : t.entrySet()) {
-                // [Action(type='R', state=None, rule_index=7), Action(type='S', state=10, rule_index=None)]
-                String as = en.getValue().stream().map(o->"Action(type='"+o.type()+"', state=" +
-                                                          (o.state()==null ? "None" : o.state().toString()) + ", rule_index="+(o.rule_index()==null?"None":o.rule_index().toString())+")").collect(Collectors.joining(", "));
+                // [Action(type='R', state=None, ruleIndex=7), Action(type='S', state=10, ruleIndex=None)]
+                String as = en.getValue().stream().map(o-> "Action(type='" + o.type() + "', state=" +
+                                                           (o.state()==null ? "None" : o.state().toString()) + ", ruleIndex=" + (o.ruleIndex() == null?"None":o.ruleIndex().toString()) + ")").collect(Collectors.joining(", "));
                 String s = "'"+en.getKey()+"': [" + as +"]";
                 ss.add(s);
             }
@@ -94,7 +94,7 @@ public class GlrParserTest {
 
     @Test
     public void test_98() {
-        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(GlrGrammarParser.GLR_BASE_GRAMMAR);
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generateActionGotoTable(GlrGrammarParser.GLR_BASE_GRAMMAR);
 
         String[] keys = new String[] {
                 "S,Rule,word", "$,Rule,word", "word,$", "sep", "word,$",
@@ -122,7 +122,7 @@ public class GlrParserTest {
         S = CLOTHES adj<agr-gnc=-1>
         """;
 
-        List<GlrToken> tokens = GlrGrammarParser.lr_grammar_tokenizer.tokenize(SIMPLE_GRAMMAR);
+        List<GlrToken> tokens = GlrGrammarParser.LR_GRAMMAR_TOKENIZER.tokenize(SIMPLE_GRAMMAR);
         assertEquals(11, tokens.size());
         String actual = "";
         for (int i = 0; i < tokens.size(); i++) {
@@ -131,7 +131,7 @@ public class GlrParserTest {
             GlrTextTokenPosition pos = (GlrTextTokenPosition)t.position;
             actual += String.format(
                     "%02d = {Token: 6} Token(symbol='%s', value='%s', start=%d, end=%d, input_term='%s', params=None)\n",
-                    i, t.symbol, t.value, pos.start, pos.end, t.input_term);
+                    i, t.symbol, t.value, pos.start, pos.end, t.inputTerm);
         }
 
         String expected = """
@@ -161,15 +161,15 @@ public class GlrParserTest {
         """;
 
         GlrGrammar grammar = GlrGrammarParser.parse(SIMPLE_GRAMMAR, "S");
-        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generate_action_goto_table(grammar);
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generateActionGotoTable(grammar);
 
         String expected = """
-        00 = {'S': [Action(type='G', state=1, rule_index=None)], 'adj': [Action(type='S', state=2, rule_index=None)], 'CLOTHES': [Action(type='S', state=3, rule_index=None)]})
-        01 = {'$': [Action(type='A', state=None, rule_index=None)]})
-        02 = {'CLOTHES': [Action(type='S', state=4, rule_index=None)]})
-        03 = {'adj': [Action(type='S', state=5, rule_index=None)]})
-        04 = {'$': [Action(type='R', state=None, rule_index=1)]})
-        05 = {'$': [Action(type='R', state=None, rule_index=2)]})
+        00 = {'S': [Action(type='G', state=1, ruleIndex=None)], 'adj': [Action(type='S', state=2, ruleIndex=None)], 'CLOTHES': [Action(type='S', state=3, ruleIndex=None)]})
+        01 = {'$': [Action(type='A', state=None, ruleIndex=None)]})
+        02 = {'CLOTHES': [Action(type='S', state=4, ruleIndex=None)]})
+        03 = {'adj': [Action(type='S', state=5, ruleIndex=None)]})
+        04 = {'$': [Action(type='R', state=None, ruleIndex=1)]})
+        05 = {'$': [Action(type='R', state=None, ruleIndex=2)]})
         """;
 
         assertEquals(6, actionTable.size());
@@ -192,7 +192,7 @@ public class GlrParserTest {
 
         assertEquals(3, grammar.rules.size());
         final GlrGrammar.Rule rule0 = grammar.rules.get(0);
-        assertEquals("@", rule0.left_symbol());
+        assertEquals("@", rule0.leftSymbol());
         assertEquals(0, rule0.index());
         assertNotNull(rule0.params());
         assertEquals(1, rule0.params().size());
@@ -201,7 +201,7 @@ public class GlrParserTest {
 
 
         final GlrGrammar.Rule rule1 = grammar.rules.get(1);
-        assertEquals("S", rule1.left_symbol());
+        assertEquals("S", rule1.leftSymbol());
         assertEquals(1, rule1.index());
         assertNotNull(rule1.params());
         assertEquals(2, rule1.params().size());
@@ -212,7 +212,7 @@ public class GlrParserTest {
 
 
         final GlrGrammar.Rule rule2 = grammar.rules.get(2);
-        assertEquals("S", rule2.left_symbol());
+        assertEquals("S", rule2.leftSymbol());
         assertEquals(2, rule2.index());
         assertNotNull(rule2.params());
         assertEquals(2, rule2.params().size());

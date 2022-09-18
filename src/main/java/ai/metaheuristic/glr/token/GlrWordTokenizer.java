@@ -37,22 +37,22 @@ public class GlrWordTokenizer extends GlrSimpleRegexTokenizer {
 */
 
 
-    private static final LinkedHashMap<String, String> symbol_regex_word_dict = new LinkedHashMap<>();
+    private static final LinkedHashMap<String, String> symbolRegexWordDict = new LinkedHashMap<>();
 
     static {
-        symbol_regex_word_dict.put("word", "[\\p{L}\\p{Digit}_-]+");
-        symbol_regex_word_dict.put("number", "[\\d]+");
-        symbol_regex_word_dict.put("space", "[\\s]+");
-        symbol_regex_word_dict.put("newline", "[\\n]+");
-        symbol_regex_word_dict.put("dot", "[\\.]+");
-        symbol_regex_word_dict.put("comma", "[,]+");
-        symbol_regex_word_dict.put("colon", "[:]+");
-        symbol_regex_word_dict.put("percent", "[%]+");
-        symbol_regex_word_dict.put("quote", "[\"'«»`]+");
-        symbol_regex_word_dict.put("brace", "[\\(\\)\\{\\}\\[\\]]+");
+        symbolRegexWordDict.put("word", "[\\p{L}\\p{Digit}_-]+");
+        symbolRegexWordDict.put("number", "[\\d]+");
+        symbolRegexWordDict.put("space", "[\\s]+");
+        symbolRegexWordDict.put("newline", "[\\n]+");
+        symbolRegexWordDict.put("dot", "[\\.]+");
+        symbolRegexWordDict.put("comma", "[,]+");
+        symbolRegexWordDict.put("colon", "[:]+");
+        symbolRegexWordDict.put("percent", "[%]+");
+        symbolRegexWordDict.put("quote", "[\"'«»`]+");
+        symbolRegexWordDict.put("brace", "[\\(\\)\\{\\}\\[\\]]+");
     }
 
     public GlrWordTokenizer() {
-        super(symbol_regex_word_dict, List.of("space"));
+        super(symbolRegexWordDict, List.of("space"));
     }
 }

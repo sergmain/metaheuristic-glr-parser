@@ -23,17 +23,17 @@ public class GlrAutomation {
     private final GlrParser parser;
     private final GlrGrammar grammar;
 
-    public GlrAutomation( String grammar_text, String start) {
-        this.grammar = GlrGrammarParser.parse(grammar_text, start);
+    public GlrAutomation( String grammarText, String start) {
+        this.grammar = GlrGrammarParser.parse(grammarText, start);
         this.parser = new GlrParser(grammar);
     }
 
-    private static boolean validator(GlrGrammar grammar, GlrStack.SyntaxTree syntax_tree) {
-        if (syntax_tree.rule_index()==null) {
+    private static boolean validator(GlrGrammar grammar, GlrStack.SyntaxTree syntaxTree) {
+        if (syntaxTree.ruleIndex() == null) {
             return true;
         }
-        GlrGrammar.Rule rule = grammar.rules.get(syntax_tree.rule_index());
-        List<GlrToken> tokens = syntax_tree.children().stream()
+        GlrGrammar.Rule rule = grammar.rules.get(syntaxTree.ruleIndex());
+        List<GlrToken> tokens = syntaxTree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
                 .filter(Objects::nonNull).toList();
 
@@ -44,16 +44,16 @@ public class GlrAutomation {
             }
             Map<String, List<Object>> params = rule.params().get(i);
             for (Map.Entry<String, List<Object>> entry : params.entrySet()) {
-                String label_key = entry.getKey();
-                List<Object> label_values = entry.getValue();
-                for (Object label_value : label_values) {
-                    if (!(label_value instanceof String label_value_str)) {
-                        throw new IllegalStateException("(!(label_value instanceof String))");
+                String labelKey = entry.getKey();
+                List<Object> labelValues = entry.getValue();
+                for (Object labelValue : labelValues) {
+                    if (!(labelValue instanceof String labelValueStr)) {
+                        throw new IllegalStateException("(!(labelValue instanceof String))");
                     }
-                    GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck(label_value_str, tokens, i);
-                    boolean ok = GlrLabels.LABELS_CHECK.getOrDefault(label_key, (v)->false).apply(labelCheck);
+                    GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck(labelValueStr, tokens, i);
+                    boolean ok = GlrLabels.LABELS_CHECK.getOrDefault(labelKey, (v)->false).apply(labelCheck);
                     if (!ok) {
-                        // #print 'Label failed: %s=%s for #%s in %s' % (label_key, label_value, i, tokens)
+                        // #print 'Label failed: %s=%s for #%s in %s' % (labelKey, labelValue, i, tokens)
                         return false;
                     }
                 }
@@ -66,8 +66,8 @@ public class GlrAutomation {
         return parse(tokens, false);
     }
 
-    private List<GlrStack.SyntaxTree> parse(List<GlrToken> tokens, boolean full_math) {
-        return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));
+    private List<GlrStack.SyntaxTree> parse(List<GlrToken> tokens, boolean fullMath) {
+        return parser.parse(tokens, fullMath, (syntaxTree) -> validator(grammar, syntaxTree));
     }
 }
 

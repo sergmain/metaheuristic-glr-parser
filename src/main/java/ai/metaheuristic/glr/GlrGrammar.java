@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
  */
 public class GlrGrammar {
 
-    public record Rule(int index, String left_symbol, List<String> right_symbols,
+    public record Rule(int index, String leftSymbol, List<String> rightSymbols,
                        boolean commit, @Nullable List<Map<String, List<Object>>> params, double weight){}
 
     public final List<Rule> rules = new ArrayList<>();
-    public final LinkedHashMap<String, List<Integer>> rules_for_symbol;
+    public final LinkedHashMap<String, List<Integer>> rulesForSymbol;
     private final LinkedHashSet<String> symbols;
     public final LinkedHashSet<String> nonterminals;
     public final LinkedHashSet<String> terminals;
@@ -34,21 +34,21 @@ public class GlrGrammar {
     public GlrGrammar(List<Rule> rules) {
         this.rules.addAll(rules);
 
-        this.rules_for_symbol = new LinkedHashMap<>();
+        this.rulesForSymbol = new LinkedHashMap<>();
         for (Rule rule : this.rules) {
-            rules_for_symbol.computeIfAbsent(rule.left_symbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));
+            rulesForSymbol.computeIfAbsent(rule.leftSymbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));
         }
-        this.symbols = new LinkedHashSet<>(all_symbols());
+        this.symbols = new LinkedHashSet<>(allSymbols());
         this.symbols.add("$");
-        this.nonterminals = this.rules.stream().map(o->o.left_symbol).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.nonterminals = this.rules.stream().map(o->o.leftSymbol).collect(Collectors.toCollection(LinkedHashSet::new));
         this.terminals = symbols.stream().filter(o->!nonterminals.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public List<String> all_symbols() {
+    public List<String> allSymbols() {
         List<String> set = new ArrayList<>();
         for (Rule rule : rules) {
-            set.add(rule.left_symbol);
-            set.addAll(rule.right_symbols);
+            set.add(rule.leftSymbol);
+            set.addAll(rule.rightSymbols);
         }
         return set;
     }

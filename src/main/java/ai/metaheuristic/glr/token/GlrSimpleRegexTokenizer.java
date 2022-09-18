@@ -26,21 +26,21 @@ import static java.util.regex.Pattern.*;
  */
 public class GlrSimpleRegexTokenizer implements GlrTokenizer {
     private final Pattern re;
-    private final LinkedHashSet<String> discard_symbols;
+    private final LinkedHashSet<String> discardSymbols;
     private final LinkedHashSet<String> symbols;
     private final LinkedHashSet<String> allSymbols = new LinkedHashSet<>();
 
     public GlrSimpleRegexTokenizer(
-            LinkedHashMap<String, String> symbol_regex_dict, @Nullable List<String> discard_symbols) {
-        this(symbol_regex_dict, discard_symbols, CASE_INSENSITIVE | MULTILINE | UNICODE_CASE);
+            LinkedHashMap<String, String> symbolRegexDict, @Nullable List<String> discardSymbols) {
+        this(symbolRegexDict, discardSymbols, CASE_INSENSITIVE | MULTILINE | UNICODE_CASE);
     }
 
     @SuppressWarnings("WeakerAccess")
     public GlrSimpleRegexTokenizer(
-            LinkedHashMap<String, String> symbol_regex_dict, @Nullable List<String> discard_symbols,
+            LinkedHashMap<String, String> symbolRegexDict, @Nullable List<String> discardSymbols,
             int regex_flags) {
         List<String> patterns = new ArrayList<>();
-        for (Map.Entry<String, String> entry : symbol_regex_dict.entrySet()) {
+        for (Map.Entry<String, String> entry : symbolRegexDict.entrySet()) {
             String symbol = entry.getKey();
             String regex = entry.getValue();
             if (regex.contains("(?<")) {
@@ -50,9 +50,9 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
         }
         this.re = Pattern.compile(String.join("|", patterns), regex_flags);
 
-        this.discard_symbols = discard_symbols == null ? new LinkedHashSet<>() : new LinkedHashSet<>(discard_symbols);
-        this.symbols = symbol_regex_dict.keySet().stream().filter(o -> !this.discard_symbols.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
-        this.allSymbols.addAll(this.discard_symbols);
+        this.discardSymbols = discardSymbols == null ? new LinkedHashSet<>() : new LinkedHashSet<>(discardSymbols);
+        this.symbols = symbolRegexDict.keySet().stream().filter(o -> !this.discardSymbols.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
+        this.allSymbols.addAll(this.discardSymbols);
         this.allSymbols.addAll(this.symbols);
     }
 
@@ -75,7 +75,7 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
 
             String tokname = getParserRulesKeys().filter(name -> m.group(name) != null).findFirst().orElse(null);
 
-            if (this.discard_symbols.contains(tokname)) {
+            if (this.discardSymbols.contains(tokname)) {
                 continue;
             }
             if (tokname == null) {

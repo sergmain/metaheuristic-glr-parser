@@ -49,7 +49,7 @@ public class GlrLabels {
             return false;
         }
         Matcher m = patterns.computeIfAbsent(labelCheck.value,
-                Pattern::compile).matcher(labelCheck.tokens.get(labelCheck.i).input_term);
+                Pattern::compile).matcher(labelCheck.tokens.get(labelCheck.i).inputTerm);
         return m.find();
     }
 

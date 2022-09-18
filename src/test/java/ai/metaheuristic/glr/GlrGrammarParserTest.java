@@ -26,17 +26,17 @@ public class GlrGrammarParserTest {
     @Test
     public void test_54() {
         assertTrue(GlrGrammarParser.GLR_BASE_GRAMMAR.rules.get(GlrGrammarParser.RULE_OPTION_SYMBOLS_WEIGHT_IDX)
-                .right_symbols().contains(GlrConsts.SYMBOL_WEIGHT_RIGHT_SYMBOLS));
+                .rightSymbols().contains(GlrConsts.SYMBOL_WEIGHT_RIGHT_SYMBOLS));
         assertTrue(GlrGrammarParser.GLR_BASE_GRAMMAR.rules.get(GlrGrammarParser.RULE_SYMBOL_WORD_WITH_LABEL_IDX)
-                .right_symbols().contains(SYMBOL_WORD_RIGHT_SYMBOLS));
+                .rightSymbols().contains(SYMBOL_WORD_RIGHT_SYMBOLS));
         assertTrue(GlrGrammarParser.GLR_BASE_GRAMMAR.rules.get(GlrGrammarParser.RULE_SYMBOL_WORD_WITH_LABEL_IDX)
-                .right_symbols().contains(SYMBOL_LABEL_RIGHT_SYMBOLS));
+                .rightSymbols().contains(SYMBOL_LABEL_RIGHT_SYMBOLS));
 
         assertTrue(GlrGrammarParser.GLR_BASE_GRAMMAR.rules.get(GlrGrammarParser.RULE_SYMBOL_WORD_IDX)
-                .right_symbols().contains(SYMBOL_WORD_RIGHT_SYMBOLS));
+                .rightSymbols().contains(SYMBOL_WORD_RIGHT_SYMBOLS));
 
         assertTrue(GlrGrammarParser.GLR_BASE_GRAMMAR.rules.get(GlrGrammarParser.RULE_SYMBOL_RAW_IDX)
-                .right_symbols().contains(SYMBOL_RAW_RIGHT_SYMBOLS));
+                .rightSymbols().contains(SYMBOL_RAW_RIGHT_SYMBOLS));
     }
 
     @Test

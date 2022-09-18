@@ -42,7 +42,7 @@ public class GlrGrammarParser {
         """;
 */
 
-    public static final GlrSimpleRegexTokenizer lr_grammar_tokenizer;
+    public static final GlrSimpleRegexTokenizer LR_GRAMMAR_TOKENIZER;
 
     static {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
@@ -55,7 +55,7 @@ public class GlrGrammarParser {
         map.put("minus", "[-]");
         map.put(SYMBOL_LABEL_RIGHT_SYMBOLS, "<.+?>");
         map.put(SYMBOL_WEIGHT_RIGHT_SYMBOLS, "\\(\\d+(?:[.,]\\d+)?\\)");
-        lr_grammar_tokenizer = new GlrSimpleRegexTokenizer(map, List.of("whitespace"));
+        LR_GRAMMAR_TOKENIZER = new GlrSimpleRegexTokenizer(map, List.of("whitespace"));
     }
 
     public static final GlrGrammar GLR_BASE_GRAMMAR = new GlrGrammar(
@@ -86,14 +86,14 @@ public class GlrGrammarParser {
     public static GlrGrammar parse(String grammar, String start) {
         List<Rule> rules = new ArrayList<>();
         rules.add(new Rule(0, "@", new ArrayList<>(List.of(start)), false, new ArrayList<>(List.of(Map.of("", List.of()))), 1.0));
-        for (ScanRule scan_rule : _scan_rules(grammar)) {
-            var left_symbol = scan_rule.left_symbol;
-            var weight = scan_rule.weight;
-            List<SymbolWithMap> right_symbols = scan_rule.right_symbols;
-            if (right_symbols.size()>0) {
-                final List<String> symbols = right_symbols.stream().map(o -> o.symbol).distinct().toList();
-                List<Map<String, List<Object>>> map = right_symbols.stream().map(o -> o.map).distinct().toList();
-                rules.add(new Rule(rules.size(), left_symbol, symbols, false, map, weight));
+        for (ScanRule scanRule : scanRules(grammar)) {
+            var leftSymbol = scanRule.leftSymbol;
+            var weight = scanRule.weight;
+            List<SymbolWithMap> rightSymbols = scanRule.rightSymbols;
+            if (rightSymbols.size()>0) {
+                final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).distinct().toList();
+                List<Map<String, List<Object>>> map = rightSymbols.stream().map(o -> o.map).distinct().toList();
+                rules.add(new Rule(rules.size(), leftSymbol, symbols, false, map, weight));
             }
             else {
                 throw new IllegalStateException("GLR parser does not support epsilon free rules");
@@ -103,47 +103,47 @@ public class GlrGrammarParser {
     }
 
     public record SymbolWithMap(String symbol, Map<String, List<Object>> map) {}
-    public record ScanRule(String left_symbol, double weight, List<SymbolWithMap> right_symbols){}
+    public record ScanRule(String leftSymbol, double weight, List<SymbolWithMap> rightSymbols){}
 
-    public static List<ScanRule> _scan_rules(String grammar_str) {
+    public static List<ScanRule> scanRules(String grammarStr) {
         List<ScanRule> result = new ArrayList<>();
-        List<SyntaxTree> syntax_trees = getGlrParser().parse(lr_grammar_tokenizer.tokenize(grammar_str), true);
-        if (syntax_trees.size() > 1) {
-            throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
+        List<SyntaxTree> syntaxTrees = getGlrParser().parse(LR_GRAMMAR_TOKENIZER.tokenize(grammarStr), true);
+        if (syntaxTrees.size() > 1) {
+            throw new RuntimeException("Ambiguous grammar. count: " + syntaxTrees.size());
         }
-        for (SyntaxTree rule_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Rule")) {
-            String left_symbol = rule_node.children().get(0).token().input_term;
-            for (SyntaxTree option_node : GlrUtils.flatten_syntax_tree(rule_node.children().get(2), "Option")) {
+        for (SyntaxTree ruleNode : GlrUtils.flattenSyntaxTree(syntaxTrees.get(0), "Rule")) {
+            String leftSymbol = ruleNode.children().get(0).token().inputTerm;
+            for (SyntaxTree optionNode : GlrUtils.flattenSyntaxTree(ruleNode.children().get(2), "Option")) {
                 double weight;
-                if (RULE_OPTION_SYMBOLS_WEIGHT_IDX.equals(option_node.rule_index())) {
-                    final String s = option_node.children().get(1).token().input_term;
+                if (RULE_OPTION_SYMBOLS_WEIGHT_IDX.equals(optionNode.ruleIndex())) {
+                    final String s = optionNode.children().get(1).token().inputTerm;
                     weight = Double.parseDouble(StringUtils.substring(s, 1, -1).replace(',', '.'));
                 }
                 else {
                     weight = 1.0;
                 }
 
-                List<SymbolWithMap> right_symbols = new ArrayList<>();
-                for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(option_node, "Symbol")) {
+                List<SymbolWithMap> rightSymbols = new ArrayList<>();
+                for (SyntaxTree symbolNode : GlrUtils.flattenSyntaxTree(optionNode, "Symbol")) {
                     SymbolWithMap symbolWithMap = null;
-                    if (RULE_SYMBOL_WORD_IDX.equals(symbol_node.rule_index())) {
-                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().input_term, Map.of());
+                    if (RULE_SYMBOL_WORD_IDX.equals(symbolNode.ruleIndex())) {
+                        symbolWithMap = new SymbolWithMap(symbolNode.children().get(0).token().inputTerm, Map.of());
                     }
-                    else if (RULE_SYMBOL_RAW_IDX.equals(symbol_node.rule_index())) {
-                        final String s = symbol_node.children().get(0).token().input_term;
+                    else if (RULE_SYMBOL_RAW_IDX.equals(symbolNode.ruleIndex())) {
+                        final String s = symbolNode.children().get(0).token().inputTerm;
                         symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of(SYMBOL_RAW_RIGHT_SYMBOLS, List.of(true)));
                     }
-                    else if (RULE_SYMBOL_WORD_WITH_LABEL_IDX.equals(symbol_node.rule_index())) {
-                        final String s0 = symbol_node.children().get(0).token().input_term;
-                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().input_term, 1, -1);
+                    else if (RULE_SYMBOL_WORD_WITH_LABEL_IDX.equals(symbolNode.ruleIndex())) {
+                        final String s0 = symbolNode.children().get(0).token().inputTerm;
+                        final String s1 = StringUtils.substring(symbolNode.children().get(1).token().inputTerm, 1, -1);
                         symbolWithMap = new SymbolWithMap(s0, GlrLabels.parseLabel(s1));
                     }
 
                     if (symbolWithMap!=null) {
-                        right_symbols.add(symbolWithMap);
+                        rightSymbols.add(symbolWithMap);
                     }
                 }
-                result.add(new ScanRule(left_symbol, weight, right_symbols));
+                result.add(new ScanRule(leftSymbol, weight, rightSymbols));
             }
         }
 

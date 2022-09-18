@@ -12,9 +12,7 @@ import ai.metaheuristic.glr.token.GlrWordTokenizer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -44,7 +42,7 @@ public class GlrParserRawTest {
         GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
-            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
         assertEquals(1, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);

@@ -46,7 +46,7 @@ public class GlrGeneralTest {
         GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
-            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
         assertEquals(3, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);
@@ -106,7 +106,7 @@ public class GlrGeneralTest {
         GlrAutomation automation = new GlrAutomation(grammar, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
-            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
 
         assertEquals(1, parsed.size());

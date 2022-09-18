@@ -35,7 +35,7 @@ public class RunExampleV2 {
         GlrAutomation automation = new GlrAutomation(GlrConsts.SIMPLE_GRAMMAR, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
-            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
     }
 

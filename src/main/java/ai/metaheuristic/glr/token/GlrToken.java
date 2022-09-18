@@ -25,7 +25,7 @@ public final class GlrToken {
     public final Object value;
     @Nullable
     public GlrTokenPosition position;
-    public final String input_term;
+    public final String inputTerm;
     @Nullable
     public final Tag params;
 
@@ -37,11 +37,11 @@ public final class GlrToken {
         this(symbol, value, null, "", null);
     }
 
-    public GlrToken(String symbol, Object value, @Nullable GlrTokenPosition position, String input_term, @Nullable Tag params) {
+    public GlrToken(String symbol, Object value, @Nullable GlrTokenPosition position, String inputTerm, @Nullable Tag params) {
         this.symbol = symbol;
         this.value = value;
         this.position = position;
-        this.input_term = input_term;
+        this.inputTerm = inputTerm;
         this.params = params;
     }
 
