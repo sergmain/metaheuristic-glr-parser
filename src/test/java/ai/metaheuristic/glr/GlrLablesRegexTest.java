@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrTextTokenPosition;
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
 import org.junit.jupiter.api.Test;
@@ -56,4 +57,68 @@ public class GlrLablesRegexTest {
         assertEquals("сентябрь", st0.children().get(1).token().value);
 
     }
+
+    @Test
+    public void test_57() {
+        String text = "сегодня 17 сентября и это суббота";
+
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", "сегодня", new GlrGeneralTest.IndexPosition(1), "", null),
+                new GlrToken("word", "17", new GlrGeneralTest.IndexPosition(2), "", null),
+                new GlrToken("word", "сентября", new GlrGeneralTest.IndexPosition(3), "", null),
+                new GlrToken("word", "и", new GlrGeneralTest.IndexPosition(4), "", null),
+                new GlrToken("word", "это", new GlrGeneralTest.IndexPosition(5), "", null),
+                new GlrToken("word", "суббота", new GlrGeneralTest.IndexPosition(6), "", null),
+                new GlrToken("$", "", new GlrTextTokenPosition(text.length(), -1), "", null)
+        );
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+        }
+
+        assertEquals(1, parsed.size());
+        GlrStack.SyntaxTree st0 = parsed.get(0);
+        assertEquals(2, st0.children().size());
+        assertEquals("word", st0.children().get(0).symbol());
+        assertEquals("17", st0.children().get(0).token().value);
+
+        assertEquals("MONTH", st0.children().get(1).symbol());
+        assertEquals("сентябрь", st0.children().get(1).token().value);
+    }
+
+    @Test
+    public void test_59() {
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", "сегодня", new GlrGeneralTest.IndexPosition(1), "", null),
+                new GlrToken("word", "17", new GlrGeneralTest.IndexPosition(2), "", null),
+                new GlrToken("word", "сентября", new GlrGeneralTest.IndexPosition(3), "", null),
+                new GlrToken("$", "", new GlrGeneralTest.IndexPosition(4), "", null)
+        );
+        String regexGrammar = """
+        S = word<regex=(\\d{1,2})>
+        """;
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(regexGrammar, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
+        }
+
+        assertEquals(1, parsed.size());
+        GlrStack.SyntaxTree st0 = parsed.get(0);
+        assertEquals(1, st0.children().size());
+        assertEquals("word", st0.children().get(0).symbol());
+        assertEquals("17", st0.children().get(0).token().value);
+
+    }
+
+
 }

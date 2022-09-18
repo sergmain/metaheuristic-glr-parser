@@ -69,36 +69,39 @@ public class GlrMorphologyLexer {
         for (GlrToken token : tokens) {
             if (token.symbol.equals("word")) {
                 if (!(token.value instanceof String strValue)) {
-                    throw new IllegalStateException("(!(token.getValue() instanceof String strValue))");
-                }
-                List<ParsedWord> morphed = morph.parse(strValue);
-                if (!morphed.isEmpty()) {
-                    final ParsedWord parsedWord = morphed.get(0);
-                    String value = parsedWord.normalForm;
-                    final String symbol;
-                    if (this.dictionary.containsKey(value)) {
-                        symbol = dictionary.get(value);
-                    }
-                    else {
-                        final Grammeme pos = morphed.get(0).tag.POS;
-                        final String tag = pos!=null ? mappingFunc.apply(pos.value) : null;
-                        symbol = tag != null ? tag : token.symbol;
-                    }
-                    result.add( new GlrToken(symbol, value, token.position, token.input_term, parsedWord.tag));
+                    result.add( new GlrToken(token.symbol, token.value, token.position, token.value.toString(), null) );
                 }
                 else {
-                    throw new IllegalStateException("morph didn't find word "+token.value);
+                    List<ParsedWord> morphed = morph.parse(strValue);
+                    if (!morphed.isEmpty()) {
+                        final ParsedWord parsedWord = morphed.get(0);
+                        String value = parsedWord.normalForm;
+                        final String symbol;
+                        if (this.dictionary.containsKey(value)) {
+                            symbol = dictionary.get(value);
+                        }
+                        else {
+                            final Grammeme pos = morphed.get(0).tag.POS;
+                            final String tag = pos != null ? mappingFunc.apply(pos.value) : null;
+                            symbol = tag != null ? tag : token.symbol;
+                        }
+                        result.add(new GlrToken(symbol, value, token.position, token.value.toString(), parsedWord.tag));
+                    }
+                    else {
+                        throw new IllegalStateException("morph didn't find word " + token.value);
+                    }
                 }
             }
             else if ((token.symbol.equals("class"))) {
-                String symbol = "Class<"+token.value.getClass().getSimpleName()+'>';
-                result.add( new GlrToken(symbol, token.value, token.position, token.input_term, null) );
+                String symbol = "word";
+                String value = "<class="+token.value.getClass().getSimpleName()+'>';
+                result.add( new GlrToken(symbol, token.value, token.position, value, null) );
             }
             else {
                 if (!(token.value instanceof String strValue)) {
                     throw new IllegalStateException("(!(token.getValue() instanceof String strValue))");
                 }
-                result.add( new GlrToken(token.symbol, strValue, token.position, token.input_term, null));
+                result.add( new GlrToken(token.symbol, strValue, token.position, token.value.toString(), null));
             }
         }
 

@@ -52,6 +52,14 @@ public class GlrLabels {
                 Pattern::compile).matcher(labelCheck.tokens.get(labelCheck.i).input_term);
         return m.find();
     }
+
+    public static boolean class_label(LabelCheck labelCheck) {
+        if (labelCheck.value==null) {
+            throw new IllegalStateException("(labelCheck.value==null)");
+        }
+        final GlrToken glrToken = labelCheck.tokens.get(labelCheck.i);
+        return glrToken.value.getClass().getSimpleName().equals(labelCheck.value);
+    }
 /*
     String py99 = """
     LABELS_CHECK = {
@@ -74,7 +82,8 @@ public class GlrLabels {
     public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(
                     agr_gnc.label,  GlrLabels::agr_gnc_label,
-                    regex.label,  GlrLabels::regex_label
+                    regex.label,  GlrLabels::regex_label,
+                    clazz.label,  GlrLabels::class_label
             )
     );
 

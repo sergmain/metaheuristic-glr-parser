@@ -26,10 +26,11 @@ public class GlrEnums {
         agr_c("agr-c", true),
         agr_gn("agr-gn", true),
         agr_gc("agr-gc", true),
-        regex("regex", true);
+        regex("regex", true),
+        clazz("class", true);
 
         public final String label;
-        public boolean hasParam;
+        public final boolean hasParam;
 
         Labels(String label, boolean hasParam) {
             this.label = label;
@@ -39,7 +40,7 @@ public class GlrEnums {
         public static Labels fromName(String name) {
             Labels l = fromNameNullable(name);
             if (l==null) {
-                throw new IllegalStateException("(l==null)");
+                throw new IllegalStateException("(l==null), name: " + name);
             }
             return l;
         }

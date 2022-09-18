@@ -75,61 +75,52 @@ public class GlrGeneralTest {
 
     }
 
+
+    public record IndexPosition(int index) implements GlrTokenPosition {}
+
     @Test
     public void test_56() {
         String text = "договор от 25 января 2022 N 123";
 
+        final LocalDate localDate = LocalDate.of(2022, 1, 25);
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", "договор"),
-                new GlrToken("word", "от"),
-                new GlrToken("class", LocalDate.of(2022, 1, 25)),
-                new GlrToken("word", "N"),
-                new GlrToken("word", "123")
+                new GlrToken("word", "договор", new IndexPosition(1), "", null),
+                new GlrToken("word", "от", new IndexPosition(2), "", null),
+                new GlrToken("word", localDate, new IndexPosition(3), "", null),
+                new GlrToken("word", "N", new IndexPosition(4), "", null),
+                new GlrToken("word", "123", new IndexPosition(5), "", null),
+                new GlrToken("$", "", new IndexPosition(6), "", null)
         );
 
-        final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
-                "DOC_NUMBER ",  List.of("куртка", "пальто", "шубы"))
+        LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
+                "DOC_NUMBER",  List.of("N", "№"))
         );
 
         String grammar = """
-            S = Class<LocalDate> 'N'
-            S = CLOTHES adj<agr-gnc=-1>
+            S = word<class=LocalDate> DOC_NUMBER
             """;
 
-
-        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
         GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
         List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
 
-        GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
+        GlrAutomation automation = new GlrAutomation(grammar, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
             System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
         }
-        assertEquals(3, parsed.size());
+
+        assertEquals(1, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);
         assertEquals(2, st0.children().size());
-        assertEquals("adj", st0.children().get(0).symbol());
-        assertEquals("красивый", st0.children().get(0).token().value);
+        assertEquals("word", st0.children().get(0).symbol());
+        final GlrToken token0 = st0.children().get(0).token();
+        assertEquals(localDate, token0.value);
+        assertEquals(new IndexPosition(3), token0.position);
 
-        assertEquals("CLOTHES", st0.children().get(1).symbol());
-        assertEquals("куртка", st0.children().get(1).token().value);
-
-        GlrStack.SyntaxTree st1 = parsed.get(1);
-        assertEquals(2, st1.children().size());
-        assertEquals("adj", st1.children().get(0).symbol());
-        assertEquals("старый", st1.children().get(0).token().value);
-
-        assertEquals("CLOTHES", st1.children().get(1).symbol());
-        assertEquals("шуба", st1.children().get(1).token().value);
-
-        GlrStack.SyntaxTree st2 = parsed.get(2);
-        assertEquals(2, st2.children().size());
-        assertEquals("CLOTHES", st2.children().get(0).symbol());
-        assertEquals("пальто", st2.children().get(0).token().value);
-
-        assertEquals("adj", st2.children().get(1).symbol());
-        assertEquals("серый", st2.children().get(1).token().value);
-
+        assertEquals("DOC_NUMBER", st0.children().get(1).symbol());
+        final GlrToken token1 = st0.children().get(1).token();
+        assertEquals("N", token1.value);
+        assertEquals(new IndexPosition(4), token1.position);
     }
+
 }
