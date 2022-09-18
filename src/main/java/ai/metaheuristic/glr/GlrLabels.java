@@ -8,7 +8,6 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -16,7 +15,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static ai.metaheuristic.glr.GlrEnums.*;
+import static ai.metaheuristic.glr.GlrEnums.Labels;
 import static ai.metaheuristic.glr.GlrEnums.Labels.*;
 
 /**
@@ -49,8 +48,8 @@ public class GlrLabels {
         if (labelCheck.value==null) {
             return false;
         }
-        Matcher m = patterns.computeIfAbsent(labelCheck.tokens.get(labelCheck.i).input_term,
-                Pattern::compile).matcher(labelCheck.value);
+        Matcher m = patterns.computeIfAbsent(labelCheck.value,
+                Pattern::compile).matcher(labelCheck.tokens.get(labelCheck.i).input_term);
         return m.find();
     }
 /*
@@ -72,10 +71,10 @@ public class GlrLabels {
 
 
 
-    public static final Map<Labels, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
+    public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(
-                    agr_gnc,  GlrLabels::agr_gnc_label,
-                    regex,  GlrLabels::regex_label
+                    agr_gnc.label,  GlrLabels::agr_gnc_label,
+                    regex.label,  GlrLabels::regex_label
             )
     );
 
