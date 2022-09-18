@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
+
 import java.util.List;
 
 /**
@@ -15,5 +17,5 @@ import java.util.List;
  * Time: 2:23 PM
  */
 public interface GlrTokenizer {
-    List<? extends GlrToken> tokenize(String text);
+    List<GlrToken> tokenize(String text);
 }

@@ -157,7 +157,7 @@ public class GlrUtils {
             line = "  ";
         }
         if (syntax_tree.is_leaf()) {
-            result.add(new LineAndValue(line + syntax_tree.symbol(), syntax_tree.token().getInput_term()));
+            result.add(new LineAndValue(line + syntax_tree.symbol(), syntax_tree.token().input_term));
         }
         else {
             result.add(new LineAndValue(line + syntax_tree.symbol(), ""));

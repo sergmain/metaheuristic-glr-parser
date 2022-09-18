@@ -7,11 +7,17 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static ai.metaheuristic.glr.GlrEnums.*;
+import static ai.metaheuristic.glr.GlrEnums.Labels.*;
 
 /**
  * @author Sergio Lissner
@@ -27,8 +33,8 @@ public class GlrLabels {
         if (labelCheck.value==null) {
             throw new IllegalStateException("(labelCheck.value==null)");
         }
-        var one = labelCheck.tokens.get(labelCheck.i).getParams();
-        var another = labelCheck.tokens.get(labelCheck.i + Integer.parseInt(labelCheck.value)).getParams();
+        var one = labelCheck.tokens.get(labelCheck.i).params;
+        var another = labelCheck.tokens.get(labelCheck.i + Integer.parseInt(labelCheck.value)).params;
         if (one==null || another==null) {
             return false;
         }
@@ -37,6 +43,16 @@ public class GlrLabels {
                && (one.number==another.number  || one.number==null || another.number==null);
     }
 
+    private final static Map<String, Pattern> patterns = new HashMap<>();
+
+    public static boolean regex_label(LabelCheck labelCheck) {
+        if (labelCheck.value==null) {
+            return false;
+        }
+        Matcher m = patterns.computeIfAbsent(labelCheck.tokens.get(labelCheck.i).input_term,
+                Pattern::compile).matcher(labelCheck.value);
+        return m.find();
+    }
 /*
     String py99 = """
     LABELS_CHECK = {
@@ -54,11 +70,74 @@ public class GlrLabels {
     """;
 */
 
-    public static final Map<String, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
+
+
+    public static final Map<Labels, Function<LabelCheck, Boolean>> LABELS_CHECK  = new HashMap<>(
             Map.of(
-                    "agr-gnc",  GlrLabels::agr_gnc_label
+                    agr_gnc,  GlrLabels::agr_gnc_label,
+                    regex,  GlrLabels::regex_label
             )
     );
 
+    public static Map<String, List<Object>> parseLabel(String labelsStr1) {
+        String str = labelsStr1.strip().replace(" ", "");
+        Map<String, List<Object>> labels = new LinkedHashMap<>();
+        List<Integer> idxs = collectIdxs(str);
+        List<String> partss = splitToLabels(str, idxs);
+        for (String s : partss) {
+            int idx = s.indexOf('=');
+            if (idx==-1) {
+                extractedParamLess(labels, s);
+            }
+            else {
+                String key = s.substring(0, idx);
+                String value = s.substring(idx+1);
+                final Labels label = Labels.fromName(key);
+                if (!label.hasParam) {
+                    throw new IllegalStateException("(!label.hasParam)");
+                }
+                labels.computeIfAbsent(label.label, (o)->new ArrayList<>()).add(value);
+            }
+        }
+        return labels;
+    }
+
+    private static List<String> splitToLabels(String str, List<Integer> idxs) {
+        List<String> result = new ArrayList<>();
+        int lastIdx = 0;
+        for (Integer idx : idxs) {
+            result.add(str.substring(lastIdx, idx));
+            lastIdx = idx +1;
+        }
+        result.add(str.substring(lastIdx));
+        return result;
+    }
+
+    private static List<Integer> collectIdxs(String str) {
+        Set<Integer> idxs = new HashSet<>();
+        for (Labels value : values()) {
+            collectIdxsForLabel(idxs, str, value);
+        }
+        final ArrayList<Integer> list = new ArrayList<>(idxs);
+        list.sort(Comparator.naturalOrder());
+        return list;
+    }
+
+    private static void collectIdxsForLabel(Set<Integer> idxs, String s, Labels label) {
+        int idx = 0;
+        String l = ","+label.label;
+        while ((idx=s.indexOf(l, idx))!= -1) {
+            idxs.add(idx);
+            idx += l.length();
+        }
+    }
+
+    private static void extractedParamLess(Map<String, List<Object>> labels, String s) {
+        final Labels label = Labels.fromName(s);
+        if (label.hasParam) {
+            throw new IllegalStateException("(label.hasParam)");
+        }
+        labels.computeIfAbsent(label.label, (o)->new ArrayList<>());
+    }
 }
 

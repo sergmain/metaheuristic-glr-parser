@@ -7,11 +7,7 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.GlrGrammar;
-import ai.metaheuristic.glr.GlrGrammarParser;
-import ai.metaheuristic.glr.GlrLr;
-import ai.metaheuristic.glr.GlrToken;
-import ai.metaheuristic.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrTextTokenPosition;
 import org.junit.jupiter.api.Test;
 
@@ -131,12 +127,11 @@ public class GlrParserTest {
         String actual = "";
         for (int i = 0; i < tokens.size(); i++) {
             GlrToken t = tokens.get(i);
-            assertTrue(t instanceof GlrTextToken);
-            GlrTextToken glrTextToken = (GlrTextToken)t;
-            GlrTextTokenPosition pos = (GlrTextTokenPosition)glrTextToken.getPosition();
+            assertNotNull(t.position);
+            GlrTextTokenPosition pos = (GlrTextTokenPosition)t.position;
             actual += String.format(
                     "%02d = {Token: 6} Token(symbol='%s', value='%s', start=%d, end=%d, input_term='%s', params=None)\n",
-                    i, t.getSymbol(), t.getValue(), pos.start, pos.end, t.getInput_term());
+                    i, t.symbol, t.value, pos.start, pos.end, t.input_term);
         }
 
         String expected = """

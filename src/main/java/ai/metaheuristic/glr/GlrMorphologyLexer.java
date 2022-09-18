@@ -7,14 +7,19 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.token.GlrToken;
+import company.evo.jmorphy2.Grammeme;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
 import company.evo.jmorphy2.ResourceFileLoader;
 import lombok.SneakyThrows;
-import javax.annotation.Nullable;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Sergio Lissner
@@ -23,47 +28,13 @@ import java.util.*;
  */
 public class GlrMorphologyLexer {
 
-    private static final Map<String, String> TAG_MAPPER_1 = Map.of(
-            "NOUN", "noun",
-            "ADJF", "adj",
-            "ADJS", "adj",
-            "COMP", "adj",
-            "VERB", "verb",
-            "INFN", "verb",
-            "PRTF", "pr",
-            "PRTS", "pr",
-            "GRND", "dpr",
-            "NUMR", "num"
-    );
-
-    private static final Map<String, String> TAG_MAPPER_2 = Map.of(
-            "ADVB", "adv",
-            "NPRO", "pnoun",
-            "PRED", "adv",
-            "PREP", "prep",
-            "CONJ", "conj",
-            "PRCL", "prcl",
-            "INTJ", "noun",
-            "LATN", "lat",
-            "NUMB", "num"
-    );
-
-    private static final Map<String, String> TAG_MAPPER = new HashMap<>();
-
-    static {
-        TAG_MAPPER.putAll(TAG_MAPPER_1);
-        TAG_MAPPER.putAll(TAG_MAPPER_2);
-    }
-
     public static final String DICT_PATH = "/company/evo/jmorphy2/ru/pymorphy2_dicts";
 
-    private final GlrTokenizer tokenizer;
     private final MorphAnalyzer morph;
     private final LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
 
     @SneakyThrows
-    public GlrMorphologyLexer(GlrTokenizer tokenizer, @Nullable LinkedHashMap<String, List<String>> dictionaries) {
-        this.tokenizer = tokenizer;
+    public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this.morph = new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(DICT_PATH)).build();
 
         if (dictionaries!=null) {
@@ -89,12 +60,18 @@ public class GlrMorphologyLexer {
     }
 
     @SneakyThrows
-    public List<GlrToken> scan(String text) {
-        List<GlrToken> tokens = new ArrayList<>();
+    public List<GlrToken> initMorphology(
+            List<GlrToken> tokens,
+            Function<String, String> mappingFunc
+            ) {
+        List<GlrToken> result = new ArrayList<>();
 
-        for (GlrToken token : tokenizer.tokenize(text)) {
-            if (token.getSymbol().equals("word")) {
-                List<ParsedWord> morphed = morph.parse(token.getValue());
+        for (GlrToken token : tokens) {
+            if (token.symbol.equals("word")) {
+                if (!(token.value instanceof String strValue)) {
+                    throw new IllegalStateException("(!(token.getValue() instanceof String strValue))");
+                }
+                List<ParsedWord> morphed = morph.parse(strValue);
                 if (!morphed.isEmpty()) {
                     final ParsedWord parsedWord = morphed.get(0);
                     String value = parsedWord.normalForm;
@@ -103,17 +80,28 @@ public class GlrMorphologyLexer {
                         symbol = dictionary.get(value);
                     }
                     else {
-                        final String tag = TAG_MAPPER.get(morphed.get(0).tag.POS.value);
-                        symbol = tag != null ? tag : token.getSymbol();
+                        final Grammeme pos = morphed.get(0).tag.POS;
+                        final String tag = pos!=null ? mappingFunc.apply(pos.value) : null;
+                        symbol = tag != null ? tag : token.symbol;
                     }
-                    tokens.add( new GlrTextToken(symbol, value, token.getPosition(), token.getInput_term(), parsedWord.tag));
+                    result.add( new GlrToken(symbol, value, token.position, token.input_term, parsedWord.tag));
+                }
+                else {
+                    throw new IllegalStateException("morph didn't find word "+token.value);
                 }
             }
+            else if ((token.symbol.equals("class"))) {
+                String symbol = "Class<"+token.value.getClass().getSimpleName()+'>';
+                result.add( new GlrToken(symbol, token.value, token.position, token.input_term, null) );
+            }
             else {
-                tokens.add(token);
+                if (!(token.value instanceof String strValue)) {
+                    throw new IllegalStateException("(!(token.getValue() instanceof String strValue))");
+                }
+                result.add( new GlrToken(token.symbol, strValue, token.position, token.input_term, null));
             }
         }
 
-        return tokens;
+        return result;
     }
 }

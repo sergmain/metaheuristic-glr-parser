@@ -7,8 +7,8 @@
 
 package ai.metaheuristic.glr;
 
-import javax.annotation.Nullable;
-import java.util.LinkedHashMap;
+import ai.metaheuristic.glr.token.GlrToken;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -20,12 +20,10 @@ import java.util.Objects;
  */
 public class GlrAutomation {
 
-    private final GlrMorphologyLexer lexer;
     private final GlrParser parser;
     private final GlrGrammar grammar;
 
-    public GlrAutomation(GlrTokenizer glrTokenizer, String grammar_text, @Nullable LinkedHashMap<String, List<String>> dictionaries, String start) {
-        this.lexer = new GlrMorphologyLexer(glrTokenizer, dictionaries);
+    public GlrAutomation( String grammar_text, String start) {
         this.grammar = GlrGrammarParser.parse(grammar_text, start);
         this.parser = new GlrParser(grammar);
     }
@@ -38,6 +36,7 @@ public class GlrAutomation {
         List<GlrToken> tokens = syntax_tree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
                 .filter(Objects::nonNull).toList();
+
         for (int i = 0; i < tokens.size(); i++) {
             GlrToken token = tokens.get(i);
             if (rule.params()==null) {
@@ -63,13 +62,11 @@ public class GlrAutomation {
         return true;
     }
 
-    public List<GlrStack.SyntaxTree> parse(String text) {
-        return parse(text, false);
+    public List<GlrStack.SyntaxTree> parse(List<GlrToken> tokens) {
+        return parse(tokens, false);
     }
 
-    private List<GlrStack.SyntaxTree> parse(String text, boolean full_math) {
-        List<GlrToken> tokens = lexer.scan(text);
-
+    private List<GlrStack.SyntaxTree> parse(List<GlrToken> tokens, boolean full_math) {
         return parser.parse(tokens, full_math, (syntaxTree) -> validator(grammar, syntaxTree));
     }
 }

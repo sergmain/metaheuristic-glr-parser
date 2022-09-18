@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
 
 import java.util.LinkedHashMap;
@@ -25,12 +26,14 @@ public class RunExampleV2 {
     );
 
     public static void main(String[] args) {
-        String text = "на вешалке висят пять красивых курток и вонючая шуба, а также пальто серое";
+        String text = "на вешалке висят пять красивых курток и старая шуба, а также пальто серое";
 
         GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(glrTokenizer.tokenize(text), GlrTagMapper::map);
 
-        GlrAutomation automation = new GlrAutomation(glrTokenizer, GlrConsts.SIMPLE_GRAMMAR, dictionaries, "S");
-        List<GlrStack.SyntaxTree> parsed = automation.parse(text);
+        GlrAutomation automation = new GlrAutomation(GlrConsts.SIMPLE_GRAMMAR, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
             System.out.println(GlrUtils.format_syntax_tree(syntaxTree));
         }

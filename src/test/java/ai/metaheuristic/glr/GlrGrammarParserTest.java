@@ -7,15 +7,14 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.GlrConsts;
-import ai.metaheuristic.glr.GlrGrammarParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static ai.metaheuristic.glr.GlrConsts.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sergio Lissner
@@ -42,10 +41,46 @@ public class GlrGrammarParserTest {
 
     @Test
     public void test_55() {
-        Map<String, List<Object>> m = GlrGrammarParser._parse_labels("agr-gnc=1");
+        Map<String, List<Object>> m = GlrLabels.parseLabel("agr-gnc=1");
 
         assertTrue(m.containsKey("agr-gnc"));
         assertEquals(1, m.get("agr-gnc").size());
         assertEquals("1", m.get("agr-gnc").get(0));
+    }
+
+    @Test
+    public void test_56() {
+        Map<String, List<Object>> m = GlrLabels.parseLabel("regex=(\\d{1,2})");
+
+        assertTrue(m.containsKey(("regex")));
+        assertEquals(1, m.size());
+        assertEquals(1, m.get(("regex")).size());
+        assertEquals("(\\d{1,2})", m.get(("regex")).get(0));
+    }
+
+    @Test
+    public void test_57() {
+        Map<String, List<Object>> m = GlrLabels.parseLabel("reg-l-all, gram=nomn");
+
+        assertEquals(2, m.size());
+        assertTrue(m.containsKey("reg-l-all"));
+        assertTrue(m.containsKey("gram"));
+
+        assertEquals(0, m.get("reg-l-all").size());
+        assertEquals(1, m.get("gram").size());
+        assertEquals("nomn", m.get("gram").get(0));
+    }
+
+    @Test
+    public void test_58() {
+        Map<String, List<Object>> m = GlrLabels.parseLabel(
+                "reg-l-all, gram=nomn, reg-h-first, regex=(\\d{1,2}), reg-h-all");
+
+        assertEquals(5, m.size());
+        assertTrue(m.containsKey("reg-l-all"));
+        assertTrue(m.containsKey("gram"));
+        assertTrue(m.containsKey("reg-h-first"));
+        assertTrue(m.containsKey("regex"));
+        assertTrue(m.containsKey("reg-h-all"));
     }
 }

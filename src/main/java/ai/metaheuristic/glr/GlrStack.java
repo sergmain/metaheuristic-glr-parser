@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import javax.annotation.Nullable;
@@ -110,7 +111,7 @@ public class GlrStack {
         }
 
         public StackItem shift(GlrToken token, int state) {
-            SyntaxTree syntax_tree = new SyntaxTree(token.getSymbol(), token, null, List.of());
+            SyntaxTree syntax_tree = new SyntaxTree(token.symbol, token, null, List.of());
             return new StackItem(syntax_tree, state, List.of(this));
         }
 

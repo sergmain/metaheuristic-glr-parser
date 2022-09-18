@@ -112,11 +112,11 @@ public class GlrGrammarParser {
             throw new RuntimeException("Ambiguous grammar. count: " + syntax_trees.size());
         }
         for (SyntaxTree rule_node : GlrUtils.flatten_syntax_tree(syntax_trees.get(0), "Rule")) {
-            String left_symbol = rule_node.children().get(0).token().getInput_term();
+            String left_symbol = rule_node.children().get(0).token().input_term;
             for (SyntaxTree option_node : GlrUtils.flatten_syntax_tree(rule_node.children().get(2), "Option")) {
                 double weight;
                 if (RULE_OPTION_SYMBOLS_WEIGHT_IDX.equals(option_node.rule_index())) {
-                    final String s = option_node.children().get(1).token().getInput_term();
+                    final String s = option_node.children().get(1).token().input_term;
                     weight = Double.parseDouble(StringUtils.substring(s, 1, -1).replace(',', '.'));
                 }
                 else {
@@ -127,16 +127,16 @@ public class GlrGrammarParser {
                 for (SyntaxTree symbol_node : GlrUtils.flatten_syntax_tree(option_node, "Symbol")) {
                     SymbolWithMap symbolWithMap = null;
                     if (RULE_SYMBOL_WORD_IDX.equals(symbol_node.rule_index())) {
-                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().getInput_term(), Map.of());
+                        symbolWithMap = new SymbolWithMap(symbol_node.children().get(0).token().input_term, Map.of());
                     }
                     else if (RULE_SYMBOL_RAW_IDX.equals(symbol_node.rule_index())) {
-                        final String s = symbol_node.children().get(0).token().getInput_term();
+                        final String s = symbol_node.children().get(0).token().input_term;
                         symbolWithMap = new SymbolWithMap(StringUtils.substring(s, 1, -1).strip(), Map.of(SYMBOL_RAW_RIGHT_SYMBOLS, List.of(true)));
                     }
                     else if (RULE_SYMBOL_WORD_WITH_LABEL_IDX.equals(symbol_node.rule_index())) {
-                        final String s0 = symbol_node.children().get(0).token().getInput_term();
-                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().getInput_term(), 1, -1);
-                        symbolWithMap = new SymbolWithMap(s0, _parse_labels(s1));
+                        final String s0 = symbol_node.children().get(0).token().input_term;
+                        final String s1 = StringUtils.substring(symbol_node.children().get(1).token().input_term, 1, -1);
+                        symbolWithMap = new SymbolWithMap(s0, GlrLabels.parseLabel(s1));
                     }
 
                     if (symbolWithMap!=null) {
@@ -148,23 +148,5 @@ public class GlrGrammarParser {
         }
 
         return result;
-    }
-
-    public static Map<String, List<Object>> _parse_labels(String labels_str_param) {
-        String labels_str = labels_str_param.strip().replace(" ", "");
-        Map<String, List<Object>> labels = new LinkedHashMap<>();
-        for (String key_value : labels_str.split(",")) {
-            if (key_value.indexOf('=')!=-1) {
-                String[] sp = key_value.split("=", 2);
-                String key = sp[0];
-                String value = sp[1];
-                labels.computeIfAbsent(key, (o)->new ArrayList<>()).add(value);
-            }
-            else {
-                labels.computeIfAbsent(key_value, (o)->new ArrayList<>()).add(true);
-            }
-        }
-        return labels;
-
     }
 }

@@ -7,10 +7,7 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.GlrLabels;
-import ai.metaheuristic.glr.GlrMorphologyLexer;
-import ai.metaheuristic.glr.GlrToken;
-import ai.metaheuristic.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrTextTokenPosition;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
@@ -48,8 +45,8 @@ public class GlrLabelsTest {
 
 
         List<GlrToken> tokens = List.of(
-                new GlrTextToken("adj", "красивый", new GlrTextTokenPosition(22,  30), "красивых", pw1.tag),
-                new GlrTextToken("CLOTHES", "куртка", new GlrTextTokenPosition(31,  37), "курток", pw2.tag)
+                new GlrToken("adj", "красивый", new GlrTextTokenPosition(22,  30), "красивых", pw1.tag),
+                new GlrToken("CLOTHES", "куртка", new GlrTextTokenPosition(31,  37), "курток", pw2.tag)
         );
 
         GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck("1", tokens, 0);

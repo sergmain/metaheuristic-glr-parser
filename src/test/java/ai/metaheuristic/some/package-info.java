@@ -6,6 +6,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package ai.metaheuristic.trash;
+package ai.metaheuristic.some;
 
 import javax.annotation.ParametersAreNonnullByDefault;

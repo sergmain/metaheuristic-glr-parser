@@ -7,7 +7,7 @@
 
 package ai.metaheuristic.glr;
 
-import ai.metaheuristic.glr.token.GlrTextToken;
+import ai.metaheuristic.glr.token.GlrToken;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -33,7 +33,7 @@ public class GlrParser {
             if (node.state==null) {
                 throw new IllegalStateException("(node.state==null)");
             }
-            List<GlrLr.Action> node_actions = action_goto_table.get(node.state).get(token.getSymbol());
+            List<GlrLr.Action> node_actions = action_goto_table.get(node.state).get(token.symbol);
             if (node_actions==null) {
                 continue;
             }
@@ -65,7 +65,7 @@ public class GlrParser {
     }
 
     public List<GlrStack.SyntaxTree> parse(
-            List<GlrToken> reduce_by_tokens_params, boolean full_math, @Nullable Function<GlrStack.SyntaxTree, Boolean> reduce_validator) {
+            List<? extends GlrToken> reduce_by_tokens_params, boolean full_math, @Nullable Function<GlrStack.SyntaxTree, Boolean> reduce_validator) {
 
         List<GlrStack.StackItem> accepted_nodes = new ArrayList<>();
 
@@ -80,15 +80,15 @@ public class GlrParser {
             List<GlrToken> reduce_by_tokens = new ArrayList<>(List.of(token));
 
             if (!full_math) {
-                if ( !grammar.terminals.contains(token.getSymbol())) {
+                if ( !grammar.terminals.contains(token.symbol)) {
                     log(1, "- Not in grammar, interpret as end of stream");
                     reduce_by_tokens = new ArrayList<>();
                 }
 
                 // # If not full match on each token we assume rule may start or end
                 current.add(GlrStack.StackItem.start_new());
-                if (!"$".equals(token.getSymbol())) {
-                    reduce_by_tokens.add(new GlrTextToken("$"));
+                if (!"$".equals(token.symbol)) {
+                    reduce_by_tokens.add(new GlrToken("$"));
                 }
             }
 

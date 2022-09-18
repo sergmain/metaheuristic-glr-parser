@@ -5,7 +5,7 @@
  *
  */
 
-package ai.metaheuristic.trash;
+package ai.metaheuristic.some;
 
 import org.junit.jupiter.api.Test;
 
