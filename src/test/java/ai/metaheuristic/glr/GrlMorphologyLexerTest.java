@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Sergio Lissner
@@ -72,6 +73,7 @@ public class GrlMorphologyLexerTest {
 
         assertEquals(2, tokens.size());
         assertEquals("MONTH", tokens.get(0).symbol);
+        assertFalse(tokens.get(0).inputTerm.contains("StringHolder"));
     }
 
 }

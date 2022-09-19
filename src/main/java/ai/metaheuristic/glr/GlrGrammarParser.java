@@ -90,14 +90,15 @@ public class GlrGrammarParser {
             var leftSymbol = scanRule.leftSymbol;
             var weight = scanRule.weight;
             List<SymbolWithMap> rightSymbols = scanRule.rightSymbols;
-            if (rightSymbols.size()>0) {
-                final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).distinct().toList();
-                List<Map<String, List<Object>>> map = rightSymbols.stream().map(o -> o.map).distinct().toList();
-                rules.add(new Rule(rules.size(), leftSymbol, symbols, false, map, weight));
-            }
-            else {
+            if (rightSymbols.isEmpty()) {
                 throw new IllegalStateException("GLR parser does not support epsilon free rules");
             }
+            if (rightSymbols.size()>2) {
+                throw new IllegalStateException("Right now parser doesn't support grammar with more than 2 right symbols");
+            }
+            final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).distinct().toList();
+            List<Map<String, List<Object>>> map = rightSymbols.stream().map(o -> o.map).distinct().toList();
+            rules.add(new Rule(rules.size(), leftSymbol, symbols, false, map, weight));
         }
         return new GlrGrammar(rules);
     }

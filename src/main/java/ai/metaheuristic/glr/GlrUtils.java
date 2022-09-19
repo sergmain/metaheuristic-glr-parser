@@ -7,8 +7,11 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
+import ai.metaheuristic.glr.token.GlrWordToken;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -157,7 +160,11 @@ public class GlrUtils {
             line = "  ";
         }
         if (syntaxTree.isLeaf()) {
-            result.add(new LineAndValue(line + syntaxTree.symbol(), syntaxTree.token().inputTerm));
+            if (syntaxTree.token()==null) {
+                throw new IllegalStateException("(syntaxTree.token()==null)");
+            }
+            String value = asStringValue(syntaxTree.token());
+            result.add(new LineAndValue(line + syntaxTree.symbol(), value==null ? syntaxTree.token().inputTerm : value));
         }
         else {
             result.add(new LineAndValue(line + syntaxTree.symbol(), ""));
@@ -187,5 +194,16 @@ public class GlrUtils {
         }
 
         return result;
+    }
+
+    @Nullable
+    public static String asStringValue(@Nullable GlrToken token) {
+        if (token.value instanceof String strValue) {
+            return strValue;
+        }
+        if (token.value instanceof GlrWordToken wordToken) {
+            return wordToken.getWord();
+        }
+        return null;
     }
 }

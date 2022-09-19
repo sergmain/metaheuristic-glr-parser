@@ -8,7 +8,6 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
-import ai.metaheuristic.glr.token.GlrWordToken;
 import company.evo.jmorphy2.Grammeme;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
@@ -16,7 +15,6 @@ import company.evo.jmorphy2.ResourceFileLoader;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -82,7 +80,7 @@ public class GlrMorphologyLexer {
         List<GlrToken> result = new ArrayList<>();
         for (GlrToken token : tokens) {
             if (token.symbol.equals("word")) {
-                String tokenStrValue = asStringValue(token);
+                String tokenStrValue = GlrUtils.asStringValue(token);
                 if (tokenStrValue!=null) {
                     List<ParsedWord> morphed = morph.parse(tokenStrValue);
                     if (!morphed.isEmpty()) {
@@ -97,7 +95,7 @@ public class GlrMorphologyLexer {
                             final String tag = pos != null ? mappingFunc.apply(pos.value) : null;
                             symbol = tag != null ? tag : token.symbol;
                         }
-                        result.add(new GlrToken(symbol, value, token.position, token.value.toString(), parsedWord.tag));
+                        result.add(new GlrToken(symbol, value, token.position, tokenStrValue, parsedWord.tag));
                     }
                     else {
                         throw new IllegalStateException("morph didn't find word " + token.value);
@@ -122,17 +120,6 @@ public class GlrMorphologyLexer {
         }
 
         return result;
-    }
-
-    @Nullable
-    private static String asStringValue(GlrToken token) {
-        if (token.value instanceof String strValue) {
-            return strValue;
-        }
-        if (token.value instanceof GlrWordToken wordToken) {
-            return wordToken.getWord();
-        }
-        return null;
     }
 
     private static List<GlrToken> checkEndingOfListPresent(List<GlrToken> tokensOrigin) {
