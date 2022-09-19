@@ -39,7 +39,7 @@ public class GlrGrammar {
             rulesForSymbol.computeIfAbsent(rule.leftSymbol, o->new ArrayList<>()).add(this.rules.indexOf(rule));
         }
         this.symbols = new LinkedHashSet<>(allSymbols());
-        this.symbols.add("$");
+        this.symbols.add(GlrConsts.END_OF_TOKEN_LIST);
         this.nonterminals = this.rules.stream().map(o->o.leftSymbol).collect(Collectors.toCollection(LinkedHashSet::new));
         this.terminals = symbols.stream().filter(o->!nonterminals.contains(o)).collect(Collectors.toCollection(LinkedHashSet::new));
     }

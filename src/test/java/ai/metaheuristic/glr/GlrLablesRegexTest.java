@@ -10,6 +10,7 @@ package ai.metaheuristic.glr;
 import ai.metaheuristic.glr.token.GlrTextTokenPosition;
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
+import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -63,12 +64,12 @@ public class GlrLablesRegexTest {
         String text = "сегодня 17 сентября и это суббота";
 
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", "сегодня", new GlrGeneralTest.IndexPosition(1), "", null),
-                new GlrToken("word", "17", new GlrGeneralTest.IndexPosition(2), "", null),
-                new GlrToken("word", "сентября", new GlrGeneralTest.IndexPosition(3), "", null),
-                new GlrToken("word", "и", new GlrGeneralTest.IndexPosition(4), "", null),
-                new GlrToken("word", "это", new GlrGeneralTest.IndexPosition(5), "", null),
-                new GlrToken("word", "суббота", new GlrGeneralTest.IndexPosition(6), "", null),
+                new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
+                new GlrToken("word", "17", new IndexPosition(2), "", null),
+                new GlrToken("word", "сентября", new IndexPosition(3), "", null),
+                new GlrToken("word", "и", new IndexPosition(4), "", null),
+                new GlrToken("word", "это", new IndexPosition(5), "", null),
+                new GlrToken("word", "суббота", new IndexPosition(6), "", null),
                 new GlrToken("$", "", new GlrTextTokenPosition(text.length(), -1), "", null)
         );
 
@@ -94,10 +95,10 @@ public class GlrLablesRegexTest {
     @Test
     public void test_59() {
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", "сегодня", new GlrGeneralTest.IndexPosition(1), "", null),
-                new GlrToken("word", "17", new GlrGeneralTest.IndexPosition(2), "", null),
-                new GlrToken("word", "сентября", new GlrGeneralTest.IndexPosition(3), "", null),
-                new GlrToken("$", "", new GlrGeneralTest.IndexPosition(4), "", null)
+                new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
+                new GlrToken("word", "17", new IndexPosition(2), "", null),
+                new GlrToken("word", "сентября", new IndexPosition(3), "", null),
+                new GlrToken("$", "", new IndexPosition(4), "", null)
         );
         String regexGrammar = """
         S = word<regex=(\\d{1,2})>

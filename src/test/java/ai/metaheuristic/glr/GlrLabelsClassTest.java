@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
+import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -26,11 +27,11 @@ public class GlrLabelsClassTest {
     @Test
     public void test_58() {
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", "сегодня", new GlrGeneralTest.IndexPosition(1), "", null),
-                new GlrToken("word", Integer.valueOf(17), new GlrGeneralTest.IndexPosition(2), "", null),
-                new GlrToken("word", "N", new GlrGeneralTest.IndexPosition(3), "", null),
-                new GlrToken("word", "сентября", new GlrGeneralTest.IndexPosition(4), "", null),
-                new GlrToken("$", "", new GlrGeneralTest.IndexPosition(5), "", null)
+                new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
+                new GlrToken("word", Integer.valueOf(17), new IndexPosition(2), "", null),
+                new GlrToken("word", "N", new IndexPosition(3), "", null),
+                new GlrToken("word", "сентября", new IndexPosition(4), "", null),
+                new GlrToken("$", "", new IndexPosition(5), "", null)
         );
 
         LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(

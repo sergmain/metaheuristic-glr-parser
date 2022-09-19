@@ -24,4 +24,5 @@ public class GlrConsts {
     public static final String SYMBOL_WORD_RIGHT_SYMBOLS = "word";
     public static final String SYMBOL_LABEL_RIGHT_SYMBOLS = "label";
     public static final String SYMBOL_RAW_RIGHT_SYMBOLS = "raw";
+    public static final String END_OF_TOKEN_LIST = "$";
 }

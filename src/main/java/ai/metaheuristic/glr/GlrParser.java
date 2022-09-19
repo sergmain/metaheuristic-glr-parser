@@ -87,8 +87,8 @@ public class GlrParser {
 
                 // # If not full match on each token we assume rule may start or end
                 current.add(GlrStack.StackItem.startNew());
-                if (!"$".equals(token.symbol)) {
-                    reduceByTokens.add(new GlrToken("$"));
+                if (!GlrConsts.END_OF_TOKEN_LIST.equals(token.symbol)) {
+                    reduceByTokens.add(new GlrToken(GlrConsts.END_OF_TOKEN_LIST));
                 }
             }
 

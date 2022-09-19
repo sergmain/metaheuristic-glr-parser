@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr.token;
 
+import ai.metaheuristic.glr.GlrConsts;
 import ai.metaheuristic.glr.GlrTokenizer;
 import ai.metaheuristic.glr.exceptions.GlrTokenizerException;
 
@@ -90,7 +91,7 @@ public class GlrSimpleRegexTokenizer implements GlrTokenizer {
             }
             items.add(new GlrToken(tokname, tokvalue, new GlrTextTokenPosition(currPos + m.start(), currPos + m.end()), tokvalue, null));
         }
-        items.add(new GlrToken("$", "", new GlrTextTokenPosition(text.length(), -1), "", null));
+        items.add(new GlrToken(GlrConsts.END_OF_TOKEN_LIST, "", new GlrTextTokenPosition(text.length(), -1), "", null));
 
         if (pos != text.length()) {
             String msg = String.format("tokenizer stopped at pos %d of %d in \"%s\" at \"%s\"",

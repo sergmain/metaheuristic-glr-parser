@@ -47,13 +47,13 @@ public class GlrLr {
                 GlrGrammar.Rule rule = grammar.rules.get(item.ruleIndex);
                 if (item.dotPosition == rule.rightSymbols().size()) {
                     if ("@".equals(rule.leftSymbol())) {
-                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("A", null, null));
+                        actions.computeIfAbsent(GlrConsts.END_OF_TOKEN_LIST, o->new ArrayList<>()).add(new Action("A", null, null));
                     }
                     else {
                         for (String follower : followers.get(rule.leftSymbol())) {
                             actions.computeIfAbsent(follower, o->new ArrayList<>()).add(new Action("R", null, item.ruleIndex));
                         }
-                        actions.computeIfAbsent("$", o->new ArrayList<>()).add(new Action("R", null, item.ruleIndex));
+                        actions.computeIfAbsent(GlrConsts.END_OF_TOKEN_LIST, o->new ArrayList<>()).add(new Action("R", null, item.ruleIndex));
                     }
                 }
             }

@@ -9,6 +9,7 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
+import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -76,10 +77,8 @@ public class GlrGeneralTest {
     }
 
 
-    public record IndexPosition(int index) implements GlrTokenPosition {}
-
     @Test
-    public void test_56() {
+    public void test_56_with_end_of_list() {
         String text = "договор от 25 января 2022 N 123";
 
         final LocalDate localDate = LocalDate.of(2022, 1, 25);
@@ -89,9 +88,46 @@ public class GlrGeneralTest {
                 new GlrToken("word", localDate, new IndexPosition(3), "", null),
                 new GlrToken("word", "N", new IndexPosition(4), "", null),
                 new GlrToken("word", "123", new IndexPosition(5), "", null),
-                new GlrToken("$", "", new IndexPosition(6), "", null)
+                new GlrToken(GlrConsts.END_OF_TOKEN_LIST, "", new IndexPosition(6), "", null)
         );
 
+        testWithObject(localDate, rawTokens);
+    }
+
+    @Test
+    public void test_57_without_end_of_list() {
+        String text = "договор от 25 января 2022 N 123";
+
+        final LocalDate localDate = LocalDate.of(2022, 1, 25);
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", "договор", new IndexPosition(1), "", null),
+                new GlrToken("word", "от", new IndexPosition(2), "", null),
+                new GlrToken("word", localDate, new IndexPosition(3), "", null),
+                new GlrToken("word", "N", new IndexPosition(4), "", null),
+                new GlrToken("word", "123", new IndexPosition(5), "", null)
+        );
+
+        testWithObject(localDate, rawTokens);
+    }
+
+    @Test
+    public void test_58_with_simple_end_of_list() {
+        String text = "договор от 25 января 2022 N 123";
+
+        final LocalDate localDate = LocalDate.of(2022, 1, 25);
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", "договор", new IndexPosition(1), "", null),
+                new GlrToken("word", "от", new IndexPosition(2), "", null),
+                new GlrToken("word", localDate, new IndexPosition(3), "", null),
+                new GlrToken("word", "N", new IndexPosition(4), "", null),
+                new GlrToken("word", "123", new IndexPosition(5), "", null),
+                new GlrToken(GlrConsts.END_OF_TOKEN_LIST)
+        );
+
+        testWithObject(localDate, rawTokens);
+    }
+
+    private static void testWithObject(LocalDate localDate, List<GlrToken> rawTokens) {
         LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
                 "DOC_NUMBER",  List.of("N", "№"))
         );

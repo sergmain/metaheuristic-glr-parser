@@ -61,9 +61,23 @@ public class GlrMorphologyLexer {
 
     @SneakyThrows
     public List<GlrToken> initMorphology(
-            List<GlrToken> tokens,
+            List<GlrToken> tokensOrigin,
             Function<String, String> mappingFunc
             ) {
+        if (tokensOrigin.isEmpty()) {
+            return List.of();
+        }
+
+        List<GlrToken> tokens;
+        if (!tokensOrigin.get(tokensOrigin.size()-1).symbol.equals(GlrConsts.END_OF_TOKEN_LIST)) {
+            tokens = new ArrayList<>(tokensOrigin.size() + 10);
+            tokens.addAll(tokensOrigin);
+            tokens.add(new GlrToken(GlrConsts.END_OF_TOKEN_LIST));
+        }
+        else {
+            tokens = new ArrayList<>(tokensOrigin);
+        }
+
         List<GlrToken> result = new ArrayList<>();
 
         for (GlrToken token : tokens) {
