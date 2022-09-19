@@ -94,6 +94,7 @@ public class GlrGrammarParser {
                 throw new IllegalStateException("GLR parser does not support epsilon free rules");
             }
             if (rightSymbols.size()>2) {
+                // TODO p5 2022-09-19 see ai.metaheuristic.glr.GlrParserTest.test_55
                 throw new IllegalStateException("Right now parser doesn't support grammar with more than 2 right symbols");
             }
             final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).distinct().toList();

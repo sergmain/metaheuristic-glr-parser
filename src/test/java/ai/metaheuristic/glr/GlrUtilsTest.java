@@ -49,12 +49,15 @@ public class GlrUtilsTest {
 
         GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
         List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+
+
         String ss = "";
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
             String s = GlrUtils.formatSyntaxTree(syntaxTree);
             System.out.println(s);
             ss += s;
         }
+
 
         assertFalse(ss.contains("StringHolder"));
     }
