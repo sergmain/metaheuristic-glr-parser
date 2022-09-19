@@ -23,17 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class GlrLablesRegexTest {
 
-    static final StringHolder STR_17 = new StringHolder("17");
+    private static final StringHolder STR_17 = new StringHolder("17");
+    private static final StringHolder STR_SEPTEMBER = new StringHolder("сентября");
 
-    public static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
+
+    private static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
             "MONTH",  List.of("январь", "сентябрь"))
     );
 
     private static final String SIMPLE_GRAMMAR = """
         S = word<regex=(\\d{1,2})> MONTH
         """;
-    public static final String STR_SEPTEMBER = "сентября";
-
     @Test
     public void test_55() {
         String text = "сегодня 17 сентября и это суббота";
@@ -66,7 +66,8 @@ public class GlrLablesRegexTest {
         List<GlrToken> rawTokens = List.of(
                 new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
                 new GlrToken("word", "17", new IndexPosition(2), "", null),
-                new GlrToken("word", STR_SEPTEMBER, new IndexPosition(3), "", null),
+//                new GlrToken("word", STR_SEPTEMBER, new IndexPosition(3), "", null),
+                new GlrToken("word", "сентября", new IndexPosition(3), "", null),
                 new GlrToken("word", "и", new IndexPosition(4), "", null),
                 new GlrToken("word", "это", new IndexPosition(5), "", null),
                 new GlrToken("word", "суббота", new IndexPosition(6), "", null),
@@ -119,7 +120,7 @@ public class GlrLablesRegexTest {
         GlrStack.SyntaxTree st0 = parsed.get(0);
         assertEquals(2, st0.children().size());
         assertEquals("word", st0.children().get(0).symbol());
-        assertEquals(STR_17, st0.children().get(0).token().value);
+        assertEquals("17", st0.children().get(0).token().value);
         assertEquals(new IndexPosition(2), st0.children().get(0).token().position);
 
         assertEquals("MONTH", st0.children().get(1).symbol());
@@ -188,7 +189,7 @@ public class GlrLablesRegexTest {
         GlrStack.SyntaxTree st0 = parsed.get(0);
         assertEquals(1, st0.children().size());
         assertEquals("word", st0.children().get(0).symbol());
-        assertEquals(STR_17, st0.children().get(0).token().value);
+        assertEquals("17", st0.children().get(0).token().value);
 
     }
 

@@ -9,6 +9,7 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
+import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class GrlMorphologyLexerTest {
 
     @Test
-    public void test_() {
+    public void test_55() {
 
         final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
                 "CLOTHES",  List.of("куртка", "пальто", "шубы"))
@@ -37,7 +38,40 @@ public class GrlMorphologyLexerTest {
 
         List<GlrToken> tokens = lexer.initMorphology(tokenizer.tokenize(text), GlrTagMapper::map);
         assertEquals(15, tokens.size());
-
-
     }
+
+    private static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
+            "MONTH",  List.of("январь", "сентябрь"))
+    );
+
+    @Test
+    public void test_56() {
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", "сентября", new IndexPosition(3), "", null),
+                new GlrToken(GlrConsts.END_OF_TOKEN_LIST)
+        );
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        assertEquals(2, tokens.size());
+        assertEquals("MONTH", tokens.get(0).symbol);
+    }
+
+    private static final GlrLablesRegexTest.StringHolder STR_SEPTEMBER = new GlrLablesRegexTest.StringHolder("сентября");
+
+    @Test
+    public void test_57() {
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", STR_SEPTEMBER, new IndexPosition(3), "", null),
+                new GlrToken(GlrConsts.END_OF_TOKEN_LIST)
+        );
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        assertEquals(2, tokens.size());
+        assertEquals("MONTH", tokens.get(0).symbol);
+    }
+
 }

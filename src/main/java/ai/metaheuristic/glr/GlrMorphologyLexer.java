@@ -16,6 +16,7 @@ import company.evo.jmorphy2.ResourceFileLoader;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,9 +35,12 @@ public class GlrMorphologyLexer {
     private final MorphAnalyzer morph;
     private final LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
 
-    @SneakyThrows
     public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries) {
-        this.morph = new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(DICT_PATH)).build();
+        this(dictionaries, getDefaultMorphAnalyzer());
+    }
+    
+    public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries, MorphAnalyzer morph) {
+        this.morph = morph;
 
         if (dictionaries!=null) {
             for (Map.Entry<String, List<String>> entry : dictionaries.entrySet()) {
@@ -49,6 +53,11 @@ public class GlrMorphologyLexer {
                 }
             }
         }
+    }
+
+    @SneakyThrows
+    private static MorphAnalyzer getDefaultMorphAnalyzer() {
+        return new MorphAnalyzer.Builder().cacheSize(0).fileLoader(new ResourceFileLoader(DICT_PATH)).build();
     }
 
     @SneakyThrows
@@ -73,8 +82,9 @@ public class GlrMorphologyLexer {
         List<GlrToken> result = new ArrayList<>();
         for (GlrToken token : tokens) {
             if (token.symbol.equals("word")) {
-                if (token.value instanceof String strValue) {
-                    List<ParsedWord> morphed = morph.parse(strValue);
+                String tokenStrValue = asStringValue(token);
+                if (tokenStrValue!=null) {
+                    List<ParsedWord> morphed = morph.parse(tokenStrValue);
                     if (!morphed.isEmpty()) {
                         final ParsedWord parsedWord = morphed.get(0);
                         String value = parsedWord.normalForm;
@@ -94,8 +104,7 @@ public class GlrMorphologyLexer {
                     }
                 }
                 else {
-                    String word = token.value instanceof GlrWordToken wordToken ? wordToken.getWord() : token.value.toString();
-
+                    String word = token.value.toString();
                     result.add( new GlrToken(token.symbol, token.value, token.position, word, null) );
                 }
             }
@@ -113,6 +122,17 @@ public class GlrMorphologyLexer {
         }
 
         return result;
+    }
+
+    @Nullable
+    private static String asStringValue(GlrToken token) {
+        if (token.value instanceof String strValue) {
+            return strValue;
+        }
+        if (token.value instanceof GlrWordToken wordToken) {
+            return wordToken.getWord();
+        }
+        return null;
     }
 
     private static List<GlrToken> checkEndingOfListPresent(List<GlrToken> tokensOrigin) {
