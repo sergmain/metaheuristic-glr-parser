@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
+import ai.metaheuristic.glr.token.GlrWordToken;
 import company.evo.jmorphy2.Grammeme;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
@@ -67,25 +68,12 @@ public class GlrMorphologyLexer {
         if (tokensOrigin.isEmpty()) {
             return List.of();
         }
-
-        List<GlrToken> tokens;
-        if (!tokensOrigin.get(tokensOrigin.size()-1).symbol.equals(GlrConsts.END_OF_TOKEN_LIST)) {
-            tokens = new ArrayList<>(tokensOrigin.size() + 10);
-            tokens.addAll(tokensOrigin);
-            tokens.add(new GlrToken(GlrConsts.END_OF_TOKEN_LIST));
-        }
-        else {
-            tokens = new ArrayList<>(tokensOrigin);
-        }
+        List<GlrToken> tokens = checkEndingOfListPresent(tokensOrigin);
 
         List<GlrToken> result = new ArrayList<>();
-
         for (GlrToken token : tokens) {
             if (token.symbol.equals("word")) {
-                if (!(token.value instanceof String strValue)) {
-                    result.add( new GlrToken(token.symbol, token.value, token.position, token.value.toString(), null) );
-                }
-                else {
+                if (token.value instanceof String strValue) {
                     List<ParsedWord> morphed = morph.parse(strValue);
                     if (!morphed.isEmpty()) {
                         final ParsedWord parsedWord = morphed.get(0);
@@ -105,6 +93,11 @@ public class GlrMorphologyLexer {
                         throw new IllegalStateException("morph didn't find word " + token.value);
                     }
                 }
+                else {
+                    String word = token.value instanceof GlrWordToken wordToken ? wordToken.getWord() : token.value.toString();
+
+                    result.add( new GlrToken(token.symbol, token.value, token.position, word, null) );
+                }
             }
             else if ((token.symbol.equals("class"))) {
                 String symbol = "word";
@@ -120,5 +113,18 @@ public class GlrMorphologyLexer {
         }
 
         return result;
+    }
+
+    private static List<GlrToken> checkEndingOfListPresent(List<GlrToken> tokensOrigin) {
+        List<GlrToken> tokens;
+        if (!tokensOrigin.get(tokensOrigin.size() - 1).symbol.equals(GlrConsts.END_OF_TOKEN_LIST)) {
+            tokens = new ArrayList<>(tokensOrigin.size() + 10);
+            tokens.addAll(tokensOrigin);
+            tokens.add(new GlrToken(GlrConsts.END_OF_TOKEN_LIST));
+        }
+        else {
+            tokens = new ArrayList<>(tokensOrigin);
+        }
+        return tokens;
     }
 }

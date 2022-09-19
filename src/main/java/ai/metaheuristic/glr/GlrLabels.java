@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
+import ai.metaheuristic.glr.token.GlrWordToken;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -49,7 +50,7 @@ public class GlrLabels {
             return false;
         }
         Matcher m = patterns.computeIfAbsent(labelCheck.value,
-                Pattern::compile).matcher(labelCheck.tokens.get(labelCheck.i).inputTerm);
+                regex -> Pattern.compile(regex, Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS)).matcher(labelCheck.tokens.get(labelCheck.i).inputTerm);
         return m.find();
     }
 
