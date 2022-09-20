@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public class GlrAutomation {
 
-    private final GlrParser parser;
+    public final GlrParser parser;
     private final GlrGrammar grammar;
 
     public GlrAutomation( String grammarText, String start) {

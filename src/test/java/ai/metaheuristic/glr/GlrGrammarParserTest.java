@@ -195,5 +195,59 @@ public class GlrGrammarParserTest {
 
     }
 
+    @Test
+    public void test_200() {
+        String regexGrammar = """
+            S = DAY_MONTH
+            DAY_MONTH = word<regex=^([0-9][0-9])$> word<regex=^([a-z]+)$>
+        """;
+
+        GlrGrammar grammar = GlrGrammarParser.parse(regexGrammar, "S");
+        List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable = GlrLr.generateActionGotoTable(grammar);
+
+        String expected = """
+        00 = {'S': [Action(type='G', state=1, ruleIndex=None)], 'DAY_MONTH': [Action(type='G', state=2, ruleIndex=None)], 'word': [Action(type='S', state=3, ruleIndex=None)]})
+        01 = {'$': [Action(type='A', state=None, ruleIndex=None)]})
+        02 = {'$': [Action(type='R', state=None, ruleIndex=1)]})
+        03 = {'word': [Action(type='S', state=4, ruleIndex=None)]})
+        04 = {'$': [Action(type='R', state=None, ruleIndex=2)]})
+        """;
+
+        assertEquals(5, actionTable.size());
+
+        String actual = UtilsForTesing.actionTableAsString(actionTable);
+        assertEquals(expected, actual);
+
+    }
+
+    @Test
+    public void test_201() {
+        String regexGrammar = """
+            S = DAY_MONTH
+            DAY_MONTH = word<regex=^([0-9][0-9])$> word<regex=^([a-z]+)$>
+        """;
+
+        GlrGrammar grammar = GlrGrammarParser.parse(regexGrammar, "S");
+
+        assertEquals(3, grammar.rules.size());
+        final GlrGrammar.Rule rule0 = grammar.rules.stream().filter(r -> r.index() == 0).findFirst().orElseThrow();
+        assertEquals("@", rule0.leftSymbol());
+        assertEquals(1, rule0.rightSymbols().size());
+        assertEquals("S", rule0.rightSymbols().get(0));
+
+        final GlrGrammar.Rule rule1 = grammar.rules.stream().filter(r -> r.index() == 1).findFirst().orElseThrow();
+        assertEquals("S", rule1.leftSymbol());
+        assertEquals(1, rule1.rightSymbols().size());
+        assertEquals("DAY_MONTH", rule1.rightSymbols().get(0));
+
+        final GlrGrammar.Rule rule2 = grammar.rules.stream().filter(r -> r.index() == 2).findFirst().orElseThrow();
+        assertEquals("DAY_MONTH", rule2.leftSymbol());
+        assertEquals(2, rule2.rightSymbols().size());
+        assertEquals("word", rule2.rightSymbols().get(0));
+        assertEquals("word", rule2.rightSymbols().get(1));
+
+    }
+
+
 
 }

@@ -27,11 +27,7 @@ public class GlrUtils {
     }
 
     public static String formatRule(GlrGrammar.Rule rule , int ljustSymbol) {
-        List<String> rightSymbols = new ArrayList<>();
-        for (int i = 0; i < rule.rightSymbols().size(); i++) {
-            String symbol = rule.rightSymbols().get(i);
-            rightSymbols.add(formatSymbol(rule, i, symbol));
-        }
+        List<String> rightSymbols = collectRightSymbols(rule);
         final String s = String.format("#%d: %s = %s%s",
                 rule.index(),
                 StringUtils.leftPad(rule.leftSymbol(), ljustSymbol),
@@ -40,12 +36,18 @@ public class GlrUtils {
         return s;
     }
 
-    public static String formatSymbol(GlrGrammar.Rule rule, int i, String symbol) {
-        if (rule.params()!=null && rule.params().get(i)!=null) {
-            return symbol;
+    private static List<String> collectRightSymbols(GlrGrammar.Rule rule) {
+        List<String> rightSymbols = new ArrayList<>();
+        for (int i = 0; i < rule.rightSymbols().size(); i++) {
+            String symbol = rule.rightSymbols().get(i);
+            rightSymbols.add(formatSymbol(rule, i, symbol));
         }
-        if (rule.params()==null) {
-            return "rule.params()==null";
+        return rightSymbols;
+    }
+
+    public static String formatSymbol(GlrGrammar.Rule rule, int i, String symbol) {
+        if (rule.params()==null || rule.params().get(i)==null) {
+            return symbol;
         }
 
         LinkedHashMap<String, Object> allPairsTemp = new LinkedHashMap<>();
@@ -205,5 +207,162 @@ public class GlrUtils {
             return wordToken.getWord();
         }
         return null;
+    }
+
+    String py0 = """
+def format_tokens(tokens):
+    table = [('Sym', 'Value', 'Input', 'Params')]
+    for token in tokens:
+        table.append((token.symbol, token.value, token.input_term, token.params))
+    return format_table(table)
+            """;
+
+    public static String format_tokens(List<GlrToken> tokens) {
+        List<String[]> table = new ArrayList<>();
+        table.add(new String[]{"Sym", "Value", "Input", "Params"});
+        for (GlrToken token : tokens) {
+            final String[] symbol = new String[]{token.symbol, token.value.toString(), token.inputTerm, "" + token.params};
+            table.add(symbol);
+        }
+        return format_table(table);
+    }
+
+    public static String format_table(List<String[]> table) {
+        return format_table(table, true);
+    }
+
+    public static void print_row(StringBuilder sb, boolean stripe, int[] col_widths, int i, String chars) {
+        print_row(sb, stripe, col_widths, i, chars, null);
+    }
+
+    public static void print_row(StringBuilder sb, boolean stripe, int[] col_widths, int i, String chars, @Nullable String[] row) {
+        if (stripe && i > 0 && i % 2 == 0) {
+            // https://stackoverflow.com/a/21786287/2672202
+            sb.append("\033[0;30;47m");
+        }
+        for (int j = 0; j < col_widths.length; j++) {
+            if (j==0) {
+                sb.append(chars, 0, 2);
+            }
+            if (row!=null) {
+                sb.append(StringUtils.rightPad(row[j], col_widths[j]));
+            }
+            else {
+                sb.append(chars.substring(1,2).repeat(col_widths[j]));
+            }
+            if (j<col_widths.length-1) {
+                sb.append(chars, 1, 4);
+            }
+            else {
+                sb.append(chars, 3, 5);
+            }
+        }
+        if (stripe) {
+            sb.append("\033[m");
+        }
+        if (i >= 0) {
+            sb.append('\n');
+        }
+    }
+
+
+    public static String format_table(List<String[]> table, boolean stripe) {
+        StringBuilder sb = new StringBuilder();
+
+        int[] col_widths = new int[table.get(0).length];
+        for (String[] row : table) {
+            for (int j = 0; j < row.length; j++) {
+                String cell = row[j];
+                col_widths[j] = Math.max(col_widths[j], cell==null ? 0 : cell.length());
+            }
+        }
+        for (int i = 0; i < table.size(); i++) {
+            String[] row = table.get(i);
+            if (i == 0) {
+                print_row(sb, stripe, col_widths, i, "┌─┬─┐");
+            }
+            else if (i == 1) {
+                print_row(sb, stripe, col_widths, i, "├─┼─┤");
+            }
+            print_row(sb, stripe, col_widths, i, "│ │ │", row);
+            if (i == table.size() - 1) {
+                print_row(sb, stripe, col_widths, -1, "└─┴─┘");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    String py1 = """
+    def format_action_goto_table(action_goto_table):
+        table = []
+        symbols = unique(k for row in action_goto_table for k in row.keys())
+    
+        def sort_key(symbol):
+            actions = [a for row in action_goto_table if symbol in row for a in row[symbol]]
+            has_goto = any(a.type == 'G' for a in actions)
+            min_state = min([a.state for a in actions if a.state] or [1000])
+            return has_goto, min_state
+    
+        symbols = sorted(symbols, key=sort_key)
+        table.append([''] + symbols)
+        for i, row in enumerate(action_goto_table):
+            res = [i]
+            for k in symbols:
+                res.append(', '.join('%s%s%s' % (a if a != 'G' else '', s or '', r or '') for a, s, r in row[k]) if k in row else '')
+            table.append(res)
+        return format_table(table)
+                """;
+
+    private record SortKey(boolean hasGoto, int minState) implements Comparable<SortKey> {
+        @Override
+        public int compareTo(SortKey o2) {
+            int compare = Boolean.compare(this.hasGoto, o2.hasGoto);
+            return compare==0 ? Integer.compare(this.minState, o2.minState) : compare;
+        }
+    }
+
+    public static SortKey sort_key(List<LinkedHashMap<String, List<GlrLr.Action>>> actionGotoTable, String symbol) {
+        List<GlrLr.Action> actions = actionGotoTable.stream()
+                .flatMap(o->o.entrySet().stream())
+                .filter(en->en.getKey().equals(symbol))
+                .map(Map.Entry::getValue)
+                .flatMap(Collection::stream).toList();
+
+        boolean has_goto = actions.stream().anyMatch(o->o.type().equals("G"));
+        int min_state = actions.stream().map(GlrLr.Action::state).filter(Objects::nonNull).min(Integer::compareTo).orElse(1000);
+
+        return new SortKey(has_goto, min_state);
+    }
+
+    public static String format_action_goto_table(List<LinkedHashMap<String, List<GlrLr.Action>>> actionGotoTable) {
+        List<String[]> table = new ArrayList<>();
+        //     symbols = unique(k for row in action_goto_table for k in row.keys())
+        final List<String> symbols = actionGotoTable.stream().flatMap(o -> o.keySet().stream()).distinct()
+                .sorted(Comparator.comparing(o -> sort_key(actionGotoTable, o))).toList();
+
+        final List<String> header = new ArrayList<>();
+        header.add("");
+        header.addAll(symbols);
+        table.add(header.toArray(new String[]{}));
+        for (int i = 0; i < actionGotoTable.size(); i++) {
+            LinkedHashMap<String, List<GlrLr.Action>> row = actionGotoTable.get(i);
+            List<String> res = new ArrayList<>();
+            res.add(Integer.toString(i));
+            for (String k : symbols) {
+                if (row.containsKey(k)) {
+                    List<GlrLr.Action> actions = row.get(k);
+
+                    for (GlrLr.Action action : actions) {
+                        String a = action.type().equals("G") ? action.type() : "";
+                        String s = action.state() !=null ? action.state().toString() : "";
+                        String r = action.ruleIndex() !=null ? action.ruleIndex().toString() : "";
+                        res.addAll(List.of(a,s,r));
+                    }
+                }
+            }
+            table.add(res.toArray(new String[]{}));
+        }
+        return format_table(table);
     }
 }

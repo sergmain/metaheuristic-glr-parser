@@ -33,6 +33,10 @@ public class GlrMorphologyLexer {
     private final MorphAnalyzer morph;
     private final LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
 
+    public GlrMorphologyLexer() {
+        this(null);
+    }
+
     public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this(dictionaries, getDefaultMorphAnalyzer());
     }
@@ -67,6 +71,7 @@ public class GlrMorphologyLexer {
         return word;
     }
 
+    // ex def scan(self, text)
     @SneakyThrows
     public List<GlrToken> initMorphology(
             List<GlrToken> tokensOrigin,

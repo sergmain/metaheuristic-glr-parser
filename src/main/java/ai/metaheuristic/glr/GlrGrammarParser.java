@@ -97,8 +97,8 @@ public class GlrGrammarParser {
                 // TODO p5 2022-09-19 see ai.metaheuristic.glr.GlrParserTest.test_55
                 throw new IllegalStateException("Right now parser doesn't support grammar with more than 2 right symbols");
             }
-            final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).distinct().toList();
-            List<Map<String, List<Object>>> map = rightSymbols.stream().map(o -> o.map).distinct().toList();
+            final List<String> symbols = rightSymbols.stream().map(o -> o.symbol).toList();
+            List<Map<String, List<Object>>> map = rightSymbols.stream().map(o -> o.map).toList();
             rules.add(new Rule(rules.size(), leftSymbol, symbols, false, map, weight));
         }
         return new GlrGrammar(rules);

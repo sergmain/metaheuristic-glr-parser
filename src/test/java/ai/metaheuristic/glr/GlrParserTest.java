@@ -9,7 +9,6 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
-import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Sergio Lissner

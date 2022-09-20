@@ -236,5 +236,91 @@ public class GlrLablesRegexTest {
         assertEquals("сентябрь", st01.children().get(1).token().value);
     }
 
+    @Test
+    public void test_62() {
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", new StringHolder("12345"), new IndexPosition(1), "", null),
+                new GlrToken("word", new StringHolder("12"), new IndexPosition(2), "", null),
+                new GlrToken("word", new StringHolder("abc"), new IndexPosition(3), "", null),
+                new GlrToken("word", new StringHolder("2022"), new IndexPosition(4), "", null),
+                new GlrToken("word", new StringHolder("987654321"), new IndexPosition(5), "", null),
+                new GlrToken("$", "", new IndexPosition(4), "", null)
+        );
+        String regexGrammar = """
+        S = DAY_MONTH
+        DAY_MONTH = word<regex=\\d{1,2}> word<regex=[a-z]+>
+        """;
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(regexGrammar, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
+        }
+
+        assertEquals(2, parsed.size());
+        GlrStack.SyntaxTree st0 = parsed.get(0);
+        assertEquals(2, st0.children().size());
+        assertEquals("DAY_MONTH", st0.children().get(0).symbol());
+        assertEquals(null, st0.children().get(0).token());
+
+        assertEquals(2, st0.children().size());
+        assertEquals("word", st0.children().get(1).symbol());
+        assertEquals("2022", st0.children().get(1).token().value);
+
+
+        final GlrStack.SyntaxTree st01 = st0.children().get(0);
+        assertEquals(2, st01.children().size());
+        assertEquals("word", st01.children().get(0).symbol());
+        assertEquals("17", st01.children().get(0).token().value);
+
+        assertEquals("MONTH", st01.children().get(1).symbol());
+        assertEquals("сентябрь", st01.children().get(1).token().value);
+    }
+
+    @Test
+    public void test_64() {
+        String text = "12345 12 abc 2022 987654321";
+
+        String regexGrammar = """
+            S = DAY_MONTH
+            DAY_MONTH = word<regex=^([0-9][0-9])$> word<regex=^([a-z]+)$>
+        """;
+
+        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer();
+        List<GlrToken> tokens = lexer.initMorphology(glrTokenizer.tokenize(text), GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(regexGrammar, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
+        }
+
+        System.out.println( GlrUtils.format_tokens(tokens));
+        System.out.println( GlrUtils.format_action_goto_table(automation.parser.actionGotoTable));
+
+        assertEquals(2, parsed.size());
+        GlrStack.SyntaxTree st0 = parsed.get(0);
+        assertEquals(2, st0.children().size());
+        assertEquals("DAY_MONTH", st0.children().get(0).symbol());
+        assertEquals(null, st0.children().get(0).token());
+
+        assertEquals(2, st0.children().size());
+        assertEquals("word", st0.children().get(1).symbol());
+        assertEquals("2022", st0.children().get(1).token().value);
+
+
+        final GlrStack.SyntaxTree st01 = st0.children().get(0);
+        assertEquals(2, st01.children().size());
+        assertEquals("word", st01.children().get(0).symbol());
+        assertEquals("17", st01.children().get(0).token().value);
+
+        assertEquals("MONTH", st01.children().get(1).symbol());
+        assertEquals("сентябрь", st01.children().get(1).token().value);
+    }
+
 
 }

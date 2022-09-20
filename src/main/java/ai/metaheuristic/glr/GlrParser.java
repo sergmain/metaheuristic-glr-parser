@@ -22,7 +22,8 @@ public class GlrParser {
 
     public void log(int level, String pattern, Object ... objects) {
         if (level <= logLevel) {
-            System.out.printf(pattern + "\n", objects);
+            System.out.printf(pattern, objects);
+            System.out.println();
         }
     }
 
@@ -104,6 +105,7 @@ public class GlrParser {
                             throw new IllegalStateException("(action.ruleIndex()==null)");
                         }
                         GlrGrammar.Rule rule = grammar.rules.get(action.ruleIndex());
+                        // - REDUCE: (word.10) by (#11: Symbol =
                         log(1, "- REDUCE: (%s) by (%s)", node, GlrUtils.formatRule(rule));
                         List<GlrStack.StackItem> reducedNodes = node.reduce(actionGotoTable, rule, reduceValidator);
                         newReduceNodes.addAll(reducedNodes);
