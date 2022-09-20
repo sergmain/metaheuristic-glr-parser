@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sergio Lissner
@@ -260,24 +261,17 @@ public class GlrLablesRegexTest {
             System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
 
-        assertEquals(2, parsed.size());
+        assertEquals(1, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);
-        assertEquals(2, st0.children().size());
-        assertEquals("DAY_MONTH", st0.children().get(0).symbol());
-        assertEquals(null, st0.children().get(0).token());
+        assertEquals(1, st0.children().size());
+        final GlrStack.SyntaxTree child0 = st0.children().get(0);
+        assertEquals("DAY_MONTH", child0.symbol());
+        assertEquals(2, child0.children().size());
 
-        assertEquals(2, st0.children().size());
-        assertEquals("word", st0.children().get(1).symbol());
-        assertEquals("2022", st0.children().get(1).token().value);
-
-
-        final GlrStack.SyntaxTree st01 = st0.children().get(0);
-        assertEquals(2, st01.children().size());
-        assertEquals("word", st01.children().get(0).symbol());
-        assertEquals("17", st01.children().get(0).token().value);
-
-        assertEquals("MONTH", st01.children().get(1).symbol());
-        assertEquals("сентябрь", st01.children().get(1).token().value);
+        assertEquals("word", child0.children().get(0).symbol());
+        assertEquals("12", child0.children().get(0).token().value);
+        assertEquals("word", child0.children().get(1).symbol());
+        assertEquals("abc", child0.children().get(1).token().value);
     }
 
     @Test
@@ -302,24 +296,17 @@ public class GlrLablesRegexTest {
         System.out.println( GlrUtils.format_tokens(tokens));
         System.out.println( GlrUtils.format_action_goto_table(automation.parser.actionGotoTable));
 
-        assertEquals(2, parsed.size());
+        assertEquals(1, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);
-        assertEquals(2, st0.children().size());
-        assertEquals("DAY_MONTH", st0.children().get(0).symbol());
-        assertEquals(null, st0.children().get(0).token());
+        assertEquals(1, st0.children().size());
+        final GlrStack.SyntaxTree child0 = st0.children().get(0);
+        assertEquals("DAY_MONTH", child0.symbol());
+        assertEquals(2, child0.children().size());
 
-        assertEquals(2, st0.children().size());
-        assertEquals("word", st0.children().get(1).symbol());
-        assertEquals("2022", st0.children().get(1).token().value);
-
-
-        final GlrStack.SyntaxTree st01 = st0.children().get(0);
-        assertEquals(2, st01.children().size());
-        assertEquals("word", st01.children().get(0).symbol());
-        assertEquals("17", st01.children().get(0).token().value);
-
-        assertEquals("MONTH", st01.children().get(1).symbol());
-        assertEquals("сентябрь", st01.children().get(1).token().value);
+        assertEquals("word", child0.children().get(0).symbol());
+        assertEquals("12", child0.children().get(0).token().value);
+        assertEquals("word", child0.children().get(1).symbol());
+        assertEquals("abc", child0.children().get(1).token().value);
     }
 
 

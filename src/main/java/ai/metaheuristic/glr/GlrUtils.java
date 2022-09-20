@@ -337,7 +337,6 @@ def format_tokens(tokens):
 
     public static String format_action_goto_table(List<LinkedHashMap<String, List<GlrLr.Action>>> actionGotoTable) {
         List<String[]> table = new ArrayList<>();
-        //     symbols = unique(k for row in action_goto_table for k in row.keys())
         final List<String> symbols = actionGotoTable.stream().flatMap(o -> o.keySet().stream()).distinct()
                 .sorted(Comparator.comparing(o -> sort_key(actionGotoTable, o))).toList();
 
@@ -354,11 +353,14 @@ def format_tokens(tokens):
                     List<GlrLr.Action> actions = row.get(k);
 
                     for (GlrLr.Action action : actions) {
-                        String a = action.type().equals("G") ? action.type() : "";
+                        String a = !action.type().equals("G") ? action.type() : "";
                         String s = action.state() !=null ? action.state().toString() : "";
                         String r = action.ruleIndex() !=null ? action.ruleIndex().toString() : "";
-                        res.addAll(List.of(a,s,r));
+                        res.add(String.format("%s%s%s", a,s,r));
                     }
+                }
+                else {
+                    res.add("");
                 }
             }
             table.add(res.toArray(new String[]{}));
