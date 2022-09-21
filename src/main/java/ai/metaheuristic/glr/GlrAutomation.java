@@ -26,8 +26,12 @@ public class GlrAutomation {
     private final GlrGrammar grammar;
 
     public GlrAutomation( String grammarText, String start) {
+        this(grammarText, start, 0);
+    }
+
+    public GlrAutomation( String grammarText, String start, int log_level) {
         this.grammar = GlrGrammarParser.parse(grammarText, start);
-        this.parser = new GlrParser(grammar);
+        this.parser = new GlrParser(grammar, log_level);
     }
 
     private static void collectChildren(List<GlrToken> list, GlrStack.SyntaxTree syntaxTree) {
