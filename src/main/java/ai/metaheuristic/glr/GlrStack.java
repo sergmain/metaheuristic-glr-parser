@@ -57,7 +57,6 @@ public class GlrStack {
                     this.syntaxTree == null || this.syntaxTree.ruleIndex==null ? 0 : this.syntaxTree.ruleIndex,
                     o.syntaxTree == null || o.syntaxTree.ruleIndex==null ? 0 : o.syntaxTree.ruleIndex);
             return compare;
-//            return compare!=0 ? compare : Integer.compare(this.state == null ? 0 : this.state, o.state == null ? 0 : o.state);
         }
 /*
         @Override
