@@ -54,10 +54,20 @@ public class GlrStack {
         @Override
         public int compareTo(StackItem o) {
             final int compare = Integer.compare(
+                    this.syntaxTree == null || this.syntaxTree.ruleIndex==null ? 0 : this.syntaxTree.ruleIndex,
+                    o.syntaxTree == null || o.syntaxTree.ruleIndex==null ? 0 : o.syntaxTree.ruleIndex);
+            return compare;
+//            return compare!=0 ? compare : Integer.compare(this.state == null ? 0 : this.state, o.state == null ? 0 : o.state);
+        }
+/*
+        @Override
+        public int compareTo(StackItem o) {
+            final int compare = Integer.compare(
                     this.syntaxTree == null ? 0 : this.syntaxTree.hashCode(),
                     o.syntaxTree == null ? 0 : o.syntaxTree.hashCode());
             return compare!=0 ? compare : Integer.compare(this.state == null ? 0 : this.state, o.state == null ? 0 : o.state);
         }
+*/
 
         public static StackItem startNew() {
             return new StackItem(null, 0, null);

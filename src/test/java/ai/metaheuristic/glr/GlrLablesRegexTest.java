@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sergio Lissner
@@ -308,6 +307,4 @@ public class GlrLablesRegexTest {
         assertEquals("word", child0.children().get(1).symbol());
         assertEquals("abc", child0.children().get(1).token().value);
     }
-
-
 }
