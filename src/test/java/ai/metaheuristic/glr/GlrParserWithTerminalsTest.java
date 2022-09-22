@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Sergio Lissner
@@ -111,5 +112,36 @@ public class GlrParserWithTerminalsTest {
 
         assertEquals(1, parsed.size());
         assertEquals("12", UtilsForTesing.asResultString(parsed.get(0)));
+    }
+
+    @Test
+    public void test_68() {
+        final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
+                "TEST",  List.of("test"))
+        );
+
+        String text = "aaa 12 test 1234 bbb";
+
+        String regexGrammar = """
+                S = DIGIT_TEST_DIGIT
+                        DIGIT_TEST_DIGIT = word<regex=^\\d{1,2}$> DIGIT_TEST  
+                        DIGIT_TEST =  TEST word<regex=^\\d{4}$>
+                """;
+
+        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer(dictionaries);
+        final List<GlrToken> rawTokens = glrTokenizer.tokenize(text);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(regexGrammar, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
+        }
+        System.out.println(GlrUtils.format_tokens(tokens));
+
+
+        assertFalse(parsed.isEmpty());
+        assertEquals("12 test 1234", UtilsForTesing.asResultString(parsed.get(0)));
     }
 }

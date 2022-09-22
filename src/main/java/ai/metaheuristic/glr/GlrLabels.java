@@ -49,9 +49,11 @@ public class GlrLabels {
         if (labelCheck.value==null) {
             return false;
         }
+        final String inputTerm = labelCheck.tokens.get(labelCheck.i).inputTerm;
         Matcher m = patterns.computeIfAbsent(labelCheck.value,
-                regex -> Pattern.compile(regex, Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS)).matcher(labelCheck.tokens.get(labelCheck.i).inputTerm);
-        return m.find();
+                regex -> Pattern.compile(regex, Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS)).matcher(inputTerm);
+        final boolean b = m.find();
+        return b;
     }
 
     public static boolean class_label(LabelCheck labelCheck) {
