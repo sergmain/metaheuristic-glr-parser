@@ -40,19 +40,25 @@ public class GlrMorphologyLexer {
     public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries) {
         this(dictionaries, getDefaultMorphAnalyzer());
     }
-    
+
     public GlrMorphologyLexer(@Nullable LinkedHashMap<String, List<String>> dictionaries, MorphAnalyzer morph) {
         this.morph = morph;
 
         if (dictionaries!=null) {
+            List<String> errors = new ArrayList<>();
             for (Map.Entry<String, List<String>> entry : dictionaries.entrySet()) {
                 for (String val : entry.getValue()) {
                     String value = normal(val);
                     if (dictionary.containsKey(value)) {
-                        throw new RuntimeException(String.format("Duplicate value in dictionaries %s and %s", entry.getKey(), dictionary.get(value)));
+                        errors.add(String.format("Duplicate value in dictionaries %s and %s", val, value));
                     }
-                    dictionary.put(value, entry.getKey());
+                    else {
+                        dictionary.put(value, entry.getKey());
+                    }
                 }
+            }
+            if (!errors.isEmpty()) {
+                throw new RuntimeException("Error:\n"+String.join("\n", errors));
             }
         }
     }

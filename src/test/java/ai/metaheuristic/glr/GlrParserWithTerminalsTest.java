@@ -30,8 +30,6 @@ public class GlrParserWithTerminalsTest {
             "MONTH",  List.of("январь", "сентябрь"))
     );
 
-    // TODO P0 2022-09-20 terminal like 'Word = noun' isnt working rn
-    @Disabled
     @Test
     public void test_65() {
         List<GlrToken> rawTokens = List.of(
@@ -61,10 +59,9 @@ public class GlrParserWithTerminalsTest {
         System.out.println( GlrUtils.format_action_goto_table(automation.parser.actionGotoTable));
 
         assertEquals(1, parsed.size());
+        assertEquals("12 тест", UtilsForTesing.asResultString(parsed.get(0)));
     }
 
-    // TODO P0 2022-09-20 terminal like 'Word = noun' isnt working rn
-    @Disabled
     @Test
     public void test_66() {
         String text = "12345 12 тест 2022 987654321";
@@ -86,6 +83,33 @@ public class GlrParserWithTerminalsTest {
             System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
         assertEquals(1, parsed.size());
+
+        assertEquals("12 тест", UtilsForTesing.asResultString(parsed.get(0)));
     }
 
+    @Test
+    public void test_67() {
+        String text = "12";
+
+        String regexGrammar = """
+        S = Word<regex=^\\d{1,2}$>
+        Word = word
+        """;
+
+        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer();
+        final List<GlrToken> rawTokens = glrTokenizer.tokenize(text);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(regexGrammar, "S");
+        List<GlrStack.SyntaxTree> parsed = automation.parse(tokens);
+        for (GlrStack.SyntaxTree syntaxTree : parsed) {
+            System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
+        }
+        System.out.println(GlrUtils.format_tokens(tokens));
+
+
+        assertEquals(1, parsed.size());
+        assertEquals("12", UtilsForTesing.asResultString(parsed.get(0)));
+    }
 }

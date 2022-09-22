@@ -53,16 +53,16 @@ public class GlrAutomation {
         List<GlrToken> tokens = new ArrayList<>();
         // TODO P0 2022-09-20 because we isn't collecting children recursivelly
         //  terminal like 'Word = noun' isnt working
-//        for (GlrStack.SyntaxTree child : syntaxTree.children()) {
-//            collectChildren(tokens, child);
-//        }
+        for (GlrStack.SyntaxTree child : syntaxTree.children()) {
+            collectChildren(tokens, child);
+        }
         syntaxTree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
                 .collect(Collectors.toCollection(()->tokens));
 
         for (int i = 0; i < tokens.size(); i++) {
             GlrToken token = tokens.get(i);
-            if (rule.params()==null) {
+            if (rule.params()==null || rule.params().size()<=i) {
                 continue;
             }
             Map<String, List<Object>> params = rule.params().get(i);

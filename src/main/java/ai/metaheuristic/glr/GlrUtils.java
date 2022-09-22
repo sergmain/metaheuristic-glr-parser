@@ -367,4 +367,16 @@ def format_tokens(tokens):
         }
         return format_table(table);
     }
+
+    public static void collectChildren(List<GlrToken> list, GlrStack.SyntaxTree syntaxTree) {
+        if (syntaxTree.token()!=null) {
+            list.add(syntaxTree.token());
+        }
+        if (syntaxTree.children()!=null && !syntaxTree.children().isEmpty()) {
+            for (GlrStack.SyntaxTree child : syntaxTree.children()) {
+                collectChildren(list, child);
+            }
+        }
+    }
+
 }

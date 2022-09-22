@@ -215,6 +215,8 @@ public class GlrLablesRegexTest {
         for (GlrStack.SyntaxTree syntaxTree : parsed) {
             System.out.println(GlrUtils.formatSyntaxTree(syntaxTree));
         }
+        System.out.println(GlrUtils.format_tokens(tokens));
+
 
         assertEquals(2, parsed.size());
         GlrStack.SyntaxTree st0 = parsed.get(0);

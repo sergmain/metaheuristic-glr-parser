@@ -7,6 +7,8 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.token.GlrToken;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,5 +38,12 @@ public class UtilsForTesing {
             actual += line;
         }
         return actual;
+    }
+
+    static String asResultString(GlrStack.SyntaxTree syntaxTree) {
+        List<GlrToken> list = new ArrayList<>();
+        GlrUtils.collectChildren(list, syntaxTree);
+        String s = list.stream().map(o->o.inputTerm).collect(Collectors.joining(" "));
+        return s;
     }
 }
