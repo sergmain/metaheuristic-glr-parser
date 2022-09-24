@@ -8,7 +8,6 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
-import ai.metaheuristic.glr.token.GlrWordToken;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -64,6 +63,20 @@ public class GlrLabels {
         final boolean b = glrToken.value.getClass().getSimpleName().equals(labelCheck.value);
         return b;
     }
+
+    String py1 = """
+        def gram_label(value, tokens, i):
+            return value in tokens[i].params
+        """;
+
+    public static boolean gram_label(LabelCheck labelCheck) {
+        final GlrToken glrToken = labelCheck.tokens.get(labelCheck.i);
+        if (glrToken.params == null) {
+            return false;
+        }
+        return glrToken.params.contains(labelCheck.value);
+    }
+
 /*
     String py99 = """
     LABELS_CHECK = {
@@ -87,7 +100,8 @@ public class GlrLabels {
             Map.of(
                     agr_gnc.label,  GlrLabels::agr_gnc_label,
                     regex.label,  GlrLabels::regex_label,
-                    clazz.label,  GlrLabels::class_label
+                    clazz.label,  GlrLabels::class_label,
+                    gram.label,  GlrLabels::gram_label
             )
     );
 
