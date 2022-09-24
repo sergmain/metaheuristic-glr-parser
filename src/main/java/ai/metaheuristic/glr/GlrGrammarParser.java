@@ -76,7 +76,7 @@ public class GlrGrammarParser {
 
     private static final Map<Integer, GlrParser> parser = new HashMap<>();
     private static GlrParser getGlrParser() {
-        return parser.computeIfAbsent(1, (o)->new GlrParser(GLR_BASE_GRAMMAR, 1));
+        return parser.computeIfAbsent(1, (o)->new GlrParser(GLR_BASE_GRAMMAR, 0));
     }
 
     public static GlrGrammar parse(String grammar) {

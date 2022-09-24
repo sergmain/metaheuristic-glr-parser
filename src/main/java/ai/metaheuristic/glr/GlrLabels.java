@@ -61,7 +61,8 @@ public class GlrLabels {
             throw new IllegalStateException("(labelCheck.value==null)");
         }
         final GlrToken glrToken = labelCheck.tokens.get(labelCheck.i);
-        return glrToken.value.getClass().getSimpleName().equals(labelCheck.value);
+        final boolean b = glrToken.value.getClass().getSimpleName().equals(labelCheck.value);
+        return b;
     }
 /*
     String py99 = """
