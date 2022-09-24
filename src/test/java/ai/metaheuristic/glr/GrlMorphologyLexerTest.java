@@ -59,7 +59,7 @@ public class GrlMorphologyLexerTest {
         assertEquals("MONTH", tokens.get(0).symbol);
     }
 
-    private static final GlrLablesRegexTest.StringHolder STR_SEPTEMBER = new GlrLablesRegexTest.StringHolder("сентября");
+    private static final UtilsForTesing.StringHolder STR_SEPTEMBER = new UtilsForTesing.StringHolder("сентября");
 
     @Test
     public void test_57() {

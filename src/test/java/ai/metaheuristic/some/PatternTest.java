@@ -36,4 +36,14 @@ public class PatternTest {
         assertTrue(ss.contains("aaa"));
         assertTrue(ss.contains("bbb"));
     }
+
+
+    public static class StaticInner {
+    }
+
+    @Test
+    public void test_() {
+
+        System.out.println(StaticInner.class.getSimpleName());
+    }
 }

@@ -9,7 +9,6 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
-import ai.metaheuristic.glr.token.IndexPosition;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -25,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class GlrParserDoubleSyntaxTreeTest {
 
-    private static final GlrLablesRegexTest.StringHolder STR_17 = new GlrLablesRegexTest.StringHolder("17");
-    private static final GlrLablesRegexTest.StringHolder STR_SEPTEMBER = new GlrLablesRegexTest.StringHolder("сентября");
+    private static final UtilsForTesing.StringHolder STR_17 = new UtilsForTesing.StringHolder("17");
+    private static final UtilsForTesing.StringHolder STR_SEPTEMBER = new UtilsForTesing.StringHolder("сентября");
 
     public static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
             "MONTH",  List.of("январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"))

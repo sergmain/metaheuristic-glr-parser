@@ -10,7 +10,6 @@ package ai.metaheuristic.glr;
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrWordTokenizer;
 import ai.metaheuristic.glr.token.IndexPosition;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -34,11 +33,11 @@ public class GlrParserWithTerminalsTest {
     @Test
     public void test_65() {
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", new GlrLablesRegexTest.StringHolder("12345"), new IndexPosition(1), "", null),
-                new GlrToken("word", new GlrLablesRegexTest.StringHolder("12"), new IndexPosition(2), "", null),
-                new GlrToken("word", new GlrLablesRegexTest.StringHolder("тест"), new IndexPosition(3), "", null),
-                new GlrToken("word", new GlrLablesRegexTest.StringHolder("2022"), new IndexPosition(4), "", null),
-                new GlrToken("word", new GlrLablesRegexTest.StringHolder("987654321"), new IndexPosition(5), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("12345"), new IndexPosition(1), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("12"), new IndexPosition(2), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("тест"), new IndexPosition(3), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("2022"), new IndexPosition(4), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("987654321"), new IndexPosition(5), "", null),
                 new GlrToken("$", "", new IndexPosition(6), "", null)
         );
         String regexGrammar = """

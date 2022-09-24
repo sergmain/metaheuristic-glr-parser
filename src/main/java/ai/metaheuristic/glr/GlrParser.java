@@ -12,6 +12,7 @@ import ai.metaheuristic.glr.token.GlrToken;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Sergio Lissner
@@ -20,9 +21,26 @@ import java.util.function.Function;
  */
 public class GlrParser {
 
-    public void log(int level, String pattern, Object ... objects) {
+    public void log(int level, String pattern) {
+        log(level, pattern, null);
+    }
+
+    public void logList(int level, String pattern, @Nullable Supplier<List<Object>> objectsFunc) {
+        if (objectsFunc==null) {
+            log(level, pattern);
+        }
+        else {
+            log(level, pattern, () -> objectsFunc.get().toArray(new Object[0]));
+        }
+    }
+    public void log(int level, String pattern, @Nullable Supplier<Object[]> objectsFunc) {
         if (level <= logLevel) {
-            System.out.printf(pattern, objects);
+            if (objectsFunc!=null) {
+                System.out.printf(pattern, objectsFunc.get());
+            }
+            else {
+                System.out.printf(pattern);
+            }
             System.out.println();
         }
     }
@@ -76,7 +94,7 @@ public class GlrParser {
         for (int tokenIndex = 0; tokenIndex < reduceByTokensParams.size(); tokenIndex++) {
             GlrToken token = reduceByTokensParams.get(tokenIndex);
 
-            log(1, "\nTOKEN: %s", token);
+            logList(1, "\nTOKEN: %s", ()->List.of(token));
 
             List<GlrToken> reduceByTokens = new ArrayList<>(List.of(token));
 
@@ -106,11 +124,11 @@ public class GlrParser {
                         }
                         GlrGrammar.Rule rule = grammar.rules.get(action.ruleIndex());
                         // - REDUCE: (word.10) by (#11: Symbol =
-                        log(1, "- REDUCE: (%s) by (%s)", node, GlrUtils.formatRule(rule));
+                        logList(1, "- REDUCE: (%s) by (%s)", ()->List.of(node, GlrUtils.formatRule(rule)));
                         List<GlrStack.StackItem> reducedNodes = node.reduce(actionGotoTable, rule, reduceValidator);
                         newReduceNodes.addAll(reducedNodes);
                         for (GlrStack.StackItem n : reducedNodes) {
-                            log(1, "    %s", GlrUtils.formatStackItem(n, "     "));
+                            logList(1, "     %s", ()->List.of(GlrUtils.formatStackItem(n, "     ")));
                         }
                     }
                     processReduceNodes = newReduceNodes;
@@ -118,7 +136,7 @@ public class GlrParser {
                 }
                 for (NodeAndAction nodeAndAction : getByActionType(current, reduceByToken, "A")) {
                     GlrStack.StackItem node = nodeAndAction.node;
-                    log(1, "- ACCEPT: (%s)", node);
+                    logList(1, "- ACCEPT: (%s)", ()->List.of(node));
                     acceptedNodes.add(node);
                 }
             }
@@ -131,7 +149,7 @@ public class GlrParser {
                     throw new IllegalStateException("(action.state()==null)");
                 }
                 var shiftedNode = node.shift(token, action.state());
-                log(1, "- SHIFT: (%s) to (%s)  =>  %s", node, action.state(), shiftedNode);
+                logList(1, "- SHIFT: (%s) to (%s)  =>  %s", ()->List.of(node, action.state(), shiftedNode));
                 shiftedNodes.add(shiftedNode);
             }
             current = shiftedNodes;
@@ -139,7 +157,7 @@ public class GlrParser {
             log(1, "\n- STACK:");
             for (GlrStack.StackItem node : current) {
                 final String path = GlrUtils.formatStackItem(node, "    ");
-                log(1, "    %s", path);
+                logList(1, "    %s", ()->List.of(path));
             }
             int i=0;
         }
@@ -148,7 +166,7 @@ public class GlrParser {
             if (node.syntaxTree == null) {
                 throw new IllegalStateException("(node.syntax_tree==null)");
             }
-            log(1, "%s", GlrUtils.formatSyntaxTree(node.syntaxTree));
+            logList(1, "%s", ()->List.of(GlrUtils.formatSyntaxTree(node.syntaxTree)));
         }
         return acceptedNodes.stream().map(o->o.syntaxTree).filter(Objects::nonNull).toList();
     }

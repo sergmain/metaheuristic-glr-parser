@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class GlrLablesRegexTest {
 
-    private static final StringHolder STR_17 = new StringHolder("17");
-    private static final StringHolder STR_SEPTEMBER = new StringHolder("сентября");
+    private static final UtilsForTesing.StringHolder STR_17 = new UtilsForTesing.StringHolder("17");
+    private static final UtilsForTesing.StringHolder STR_SEPTEMBER = new UtilsForTesing.StringHolder("сентября");
 
 
     private static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(
@@ -158,13 +158,6 @@ public class GlrLablesRegexTest {
 
     }
 
-    public record StringHolder(String s) implements GlrWordToken {
-        @Override
-        public String getWord() {
-            return s;
-        }
-    }
-
     @Test
     public void test_60() {
         List<GlrToken> rawTokens = List.of(
@@ -200,7 +193,7 @@ public class GlrLablesRegexTest {
                 new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
                 new GlrToken("word", STR_17, new IndexPosition(2), "", null),
                 new GlrToken("word", STR_SEPTEMBER, new IndexPosition(3), "", null),
-                new GlrToken("word", new StringHolder("2022"), new IndexPosition(3), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("2022"), new IndexPosition(3), "", null),
                 new GlrToken("$", "", new IndexPosition(4), "", null)
         );
         String regexGrammar = """
@@ -224,11 +217,11 @@ public class GlrLablesRegexTest {
     @Test
     public void test_62() {
         List<GlrToken> rawTokens = List.of(
-                new GlrToken("word", new StringHolder("12345"), new IndexPosition(1), "", null),
-                new GlrToken("word", new StringHolder("12"), new IndexPosition(2), "", null),
-                new GlrToken("word", new StringHolder("abc"), new IndexPosition(3), "", null),
-                new GlrToken("word", new StringHolder("2022"), new IndexPosition(4), "", null),
-                new GlrToken("word", new StringHolder("987654321"), new IndexPosition(5), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("12345"), new IndexPosition(1), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("12"), new IndexPosition(2), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("abc"), new IndexPosition(3), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("2022"), new IndexPosition(4), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("987654321"), new IndexPosition(5), "", null),
                 new GlrToken("$", "", new IndexPosition(4), "", null)
         );
         String regexGrammar = """
@@ -311,7 +304,7 @@ public class GlrLablesRegexTest {
                 new GlrToken("word", "сегодня", new IndexPosition(1), "", null),
                 new GlrToken("word", STR_17, new IndexPosition(2), "", null),
                 new GlrToken("word", STR_SEPTEMBER, new IndexPosition(3), "", null),
-                new GlrToken("word", new StringHolder("2022"), new IndexPosition(3), "", null),
+                new GlrToken("word", new UtilsForTesing.StringHolder("2022"), new IndexPosition(3), "", null),
                 new GlrToken("$", "", new IndexPosition(4), "", null)
         );
         String regexGrammar = """

@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 public class GlrUtilsTest {
 
-    private static final GlrLablesRegexTest.StringHolder STR_17 = new GlrLablesRegexTest.StringHolder("17");
-    private static final GlrLablesRegexTest.StringHolder STR_SEPTEMBER = new GlrLablesRegexTest.StringHolder("сентября");
+    private static final UtilsForTesing.StringHolder STR_17 = new UtilsForTesing.StringHolder("17");
+    private static final UtilsForTesing.StringHolder STR_SEPTEMBER = new UtilsForTesing.StringHolder("сентября");
 
 
     private static final LinkedHashMap<String, List<String>> dictionaries = new LinkedHashMap<>(Map.of(

@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
+import ai.metaheuristic.glr.token.GlrWordToken;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,6 +22,13 @@ import java.util.stream.Collectors;
  * Time: 3:24 PM
  */
 public class UtilsForTesing {
+    public record StringHolder(String s) implements GlrWordToken {
+        @Override
+        public String getWord() {
+            return s;
+        }
+    }
+
     public static String actionTableAsString(List<LinkedHashMap<String, List<GlrLr.Action>>> actionTable) {
         String actual = "";
         for (int i = 0; i < actionTable.size(); i++) {
