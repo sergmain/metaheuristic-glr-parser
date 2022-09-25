@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.exceptions.GlrLabelRegexException;
 import ai.metaheuristic.glr.token.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Sergio Lissner
@@ -35,6 +37,25 @@ public class GlrLablesRegexTest {
     private static final String SIMPLE_GRAMMAR = """
         S = word<regex=(\\d{1,2})> MONTH
         """;
+
+    @Test
+    public void test_54() {
+        final String SIMPLE_GRAMMAR = """
+        S = Word<regex=^[0-9]*(.[0-9]*)?$>
+        Word = noun
+        Word = word
+        """;
+        String text = "тест";
+
+        GlrTokenizer glrTokenizer = new GlrWordTokenizer();
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer();
+        final List<GlrToken> rawTokens = glrTokenizer.tokenize(text);
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrAutomation automation = new GlrAutomation(SIMPLE_GRAMMAR, "S");
+        assertThrows(GlrLabelRegexException.class, ()-> automation.parse(tokens));
+    }
+
     @Test
     public void test_55() {
         String text = "сегодня 17 сентября и это суббота";

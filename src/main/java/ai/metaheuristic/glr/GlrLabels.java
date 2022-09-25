@@ -7,6 +7,7 @@
 
 package ai.metaheuristic.glr;
 
+import ai.metaheuristic.glr.exceptions.GlrLabelRegexException;
 import ai.metaheuristic.glr.token.GlrToken;
 
 import javax.annotation.Nullable;
@@ -50,9 +51,17 @@ public class GlrLabels {
         }
         final String inputTerm = labelCheck.tokens.get(labelCheck.i).inputTerm;
         Matcher m = patterns.computeIfAbsent(labelCheck.value,
-                regex -> Pattern.compile(regex, Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS)).matcher(inputTerm);
+                GlrLabels::compilePattern).matcher(inputTerm);
         final boolean b = m.find();
         return b;
+    }
+
+    private static Pattern compilePattern(String regex) {
+        final Pattern p = Pattern.compile(regex, Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS);
+        if (p.matcher("").find() || p.matcher("  ").find()) {
+            throw new GlrLabelRegexException("regex: " + regex + " find a positive match even empty string was provided");
+        }
+        return p;
     }
 
     public static boolean class_label(LabelCheck labelCheck) {

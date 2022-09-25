@@ -9,10 +9,13 @@ package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrToken;
 import ai.metaheuristic.glr.token.GlrTextTokenPosition;
+import ai.metaheuristic.glr.token.IndexPosition;
 import company.evo.jmorphy2.MorphAnalyzer;
 import company.evo.jmorphy2.ParsedWord;
 import company.evo.jmorphy2.ResourceFileLoader;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -25,6 +28,29 @@ import static org.junit.jupiter.api.Assertions.*;
  * Time: 7:18 PM
  */
 public class GlrLabelsTest {
+
+    @ToString
+    @RequiredArgsConstructor
+    public static class StaticInner {
+        public final String text;
+    }
+
+    @Test
+    public void test_54() {
+        List<GlrToken> rawTokens = List.of(
+                new GlrToken("word", new StaticInner("12"), new IndexPosition(1), "", null),
+                new GlrToken("word", "тест", new IndexPosition(2), "", null),
+                new GlrToken("word", new StaticInner("12"), new IndexPosition(3), "", null),
+                new GlrToken("$", "", new IndexPosition(3), "", null)
+        );
+
+        GlrMorphologyLexer lexer = new GlrMorphologyLexer();
+        List<GlrToken> tokens = lexer.initMorphology(rawTokens, GlrTagMapper::map);
+
+        GlrLabels.LabelCheck labelCheck = new GlrLabels.LabelCheck("^[0-9]+(.[0-9]+)?$", tokens, 0);
+        boolean b = GlrLabels.LABELS_CHECK.getOrDefault("regex", (v)->false).apply(labelCheck);
+        assertFalse(b);
+    }
 
     @SneakyThrows
     @Test

@@ -10,10 +10,10 @@ package ai.metaheuristic.glr;
 import ai.metaheuristic.glr.token.GlrToken;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Sergio Lissner
@@ -34,7 +34,7 @@ public class GlrAutomation {
         this.parser = new GlrParser(grammar, log_level);
     }
 
-    private static void collectChildren(List<GlrToken> list, GlrStack.SyntaxTree syntaxTree) {
+    private static void collectChildren(LinkedHashSet<GlrToken> list, GlrStack.SyntaxTree syntaxTree) {
         if (syntaxTree.token()!=null) {
             list.add(syntaxTree.token());
         }
@@ -50,15 +50,15 @@ public class GlrAutomation {
             return true;
         }
         GlrGrammar.Rule rule = grammar.rules.get(syntaxTree.ruleIndex());
-        List<GlrToken> tokens = new ArrayList<>();
-        // TODO P0 2022-09-20 because we isn't collecting children recursivelly
-        //  terminal like 'Word = noun' isnt working
+        LinkedHashSet<GlrToken> set = new LinkedHashSet<>();
         for (GlrStack.SyntaxTree child : syntaxTree.children()) {
-            collectChildren(tokens, child);
+            collectChildren(set, child);
         }
         syntaxTree.children().stream()
                 .map(GlrStack.SyntaxTree::token)
-                .collect(Collectors.toCollection(()->tokens));
+                .collect(Collectors.toCollection(()->set));
+
+        List<GlrToken> tokens = new ArrayList<>(set);
 
         for (int i = 0; i < tokens.size(); i++) {
             GlrToken token = tokens.get(i);
