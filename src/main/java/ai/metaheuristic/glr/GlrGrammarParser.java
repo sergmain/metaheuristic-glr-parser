@@ -8,6 +8,7 @@
 package ai.metaheuristic.glr;
 
 import ai.metaheuristic.glr.token.GlrSimpleRegexTokenizer;
+import ai.metaheuristic.glr.utils.ThreadUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -74,9 +75,11 @@ public class GlrGrammarParser {
             new Rule(12,"Symbol", List.of(SYMBOL_RAW_RIGHT_SYMBOLS), false, null, 1.0)
     );
 
-    private static final Map<Integer, GlrParser> parser = new HashMap<>();
+    private static final ThreadUtils.CommonThreadLocker<GlrParser> LOCKER =
+            new ThreadUtils.CommonThreadLocker<>(()->new GlrParser(GLR_BASE_GRAMMAR, 0));
+
     private static GlrParser getGlrParser() {
-        return parser.computeIfAbsent(1, (o)->new GlrParser(GLR_BASE_GRAMMAR, 0));
+        return LOCKER.get();
     }
 
     public static GlrGrammar parse(String grammar) {
