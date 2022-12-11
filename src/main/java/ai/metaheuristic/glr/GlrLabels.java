@@ -12,6 +12,7 @@ import ai.metaheuristic.glr.token.GlrToken;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +44,7 @@ public class GlrLabels {
                && (one.number==another.number  || one.number==null || another.number==null);
     }
 
-    private final static Map<String, Pattern> patterns = new HashMap<>();
+    private final static ConcurrentHashMap<String, Pattern> patterns = new ConcurrentHashMap<>();
 
     public static boolean regex_label(LabelCheck labelCheck) {
         if (labelCheck.value==null) {
